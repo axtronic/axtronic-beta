@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Descargos médicos y de medidas experimentales · AXTRONIC</title>
+<style>
+:root{--bg:#071017;--card:#101A22;--border:#263640;--text:#F4F7FA;--muted:#8FA3B8;--accent:#00D5C5;--warn:#F5B942}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 64px}a{color:var(--accent)}h1{font-size:1.7rem;line-height:1.25}h2{margin-top:2rem;font-size:1.25rem}
+code{background:var(--card);padding:0 4px;border-radius:4px}blockquote{margin:16px 0;padding:4px 16px;background:var(--card);border-left:3px solid var(--accent);border-radius:8px}
+.table{overflow-x:auto}table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.92rem}th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--card)}
+.draft{border:1px solid var(--warn);color:var(--warn);padding:8px 12px;border-radius:8px}nav{font-size:.92rem;color:var(--muted)}
+</style>
+</head>
+<body><main>
+<nav><a href="../">AXTRONIC · Documentos legales</a></nav>
+
+<h1>Descargos médicos y de medidas experimentales</h1>
+<p><strong>Versión 1.0</strong> · Vigente desde: 8 de noviembre de 2026 · Borrador para validación del abogado.</p>
+<div class="table"><table><thead><tr><th>Versión</th><th>Fecha</th><th>Cambio</th></tr></thead><tbody><tr><td>1.0</td><td>2026-11-07</td><td>Calorías y sugerencias del coach, ficha de la comunidad y referencia a la política de salud de Google Play</td></tr><tr><td>0.1</td><td>2026-11-06</td><td>Primer borrador en Claude Docs</td></tr></tbody></table></div>
+<p>Son los textos visibles que sostienen que AXTRONIC es una app de bienestar y no un dispositivo médico (pregunta 6). Marco: Ley General de Salud y NOM-241-SSA1-2025 (COFEPRIS clasifica el software por su finalidad declarada); como referencia, la guía <em>General Wellness</em> de la FDA de EE. UU. (2026). Google Play advierte que las apps que diagnostican, recomiendan tratamientos o vigilan clínicamente pueden ser software de dispositivo médico.</p>
+<p><strong>Regla de redacción en toda la app:</strong> nunca «diagnostica», «detecta», «riesgo de» ni nombres de enfermedades; sin rangos «normales», sin alertas clínicas y sin metas de pérdida de peso (D6). Una prueba automática rechaza las palabras prohibidas en los textos del coach.</p>
+<h2>A. Aviso médico antes del primer entrenamiento</h2>
+<p><em>Pantalla obligatoria, con casilla y versión (<code>spec-producto.md</code> §5.4). Se vuelve a ver en Perfil &gt; Aviso médico.</em></p>
+<blockquote><p><strong>Antes de entrenar</strong></p>
+<p>AXTRONIC te ayuda a entrenar y a mantener el hábito. <strong>No es un servicio ni un dispositivo médico</strong> y no sustituye la opinión de un profesional de la salud.</p>
+<p>Consulta a un médico antes de empezar si alguna de estas situaciones se aplica a ti:</p>
+<ul><li>Te han dicho que tienes un problema del corazón o de presión arterial.</li><li>Has sentido dolor en el pecho, mareos o desmayos al hacer esfuerzo.</li><li>Tienes una lesión, una cirugía reciente o un problema de huesos o articulaciones.</li><li>Estás embarazada, o tienes otra condición que limite tu actividad física.</li></ul>
+<p><strong>Detente de inmediato</strong> si sientes dolor, mareo, falta de aire u opresión en el pecho.</p>
+<p>Entrena en un espacio despejado, con el teléfono bien apoyado. Las indicaciones de técnica son automáticas y pueden equivocarse.</p>
+<p>[ ] Entiendo y acepto. Entreno bajo mi responsabilidad. valorar si alguna respuesta afirmativa debe bloquear el entrenamiento o solo recomendar la consulta. Hoy solo se recomienda, como Peloton y Strava.</p></blockquote>
+<h2>B. Ficha de cada medida del reloj</h2>
+<p><em>Debajo de la cifra, en el teléfono y en la tarjeta del reloj.</em></p>
+<div class="table"><table><thead><tr><th>Medida</th><th>Texto</th></tr></thead><tbody><tr><td>Pulso y zonas</td><td>Estimación del reloj para ajustar la intensidad de tu entrenamiento. Sin valor médico.</td></tr><tr><td>Calorías</td><td>Estimación aproximada a partir de tu pulso, tu peso y la duración.</td></tr><tr><td>Recuperación</td><td>Orientación para decidir cuánto descansar. No es una evaluación de tu salud.</td></tr><tr><td>SpO2 <em>(experimental)</em></td><td>Estimación experimental del reloj, solo informativa. <strong>No la uses para tomar decisiones de salud.</strong> Si te sientes mal, busca atención médica.</td></tr><tr><td>Temperatura de la piel <em>(experimental)</em></td><td>Variación aproximada respecto a tu referencia. No es tu temperatura corporal.</td></tr><tr><td>Variabilidad del pulso <em>(experimental)</em></td><td>Indicador experimental de recuperación. Sin valor médico.</td></tr><tr><td>Composición corporal <em>(experimental)</em></td><td>Estimación por bioimpedancia para seguir tu progreso. Varía con la hidratación y la hora del día. No sustituye una medición profesional.</td></tr></tbody></table></div>
+<p>Las medidas experimentales no están en las versiones distribuidas (requieren el SDK de Samsung y ser partner aprobado).</p>
+<h2>C. Composición corporal antes de medir</h2>
+<blockquote><p>Para medir, el reloj pasa una corriente eléctrica muy débil por tu cuerpo. <strong>No lo uses si llevas marcapasos u otro implante electrónico, o si estás embarazada.</strong> Es una estimación experimental, sin valor médico. contrastar con las contraindicaciones que publique Samsung para su función de bioimpedancia antes de activarla.</p></blockquote>
+<h2>D. Ficha de Google Play (descripción)</h2>
+<p><em>Al final de la descripción larga.</em></p>
+<blockquote><p>AXTRONIC no es un dispositivo médico y no diagnostica, trata, cura ni previene ninguna enfermedad o afección. Las mediciones del reloj son estimaciones de bienestar. Consulta a un profesional de la salud antes de empezar un programa de ejercicio y ante cualquier duda sobre tu salud.</p></blockquote>
+<h2>E. Pie de las sugerencias del coach</h2>
+<blockquote><p>Sugerencia automática según tus entrenamientos. Escucha a tu cuerpo: si algo duele, para.</p></blockquote>
+<h2>F. Molestias</h2>
+<p><em>Junto a la pregunta de molestias al terminar.</em></p>
+<blockquote><p>Lo usamos para evitar esa zona en tus próximas sesiones. No es una valoración médica: si la molestia sigue, consulta a un profesional.</p></blockquote>
+<h2>G. Ejercicios experimentales</h2>
+<blockquote><p>Este ejercicio aún no se ha medido con personas: el conteo puede fallar. Califícalo para ayudarnos a mejorarlo (D9).</p></blockquote>
+</main></body>
+</html>
