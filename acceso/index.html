@@ -144,7 +144,9 @@ footer{margin-top:48px;font-size:.78rem;color:var(--muted)}
       if (!res.ok) throw new Error(data.error || 'server');
       const l = data.links || {};
       link('l-group', l.group); link('l-optin', l.optin); link('l-play', l.play);
-      if (!data.emailed) $('mail-note').textContent = 'Haz los pasos desde aquí. Si ya te habías apuntado, no hace falta volver a pedirlo.';
+      if (!data.emailed) $('mail-note').textContent = data.sentBefore
+        ? 'Ya te enviamos estos pasos a tu correo hace unos minutos. Búscalo como «AXTRONIC» en Principal, Promociones o Spam. Si no aparece, vuelve a pedirlo en 15 minutos.'
+        : 'Haz los pasos desde aquí: ya quedaste registrado.';
       $('ask').hidden = true; $('done').hidden = false; window.scrollTo({ top: 0 });
     } catch (x) {
       err.textContent = MSG[x instanceof TypeError ? 'net' : x.message] || MSG.server;
