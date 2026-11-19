@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="strict-origin">
+<meta name="theme-color" content="#071017">
+<title>AXTRONIC · Acceso anticipado</title>
+<meta name="description" content="Pide tu acceso anticipado a AXTRONIC: la app que cuenta tus repeticiones con la cámara del teléfono.">
+<style>
+@font-face{font-family:Montserrat;font-weight:800;font-display:swap;src:url(fonts/Montserrat_800ExtraBold.ttf) format("truetype")}
+@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url(fonts/Inter_400Regular.ttf) format("truetype")}
+@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url(fonts/Inter_600SemiBold.ttf) format("truetype")}
+:root{--bg:#071017;--card:#0C1820;--line:#1E2E38;--text:#F4F7FA;--muted:#8FA3B8;--soft:#B8C6D3;--accent:#00D5C5;--warn:#F5B942}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:400 16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100svh;
+  background:radial-gradient(120% 60% at 50% -10%,rgba(0,213,197,.16),transparent 60%),var(--bg)}
+main{max-width:460px;margin:0 auto;padding:32px 16px calc(40px + env(safe-area-inset-bottom))}
+.logo{display:block;width:150px;height:auto;margin:0 0 56px}
+.tag{display:flex;align-items:center;gap:10px;font:600 12px/1 Inter,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+.tag::before{content:"";width:22px;height:2px;background:var(--accent)}
+h1{font:800 clamp(2.1rem,9vw,2.75rem)/1.04 Montserrat,Inter,sans-serif;letter-spacing:-.01em;margin:0 0 16px}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{color:var(--soft);margin:0 0 32px;font-size:1.05rem}
+form{display:grid;gap:14px}
+label.f{font:600 .9rem/1 Inter,sans-serif;color:var(--soft)}
+input[type=email]{width:100%;height:56px;padding:0 16px;font:400 1.05rem Inter,sans-serif;color:var(--text);background:var(--card);
+  border:1px solid var(--line);border-radius:14px;outline:none;transition:border-color .15s,box-shadow .15s}
+input[type=email]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,213,197,.18)}
+input[aria-invalid=true]{border-color:var(--warn)}
+.check{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;font-size:.88rem;color:var(--soft);cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent)}
+a{color:var(--accent)}
+button{height:56px;border:0;border-radius:14px;background:var(--accent);color:#071017;font:800 1rem/1 Montserrat,Inter,sans-serif;letter-spacing:.02em;cursor:pointer;
+  box-shadow:0 10px 40px -10px rgba(0,213,197,.55);transition:transform .1s,opacity .15s}
+button:active{transform:scale(.985)}button[disabled]{opacity:.55;cursor:default}
+.err{min-height:1.3em;margin:0;color:var(--warn);font-size:.9rem}
+.trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.needs{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:10px;font-size:.9rem;color:var(--muted)}
+.needs li{display:flex;gap:10px}.needs li::before{content:"";flex:0 0 6px;height:6px;margin-top:.55em;border-radius:50%;background:var(--accent)}
+details{margin:30px 0 0;border-top:1px solid var(--line);padding-top:18px;font-size:.85rem;color:var(--muted)}
+summary{cursor:pointer;color:var(--soft);font-weight:600}
+details p{margin:10px 0 0}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:14px;counter-reset:s}
+.steps li{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;counter-increment:s}
+.steps li::before{content:"Paso " counter(s);display:block;font:600 11px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.steps h2{font:800 1.08rem/1.25 Montserrat,Inter,sans-serif;margin:0 0 6px}
+.steps p{margin:0 0 14px;color:var(--soft);font-size:.92rem}
+.btn{display:inline-flex;align-items:center;height:46px;padding:0 18px;border-radius:12px;background:var(--accent);color:#071017;font:800 .92rem/1 Montserrat,Inter,sans-serif;text-decoration:none}
+.btn.off{background:var(--line);color:var(--muted);pointer-events:none}
+.note{font-size:.9rem;color:var(--soft);margin:22px 0 0}
+footer{margin-top:48px;font-size:.78rem;color:var(--muted)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){.in{animation:in .5s ease both}@keyframes in{from{opacity:0;transform:translateY(8px)}}}
+</style>
+</head>
+<body>
+<main>
+  <svg class="logo" viewBox="0 0 1228 208" role="img" aria-label="AXTRONIC"><g fill="#F4F7FA" fill-rule="evenodd"><path d="M142,20 L245,142 L206,188 L114,188 L143,148 L183,148 L146,101 L81,188 L20,188 Z"/><path d="M172,20 L231,20 L269,65 L308,20 L367,20 L299,101 L372,188 L309,188 Z"/><path d="M379,20 L504,20 L504,60 L452,60 L452,188 L412,188 L412,60 L354,60 Z"/><path d="M514,20 L639,20 L669,50 L669,98 L642,125 L627,125 L681,188 L623,188 L571,125 L554,125 L554,188 L514,188 Z M554,60 L627,60 L631,64 L631,84 L627,88 L554,88 Z"/><path d="M712,20 L798,20 L830,52 L830,155 L798,188 L712,188 L679,155 L679,52 Z M726,60 L784,60 L791,67 L791,141 L784,148 L726,148 L719,141 L719,67 Z"/><path d="M843,20 L876,20 L953,113 L953,20 L993,20 L993,188 L966,188 L883,90 L883,188 L843,188 Z"/><path d="M1007,20 L1047,20 L1047,188 L1007,188 Z"/><path d="M1092,20 L1208,20 L1208,60 L1109,60 L1100,69 L1100,139 L1109,148 L1208,148 L1208,188 L1092,188 L1060,156 L1060,52 Z"/></g></svg>
+
+  <section id="ask" class="in">
+    <p class="tag">Acceso anticipado</p>
+    <h1>Entrena en casa. <em>Cada repetición cuenta.</em></h1>
+    <p class="lead">AXTRONIC cuenta tus repeticiones con la cámara del teléfono y te ayuda con la técnica. El vídeo nunca sale de tu teléfono. Sé de los primeros en usarla.</p>
+
+    <form id="form" novalidate>
+      <label class="f" for="email">Tu cuenta de Gmail</label>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="tunombre@gmail.com" required aria-describedby="err">
+      <div class="trap" aria-hidden="true"><label>Sitio web <input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <label class="check"><input id="consent" type="checkbox" required>
+        <span>He leído el <a href="#aviso" id="ver-aviso">aviso de privacidad</a> y acepto que AXTRONIC use mi correo para darme acceso a la app y escribirme sobre ella.</span></label>
+      <p class="err" id="err" role="alert" aria-live="polite"></p>
+      <button id="send" type="submit">Solicitar mi acceso</button>
+    </form>
+
+    <ul class="needs">
+      <li>Un teléfono Android con Play Store.</li>
+      <li>Una cuenta de Gmail registrada en México y ser mayor de edad.</li>
+      <li>Es gratis. Sin tarjeta.</li>
+    </ul>
+
+    <details id="aviso">
+      <summary>Aviso de privacidad</summary>
+      <p><strong>Carlos Geovanni Andrade Valverde</strong> («AXTRONIC»), con domicilio en Veracruz, México, es responsable de los datos que nos das aquí.</p>
+      <p><strong>Qué datos:</strong> tu correo de Gmail, la fecha y hora en que aceptas este aviso y, si llegas desde una publicación, de cuál vienes.</p>
+      <p><strong>Para qué:</strong> darte acceso anticipado a la app en Google Play y enviarte los pasos para instalarla y avisos sobre ese acceso. No los usamos para publicidad, no los vendemos y no los compartimos con nadie, salvo con Supabase (donde se guardan) y Google (que envía el correo y gestiona el grupo de acceso).</p>
+      <p><strong>Cuánto tiempo:</strong> hasta que la app se publique para todos o hasta que pidas que los borremos.</p>
+      <p><strong>Tus derechos:</strong> puedes pedir acceso, corrección, cancelación u oposición, o retirar tu consentimiento, escribiendo a <a href="mailto:axtronic.fit@gmail.com">axtronic.fit@gmail.com</a>. Si no marcas la casilla no guardamos nada.</p>
+      <p>Aviso de privacidad integral: <a href="https://axtronic.github.io/axtronic-beta/legal/aviso-privacidad/" rel="noopener">léelo aquí</a> (sección «Acceso anticipado»).</p>
+    </details>
+  </section>
+
+  <section id="done" class="in" hidden>
+    <p class="tag">Listo</p>
+    <h1>Ya tienes <em>tu acceso.</em></h1>
+    <p class="lead" id="done-lead">Sigue estos tres pasos con la misma cuenta de Gmail. Te tomará unos dos minutos.</p>
+    <ol class="steps">
+      <li><h2>Únete al grupo de AXTRONIC</h2><p>Pulsa «Unirme al grupo». Es lo que te da acceso a la app.</p><a class="btn" id="l-group" target="_blank" rel="noopener">Unirme al grupo</a></li>
+      <li><h2>Activa tu acceso en Google Play</h2><p>Acepta la invitación para probar AXTRONIC. Si te dice que no existe, espera unos minutos y vuelve a abrirlo.</p><a class="btn" id="l-optin" target="_blank" rel="noopener">Activar mi acceso</a></li>
+      <li><h2>Descarga la app</h2><p>En Play Store, con esa misma cuenta, pulsa «Instalar».</p><a class="btn" id="l-play" target="_blank" rel="noopener">Abrir en Play Store</a></li>
+    </ol>
+    <p class="note" id="mail-note">También te mandamos estos pasos a tu correo. Si no lo ves, revisa «Promociones» o «Spam».</p>
+    <p class="note">Quédate al menos 14 días: así Google nos deja publicar la app para todos. Gracias por ayudarnos.</p>
+  </section>
+
+  <footer>© 2026 AXTRONIC · <a href="mailto:axtronic.fit@gmail.com">axtronic.fit@gmail.com</a></footer>
+</main>
+<script>
+(() => {
+  const ENDPOINT = 'https://eqdjmaarjfsdfomkducz.supabase.co/functions/v1/early-access';
+  const GMAIL = /^[a-z0-9.+_-]{1,64}@(gmail\.com|googlemail\.com)$/;
+  const MSG = {
+    email: 'Escribe una cuenta de Gmail (termina en @gmail.com).',
+    consent: 'Marca la casilla del aviso de privacidad para continuar.',
+    busy: 'Hay muchas solicitudes ahora mismo. Inténtalo en unos minutos.',
+    server: 'Algo falló de nuestro lado. Inténtalo de nuevo en un momento.',
+    net: 'No pudimos conectar. Revisa tu internet e inténtalo otra vez.',
+  };
+  const $ = (id) => document.getElementById(id);
+  const utm = (new URLSearchParams(location.search).get('utm_content') || '').toLowerCase().slice(0, 40);
+  const form = $('form'), email = $('email'), consent = $('consent'), err = $('err'), send = $('send');
+
+  $('ver-aviso').addEventListener('click', (e) => { e.preventDefault(); $('aviso').open = true; $('aviso').scrollIntoView({ behavior: 'smooth' }); });
+  email.addEventListener('input', () => { email.removeAttribute('aria-invalid'); err.textContent = ''; });
+
+  function link(id, url) {
+    const a = $(id);
+    if (url) a.href = url; else { a.classList.add('off'); a.textContent = 'Te llegará por correo'; }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const value = email.value.trim().toLowerCase();
+    if (!GMAIL.test(value)) { email.setAttribute('aria-invalid', 'true'); err.textContent = MSG.email; email.focus(); return; }
+    if (!consent.checked) { err.textContent = MSG.consent; consent.focus(); return; }
+    send.disabled = true; send.textContent = 'Enviando…'; err.textContent = '';
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: value, consent: true, utm_content: utm, website: form.website.value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'server');
+      const l = data.links || {};
+      link('l-group', l.group); link('l-optin', l.optin); link('l-play', l.play);
+      if (!data.emailed) $('mail-note').textContent = 'Haz los pasos desde aquí. Si ya te habías apuntado, no hace falta volver a pedirlo.';
+      $('ask').hidden = true; $('done').hidden = false; window.scrollTo({ top: 0 });
+    } catch (x) {
+      err.textContent = MSG[x instanceof TypeError ? 'net' : x.message] || MSG.server;
+      send.disabled = false; send.textContent = 'Solicitar mi acceso';
+    }
+  });
+})();
+</script>
+</body>
+</html>
