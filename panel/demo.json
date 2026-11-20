@@ -1,0 +1,310 @@
+{
+  "ahora": "2026-11-20T20:30:00Z",
+  "tareas": [
+    {
+      "id": "2f28ee83-0000-4000-8000-000000000001",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "en_curso",
+      "titulo": "El botón Atrás del sistema en la bienvenida cierra la app",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T12:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "4ce462ba-0000-4000-8000-000000000002",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "aprobada",
+      "titulo": "Días activos: Comunidad dice 0 y Tu semana dice 1",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T06:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "72f4d1f6-0000-4000-8000-000000000003",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "revision",
+      "titulo": "Rótulo «Cuenta y privacidad» repetido en Ajustes",
+      "severidad": null,
+      "pr": "https://github.com/axtronic/axtronic/pulls",
+      "updated_at": "2026-11-19T10:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "f91dff62-0000-4000-8000-000000000004",
+      "linea": "L2",
+      "origen": "mejora",
+      "estado": "propuesta",
+      "titulo": "Margen derecho en Clasificaciones",
+      "severidad": "baja",
+      "pr": null,
+      "updated_at": "2026-11-20T06:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "806d8da4-0000-4000-8000-000000000005",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "integrada",
+      "titulo": "«Completar mi perfil» lleva a la estatura",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T03:00:00Z",
+      "closed_at": "2026-11-20T03:00:00Z"
+    },
+    {
+      "id": "2f28ee83-0000-4000-8000-000000000006",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "needs_human",
+      "titulo": "Revisar el conteo de sentadillas de lado",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T12:00:00Z",
+      "closed_at": null
+    },
+    {
+      "id": "2f28ee83-0000-4000-8000-000000000007",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "aprobada",
+      "titulo": "Mostrar el avance al cerrar una sesión",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T12:00:00Z",
+      "closed_at": null
+    }
+  ],
+  "bugs": [
+    {
+      "fuente": "crash",
+      "huella": "0123456789abcdef0123456789abcdef",
+      "titulo": "El entrenamiento se cierra al contar repeticiones",
+      "detalle": "TypeError: cannot read property 'reps' of undefined",
+      "build": 74,
+      "veces": 1,
+      "ultimo": "2026-11-18T15:00:00Z",
+      "tarea_id": null,
+      "tarea_estado": null
+    },
+    {
+      "fuente": "reporte",
+      "huella": "fedcba9876543210fedcba9876543210",
+      "titulo": "La sentadilla de lado pierde repeticiones",
+      "detalle": "Hice 10 sentadillas y contó 7. El comentario contiene <b>etiquetas</b>.",
+      "build": 74,
+      "veces": 1,
+      "ultimo": "2026-11-20T09:00:00Z",
+      "tarea_id": "2f28ee83-0000-4000-8000-000000000006",
+      "tarea_estado": "needs_human"
+    },
+    {
+      "fuente": "ejercicio",
+      "huella": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "titulo": "Salto sin contar al abrir los brazos",
+      "detalle": null,
+      "build": null,
+      "veces": 1,
+      "ultimo": "2026-11-20T20:30:00Z",
+      "tarea_id": null,
+      "tarea_estado": null
+    }
+  ],
+  "decisiones": [
+    {
+      "id": "segmento-wear",
+      "titulo": "¿Subimos el reloj a un segmento propio de Wear OS?",
+      "contexto": "Play lo exige para publicar el AAB del reloj; el build 10 salió sin él.",
+      "opciones": [
+        "Sí, prepáralo",
+        "Después de producción"
+      ],
+      "enlaces": [],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-16T18:00:00Z",
+      "updated_at": "2026-11-16T18:00:00Z"
+    },
+    {
+      "id": "clave-api-l1",
+      "titulo": "Clave de API con tope de 100 USD para fallos automáticos",
+      "contexto": "Sin ella la línea de fallos de la beta sigue apagada.",
+      "opciones": [
+        "La creo hoy",
+        "Por ahora no"
+      ],
+      "enlaces": [],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T22:00:00Z",
+      "updated_at": "2026-11-19T22:00:00Z"
+    },
+    {
+      "id": "dominio",
+      "titulo": "Dominio axtronic",
+      "contexto": "Elegiste registrar el .fit.",
+      "opciones": [],
+      "enlaces": [],
+      "estado": "aplicando",
+      "respuesta": {
+        "opcion": "Registrar .fit"
+      },
+      "created_at": "2026-11-15T10:00:00Z",
+      "updated_at": "2026-11-15T10:00:00Z"
+    },
+    {
+      "id": "texto-bienvenida",
+      "titulo": "Texto de bienvenida",
+      "contexto": "Elegiste acortar el primer mensaje de la beta.",
+      "opciones": [],
+      "enlaces": [],
+      "estado": "aplicando",
+      "respuesta": {
+        "opcion": "Usar la versión corta"
+      },
+      "created_at": "2026-11-15T10:00:00Z",
+      "updated_at": "2026-11-15T10:00:00Z"
+    }
+  ],
+  "recomendaciones": [
+    {
+      "regla": "bug_sin_tarea",
+      "prioridad": 1,
+      "titulo": "El entrenamiento se cierra al contar repeticiones",
+      "evidencia": "Llegó hace 53 h y no tiene tarea.",
+      "accion": {
+        "op": "proponer",
+        "huella": "0123456789abcdef0123456789abcdef"
+      }
+    },
+    {
+      "regla": "verificadores",
+      "prioridad": 1,
+      "titulo": "Faltan verificadores para pedir producción en Play",
+      "evidencia": "5 inscritos de 12 al 20 de noviembre.",
+      "accion": {
+        "op": "ver_play"
+      }
+    },
+    {
+      "regla": "revision_esperando",
+      "prioridad": 2,
+      "titulo": "PR esperando tu revisión: Rótulo «Cuenta y privacidad» repetido en Ajustes",
+      "evidencia": "En revisión desde hace 34 h.",
+      "accion": {
+        "op": "ver_tarea",
+        "id": "72f4d1f6-0000-4000-8000-000000000003"
+      }
+    },
+    {
+      "regla": "aplicando_atascada",
+      "prioridad": 2,
+      "titulo": "Dominio axtronic",
+      "evidencia": "Tu respuesta lleva cinco días en aplicación.",
+      "accion": {
+        "op": "ver_decision",
+        "id": "dominio"
+      }
+    },
+    {
+      "regla": "aplicando_atascada",
+      "prioridad": 2,
+      "titulo": "Texto de bienvenida",
+      "evidencia": "Tu respuesta lleva cinco días en aplicación.",
+      "accion": {
+        "op": "ver_decision",
+        "id": "texto-bienvenida"
+      }
+    }
+  ],
+  "metricas": [
+    ["2026-11-07", "acceso.respuestas_enviadas", 0],
+    ["2026-11-07", "acceso.solicitudes", 0],
+    ["2026-11-07", "beta.instalaciones", 0],
+    ["2026-11-07", "app.cuentas", 0],
+    ["2026-11-07", "app.sesiones_7d", 0],
+    ["2026-11-07", "play.verificadores_inscritos", 0],
+    ["2026-11-08", "acceso.respuestas_enviadas", 0],
+    ["2026-11-08", "acceso.solicitudes", 0],
+    ["2026-11-08", "beta.instalaciones", 0],
+    ["2026-11-08", "app.cuentas", 0],
+    ["2026-11-08", "app.sesiones_7d", 0],
+    ["2026-11-08", "play.verificadores_inscritos", 0],
+    ["2026-11-09", "acceso.respuestas_enviadas", 1],
+    ["2026-11-09", "acceso.solicitudes", 0],
+    ["2026-11-09", "beta.instalaciones", 1],
+    ["2026-11-09", "app.cuentas", 0],
+    ["2026-11-09", "app.sesiones_7d", 1],
+    ["2026-11-09", "play.verificadores_inscritos", 1],
+    ["2026-11-10", "acceso.respuestas_enviadas", 1],
+    ["2026-11-10", "acceso.solicitudes", 0],
+    ["2026-11-10", "beta.instalaciones", 1],
+    ["2026-11-10", "app.cuentas", 0],
+    ["2026-11-10", "app.sesiones_7d", 1],
+    ["2026-11-10", "play.verificadores_inscritos", 1],
+    ["2026-11-11", "acceso.respuestas_enviadas", 1],
+    ["2026-11-11", "acceso.solicitudes", 1],
+    ["2026-11-11", "beta.instalaciones", 2],
+    ["2026-11-11", "app.cuentas", 1],
+    ["2026-11-11", "app.sesiones_7d", 2],
+    ["2026-11-11", "play.verificadores_inscritos", 2],
+    ["2026-11-12", "acceso.respuestas_enviadas", 2],
+    ["2026-11-12", "acceso.solicitudes", 1],
+    ["2026-11-12", "beta.instalaciones", 2],
+    ["2026-11-12", "app.cuentas", 1],
+    ["2026-11-12", "app.sesiones_7d", 2],
+    ["2026-11-12", "play.verificadores_inscritos", 2],
+    ["2026-11-13", "acceso.respuestas_enviadas", 2],
+    ["2026-11-13", "acceso.solicitudes", 1],
+    ["2026-11-13", "beta.instalaciones", 2],
+    ["2026-11-13", "app.cuentas", 1],
+    ["2026-11-13", "app.sesiones_7d", 2],
+    ["2026-11-13", "play.verificadores_inscritos", 2],
+    ["2026-11-14", "acceso.respuestas_enviadas", 2],
+    ["2026-11-14", "acceso.solicitudes", 1],
+    ["2026-11-14", "beta.instalaciones", 3],
+    ["2026-11-14", "app.cuentas", 1],
+    ["2026-11-14", "app.sesiones_7d", 3],
+    ["2026-11-14", "play.verificadores_inscritos", 3],
+    ["2026-11-15", "acceso.respuestas_enviadas", 2],
+    ["2026-11-15", "acceso.solicitudes", 1],
+    ["2026-11-15", "beta.instalaciones", 3],
+    ["2026-11-15", "app.cuentas", 1],
+    ["2026-11-15", "app.sesiones_7d", 2],
+    ["2026-11-15", "play.verificadores_inscritos", 3],
+    ["2026-11-16", "acceso.respuestas_enviadas", 3],
+    ["2026-11-16", "acceso.solicitudes", 1],
+    ["2026-11-16", "beta.instalaciones", 3],
+    ["2026-11-16", "app.cuentas", 1],
+    ["2026-11-16", "app.sesiones_7d", 2],
+    ["2026-11-16", "play.verificadores_inscritos", 3],
+    ["2026-11-17", "acceso.respuestas_enviadas", 3],
+    ["2026-11-17", "acceso.solicitudes", 2],
+    ["2026-11-17", "beta.instalaciones", 4],
+    ["2026-11-17", "app.cuentas", 2],
+    ["2026-11-17", "app.sesiones_7d", 1],
+    ["2026-11-17", "play.verificadores_inscritos", 4],
+    ["2026-11-18", "acceso.respuestas_enviadas", 3],
+    ["2026-11-18", "acceso.solicitudes", 2],
+    ["2026-11-18", "beta.instalaciones", 4],
+    ["2026-11-18", "app.cuentas", 2],
+    ["2026-11-18", "app.sesiones_7d", 2],
+    ["2026-11-18", "play.verificadores_inscritos", 4],
+    ["2026-11-19", "acceso.respuestas_enviadas", 4],
+    ["2026-11-19", "acceso.solicitudes", 2],
+    ["2026-11-19", "beta.instalaciones", 5],
+    ["2026-11-19", "app.cuentas", 2],
+    ["2026-11-19", "app.sesiones_7d", 3],
+    ["2026-11-19", "play.verificadores_inscritos", 5],
+    ["2026-11-20", "acceso.respuestas_enviadas", 4],
+    ["2026-11-20", "acceso.solicitudes", 2],
+    ["2026-11-20", "beta.instalaciones", 5],
+    ["2026-11-20", "app.cuentas", 2],
+    ["2026-11-20", "app.sesiones_7d", 3],
+    ["2026-11-20", "play.verificadores_inscritos", 5]
+  ]
+}
