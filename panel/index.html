@@ -64,8 +64,9 @@ const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const hace = (f) => { const h = (Date.now() - new Date(f)) / 36e5; return h < 1 ? 'hace minutos' : h < 48 ? `hace ${Math.round(h)} h` : `hace ${Math.round(h / 24)} días`; };
 const aviso = (t) => { const a = $('#aviso'); a.textContent = t; a.classList.add('v'); setTimeout(() => a.classList.remove('v'), 2600); };
 
-let sb, datos, vista = location.hash.slice(1) || 'hoy';
 const VISTAS = { hoy: 'Hoy', decisiones: 'Decidir', bugs: 'Bugs', fabrica: 'Fábrica', tienda: 'Tienda' };
+// Al volver de Google el hash trae la sesión, no una vista.
+let sb, datos, vista = VISTAS[location.hash.slice(1)] ? location.hash.slice(1) : 'hoy';
 
 async function rpc(op, args = {}) {
   if (DEMO) { aviso('Modo demostración: no se guarda nada'); return null; }
