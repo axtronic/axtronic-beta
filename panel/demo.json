@@ -64,7 +64,7 @@
       "titulo": "Revisar el conteo de sentadillas de lado",
       "severidad": null,
       "pr": null,
-      "updated_at": "2026-11-20T12:00:00Z",
+      "updated_at": "2026-11-16T12:00:00Z",
       "closed_at": null
     },
     {
@@ -77,6 +77,17 @@
       "pr": null,
       "updated_at": "2026-11-20T12:00:00Z",
       "closed_at": null
+    },
+    {
+      "id": "2f28ee83-0000-4000-8000-000000000008",
+      "linea": "L2",
+      "origen": "bug",
+      "estado": "descartada",
+      "titulo": "Duplicado del reporte sobre la bienvenida",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-19T12:00:00Z",
+      "closed_at": "2026-11-19T12:00:00Z"
     }
   ],
   "bugs": [
@@ -305,6 +316,364 @@
     ["2026-11-20", "beta.instalaciones", 5],
     ["2026-11-20", "app.cuentas", 2],
     ["2026-11-20", "app.sesiones_7d", 3],
-    ["2026-11-20", "play.verificadores_inscritos", 5]
+    ["2026-11-20", "play.verificadores_inscritos", 5],
+    ["2026-11-07", "redes.publicadas", 0],
+    ["2026-11-07", "redes.programadas", 0],
+    ["2026-11-07", "redes.sin_enviar", 1],
+    ["2026-11-07", "redes.pausadas", 0],
+    ["2026-11-07", "redes.piezas", 1],
+    ["2026-11-07", "play.build", 72],
+    ["2026-11-07", "play.verificadores_lista", 1],
+    ["2026-11-08", "redes.publicadas", 0],
+    ["2026-11-08", "redes.programadas", 0],
+    ["2026-11-08", "redes.sin_enviar", 1],
+    ["2026-11-08", "redes.pausadas", 0],
+    ["2026-11-08", "redes.piezas", 2],
+    ["2026-11-08", "play.build", 72],
+    ["2026-11-08", "play.verificadores_lista", 1],
+    ["2026-11-09", "redes.publicadas", 0],
+    ["2026-11-09", "redes.programadas", 0],
+    ["2026-11-09", "redes.sin_enviar", 1],
+    ["2026-11-09", "redes.pausadas", 0],
+    ["2026-11-09", "redes.piezas", 3],
+    ["2026-11-09", "play.build", 72],
+    ["2026-11-09", "play.verificadores_lista", 2],
+    ["2026-11-10", "redes.publicadas", 0],
+    ["2026-11-10", "redes.programadas", 1],
+    ["2026-11-10", "redes.sin_enviar", 1],
+    ["2026-11-10", "redes.pausadas", 0],
+    ["2026-11-10", "redes.piezas", 4],
+    ["2026-11-10", "play.build", 72],
+    ["2026-11-10", "play.verificadores_lista", 2],
+    ["2026-11-11", "redes.publicadas", 1],
+    ["2026-11-11", "redes.programadas", 1],
+    ["2026-11-11", "redes.sin_enviar", 1],
+    ["2026-11-11", "redes.pausadas", 0],
+    ["2026-11-11", "redes.piezas", 5],
+    ["2026-11-11", "play.build", 72],
+    ["2026-11-11", "play.verificadores_lista", 3],
+    ["2026-11-12", "redes.publicadas", 1],
+    ["2026-11-12", "redes.programadas", 1],
+    ["2026-11-12", "redes.sin_enviar", 2],
+    ["2026-11-12", "redes.pausadas", 0],
+    ["2026-11-12", "redes.piezas", 6],
+    ["2026-11-12", "play.build", 72],
+    ["2026-11-12", "play.verificadores_lista", 3],
+    ["2026-11-13", "redes.publicadas", 1],
+    ["2026-11-13", "redes.programadas", 2],
+    ["2026-11-13", "redes.sin_enviar", 2],
+    ["2026-11-13", "redes.pausadas", 0],
+    ["2026-11-13", "redes.piezas", 7],
+    ["2026-11-13", "play.build", 72],
+    ["2026-11-13", "play.verificadores_lista", 4],
+    ["2026-11-14", "redes.publicadas", 1],
+    ["2026-11-14", "redes.programadas", 2],
+    ["2026-11-14", "redes.sin_enviar", 2],
+    ["2026-11-14", "redes.pausadas", 2],
+    ["2026-11-14", "redes.piezas", 7],
+    ["2026-11-14", "play.build", 73],
+    ["2026-11-14", "play.verificadores_lista", 4],
+    ["2026-11-15", "redes.publicadas", 2],
+    ["2026-11-15", "redes.programadas", 2],
+    ["2026-11-15", "redes.sin_enviar", 2],
+    ["2026-11-15", "redes.pausadas", 2],
+    ["2026-11-15", "redes.piezas", 7],
+    ["2026-11-15", "play.build", 73],
+    ["2026-11-15", "play.verificadores_lista", 5],
+    ["2026-11-16", "redes.publicadas", 2],
+    ["2026-11-16", "redes.programadas", 3],
+    ["2026-11-16", "redes.sin_enviar", 2],
+    ["2026-11-16", "redes.pausadas", 2],
+    ["2026-11-16", "redes.piezas", 7],
+    ["2026-11-16", "play.build", 73],
+    ["2026-11-16", "play.verificadores_lista", 5],
+    ["2026-11-17", "redes.publicadas", 2],
+    ["2026-11-17", "redes.programadas", 3],
+    ["2026-11-17", "redes.sin_enviar", 2],
+    ["2026-11-17", "redes.pausadas", 2],
+    ["2026-11-17", "redes.piezas", 7],
+    ["2026-11-17", "play.build", 73],
+    ["2026-11-17", "play.verificadores_lista", 6],
+    ["2026-11-18", "redes.publicadas", 2],
+    ["2026-11-18", "redes.programadas", 3],
+    ["2026-11-18", "redes.sin_enviar", 2],
+    ["2026-11-18", "redes.pausadas", 2],
+    ["2026-11-18", "redes.piezas", 7],
+    ["2026-11-18", "play.build", 73],
+    ["2026-11-18", "play.verificadores_lista", 6],
+    ["2026-11-19", "redes.publicadas", 3],
+    ["2026-11-19", "redes.programadas", 3],
+    ["2026-11-19", "redes.sin_enviar", 2],
+    ["2026-11-19", "redes.pausadas", 2],
+    ["2026-11-19", "redes.piezas", 7],
+    ["2026-11-19", "play.build", 73],
+    ["2026-11-19", "play.verificadores_lista", 7],
+    ["2026-11-20", "redes.publicadas", 3],
+    ["2026-11-20", "redes.programadas", 3],
+    ["2026-11-20", "redes.sin_enviar", 2],
+    ["2026-11-20", "redes.pausadas", 2],
+    ["2026-11-20", "redes.piezas", 7],
+    ["2026-11-20", "play.build", 73],
+    ["2026-11-20", "play.verificadores_lista", 7]
+  ],
+  "eventos_demo": {
+    "2f28ee83-0000-4000-8000-000000000001": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-20T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a en_curso."
+      }
+    ],
+    "4ce462ba-0000-4000-8000-000000000002": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-20T06:00:00Z",
+        "actor": "Dirección",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a aprobada."
+      }
+    ],
+    "72f4d1f6-0000-4000-8000-000000000003": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-19T10:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a revision."
+      }
+    ],
+    "f91dff62-0000-4000-8000-000000000004": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-20T06:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a propuesta."
+      }
+    ],
+    "806d8da4-0000-4000-8000-000000000005": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-20T03:00:00Z",
+        "actor": "Dirección",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a integrada."
+      }
+    ],
+    "2f28ee83-0000-4000-8000-000000000006": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-16T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a needs_human."
+      }
+    ],
+    "2f28ee83-0000-4000-8000-000000000007": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-20T12:00:00Z",
+        "actor": "Dirección",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a aprobada."
+      }
+    ],
+    "2f28ee83-0000-4000-8000-000000000008": [
+      {
+        "at": "2026-11-13T12:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "Entrada",
+        "detalle": "Se recibió la propuesta."
+      },
+      {
+        "at": "2026-11-19T12:00:00Z",
+        "actor": "Dirección",
+        "tipo": "Estado",
+        "detalle": "La tarea pasó a descartada."
+      }
+    ]
+  },
+  "ajustes": {
+    "redes.pausa": {
+      "activa": false,
+      "_al": "2026-11-20T20:30:00Z"
+    },
+    "redes.cola": {
+      "sin_salidas": 1,
+      "piezas": [
+        {
+          "id": "pieza-1",
+          "tipo": "Carrusel",
+          "estado": "publicada",
+          "campana": "Pausa activa",
+          "cta": "Guarda la rutina",
+          "salidas": [
+            {
+              "canal": "instagram",
+              "estado": "publicada",
+              "cuando": "2026-11-19T15:00:00Z",
+              "url": "https://example.com/rutina"
+            },
+            {
+              "canal": "facebook",
+              "estado": "publicada",
+              "cuando": "2026-11-19T16:00:00Z",
+              "url": "https://example.com/pausa"
+            }
+          ]
+        },
+        {
+          "id": "pieza-2",
+          "tipo": "Video corto",
+          "estado": "programada",
+          "campana": "Sentadilla de lado",
+          "cta": "Prueba el ejercicio",
+          "salidas": [
+            {
+              "canal": "youtube",
+              "estado": "publicada",
+              "cuando": "2026-11-20T14:00:00Z",
+              "url": "https://example.com/sentadilla"
+            },
+            {
+              "canal": "tiktok",
+              "estado": "programada",
+              "cuando": "2026-11-21T15:00:00Z",
+              "url": null
+            }
+          ]
+        },
+        {
+          "id": "pieza-3",
+          "tipo": "Encuesta",
+          "estado": "programada",
+          "campana": "Tu lugar para entrenar",
+          "cta": "Vota por tu espacio",
+          "salidas": [
+            {
+              "canal": "x",
+              "estado": "programada",
+              "cuando": "2026-11-21T13:00:00Z",
+              "url": null
+            },
+            {
+              "canal": "instagram",
+              "estado": "programada",
+              "cuando": "2026-11-22T16:00:00Z",
+              "url": null
+            }
+          ]
+        },
+        {
+          "id": "pieza-4",
+          "tipo": "Historia",
+          "estado": "sin_enviar",
+          "campana": "Reto de noviembre",
+          "cta": "Comparte tu avance",
+          "salidas": [
+            {
+              "canal": "instagram",
+              "estado": "sin_enviar",
+              "cuando": null,
+              "url": null
+            }
+          ]
+        },
+        {
+          "id": "pieza-5",
+          "tipo": "Video",
+          "estado": "pausada",
+          "campana": "Primer entrenamiento",
+          "cta": "Conoce la beta",
+          "salidas": [
+            {
+              "canal": "youtube",
+              "estado": "pausada",
+              "cuando": null,
+              "url": null
+            },
+            {
+              "canal": "facebook",
+              "estado": "pausada",
+              "cuando": null,
+              "url": null
+            }
+          ]
+        },
+        {
+          "id": "pieza-6",
+          "tipo": "Texto",
+          "estado": "sin_enviar",
+          "campana": "Sesión de cinco minutos",
+          "cta": "Elige tu horario",
+          "salidas": [
+            {
+              "canal": "x",
+              "estado": "sin_enviar",
+              "cuando": null,
+              "url": null
+            }
+          ]
+        }
+      ],
+      "_al": "2026-11-20T20:30:00Z"
+    }
+  },
+  "versiones": [
+    {
+      "build": 74,
+      "version": "0.8.4",
+      "notas": "Mejoras en la bienvenida.\nAjustes al cierre de sesión.",
+      "publicada": "2026-11-18T17:00:00Z"
+    },
+    {
+      "build": 73,
+      "version": "0.8.3",
+      "notas": "Se actualizó la vista de progreso.",
+      "publicada": "2026-11-13T17:00:00Z"
+    },
+    {
+      "build": 72,
+      "version": "0.8.2",
+      "notas": "Nueva guía para colocar el teléfono.",
+      "publicada": "2026-11-07T17:00:00Z"
+    }
   ]
 }

@@ -157,3 +157,125 @@ textarea {display:block;resize:vertical;width:100%;background:var(--bg);border:1
   background-color:var(--hero-mid);
   border-bottom:1px solid var(--border)
 }
+
+
+.kpi,.plain {text-align:left}
+.plain {width:100%;background:none;border:0;border-radius:4px;padding:0;color:inherit;font:inherit}
+.plain:hover,.plain:focus-visible {color:var(--accent)}
+.spread {display:flex;align-items:center;gap:8px;justify-content:space-between}
+.dial strong {pointer-events:none}
+.dial svg a:focus-visible {outline:2px solid var(--accent)}
+.dial svg .arc {pointer-events:visibleStroke}
+.points {grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:2px}
+.points button {display:grid;place-items:center;min-width:44px;padding:0;background:transparent;border:0}
+.points i {width:24px}
+.timeline button {vertical-align:top}
+#estado i {animation:none}
+nav .secondary-nav {display:none}
+dialog {position:fixed;inset:auto 0 0;width:100%;max-width:100%;max-height:85dvh;margin:0;padding:20px 20px calc(22px + env(safe-area-inset-bottom));border:1px solid var(--border);border-radius:16px 16px 0 0;background:var(--card);color:var(--text);overflow:auto;overscroll-behavior:contain;overflow-wrap:anywhere}
+dialog::backdrop {background:color-mix(in srgb,var(--bg) 78%,transparent)}
+body:has(dialog[open]) {overflow:hidden}
+.drawer-head {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+#detalle-cuerpo>.link {display:block}
+#detalle-cuerpo>small,.events {margin:12px 0}
+#detalle-aviso:empty {display:none}
+table {width:100%;margin:16px 0;border-collapse:collapse;text-align:left}
+td,th {padding:7px 4px;border-bottom:1px solid var(--border)}
+td:last-child,th:last-child {text-align:right}
+caption {text-align:left;color:var(--muted);padding-bottom:8px}
+.events {list-style:none;padding:0 0 0 14px}
+.events li {position:relative;border-left:1px solid var(--border);padding:0 0 18px 20px}
+.events li:before {content:"";position:absolute;left:-5px;top:6px;width:9px;height:9px;background:var(--deep);border-radius:50%}
+.lines {white-space:pre-wrap}
+.calendar {overflow-x:auto;overscroll-behavior-x:contain;padding:6px 3px 12px}
+.factory-scene {display:block;width:100%;height:auto;background:var(--hero-mid);border-radius:12px;isolation:isolate}
+.factory-scene path {stroke-linejoin:round;stroke-linecap:round}
+.slab-edge {fill:var(--bg);stroke:var(--border);stroke-width:2}
+.slab {fill:color-mix(in srgb,var(--surface) 65%,var(--hero-mid));stroke:var(--border);stroke-width:2}
+.floor-grid {fill:none;stroke:var(--muted);stroke-opacity:.19;stroke-width:.8}
+.belt-edge {fill:var(--bg);stroke:var(--bg);stroke-width:2}
+.belt-surface {fill:color-mix(in srgb,var(--muted) 24%,var(--surface));stroke:var(--muted);stroke-width:1}
+.rollers {fill:none;stroke:var(--muted);stroke-width:7;stroke-dasharray:1 13;animation:conveyor 1.45s linear infinite}
+.branch .belt-surface {fill:var(--surface);stroke:var(--border)}
+.branch .rollers {stroke:var(--bad);stroke-width:2;stroke-dasharray:2 5}
+.direction {fill:none;stroke:var(--text);stroke-width:2.3}
+@keyframes conveyor {to {stroke-dashoffset:-14}}
+.iso-left {fill:color-mix(in srgb,currentColor 55%,var(--surface))}
+.iso-right {fill:color-mix(in srgb,currentColor 30%,var(--bg))}
+.iso-top {fill:color-mix(in srgb,currentColor 83%,var(--text))}
+.iso-left,.iso-right,.iso-top {stroke:color-mix(in srgb,currentColor 55%,var(--surface));stroke-width:.85}
+.machine-trim,.verified,.lamp-arm {fill:none;stroke:var(--text);stroke-width:2.4}
+.lamp-arm {stroke-width:3.2}
+.bin-mouth {fill:var(--hero-end);stroke:currentColor;stroke-width:3}
+.pilot {fill:var(--surface);stroke:var(--hero-end)}
+.pilot.lit {fill:var(--accent);animation:pulse 1.8s ease-in-out infinite}
+.station-halo {fill:var(--warn);fill-opacity:.12;stroke:var(--warn);stroke-width:1.7}
+.factory-scene text {text-anchor:middle;font-family:Inter,system-ui,sans-serif;fill:var(--text)}
+.station-name,.station-caption,.held-label,.crate-mark {paint-order:stroke;stroke:var(--hero-mid);stroke-width:4;stroke-linejoin:round}
+.station-name {font-size:17px;font-weight:750}
+.station-caption,.held-label,.badge text {font-size:15px;font-weight:600}
+.factory-scene .held-label {fill:var(--warn);pointer-events:none}
+.badge rect {fill:var(--card);stroke:var(--border)}
+.badge.action rect {fill:var(--warn);stroke:var(--warn)}
+.badge.action text {fill:var(--bg);font-weight:750}
+.factory-scene .crate-mark {fill:var(--bg);stroke:var(--text);stroke-width:1.25;font-weight:900;font-size:11px}
+.held-ring {fill:none;stroke:var(--warn);stroke-width:2;animation:held-pulse 1.9s ease-in-out infinite}
+@keyframes held-pulse {50% {stroke-width:3.5;opacity:.65}}
+.plant-station[role],.crate-anchor {cursor:pointer;touch-action:manipulation}
+.equipment {transition:transform .16s ease-out}
+.plant-station[role]:is(:hover,:focus-visible) .equipment {transform:translateY(-3px)}
+.factory-scene [role=button]:is(:hover,:focus-visible) :is(.iso-left,.iso-right,.iso-top) {stroke:var(--text);stroke-width:1.7}
+.landing {animation:machine-land .2s ease-out var(--arrival) backwards}
+.crate-slide {animation:crate-arrive .21s ease-out var(--arrival) backwards}
+@keyframes machine-land {from {transform:translateY(-12px);opacity:.15}}
+@keyframes crate-arrive {from {transform:translateX(var(--slide,-15px));opacity:.2}}
+.moving-crate {pointer-events:none}
+.mini-plant {display:block;width:100%;padding:0;background:var(--hero-mid)}
+.mini-plant .factory-scene {max-height:275px}
+.mini-plant .total text {font-size:22px;font-weight:750}
+.mini-plant .total rect {y:-18px;height:29px}
+@media(max-width:700px) {
+  .mini-plant .factory-scene {max-height:420px}
+}
+.plant-legend {display:flex;flex-wrap:wrap;gap:6px 16px;margin:14px 0 8px}
+.plant-legend span {display:inline-flex;align-items:center;gap:5px;color:var(--text);font-size:.81rem}
+.plant-legend b {text-align:center;min-width:1.5em;border:1px solid currentColor;border-radius:4px}
+@media(prefers-reduced-motion:reduce) {
+  .factory-scene * {animation:none!important;transition:none!important}
+  .factory-scene .equipment {transform:none!important}
+}
+.brake,.channel {display:flex;align-items:center;gap:12px;justify-content:space-between}
+.brake {flex-wrap:wrap}
+.brake>div {flex:1 1 320px}
+.paused {border-left:4px solid var(--warn);padding:12px;background:var(--surface)}
+.switch {display:inline-flex;align-items:center;gap:8px}
+.switch i {width:32px;height:18px;border-radius:12px;background:var(--muted);padding:3px}
+.switch i:after {content:"";display:block;width:12px;height:12px;border-radius:50%;background:var(--bg)}
+.switch[aria-checked=true] i {background:var(--warn)}
+.switch[aria-checked=true] i:after {margin-left:auto}
+.channel {width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--border);border-radius:0;padding:12px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.channel b {grid-column:1/-1}
+.channel b .icon {margin:0 5px 0 0;color:var(--accent)}
+.ticks small {font-size:.72rem}
+.ticks i {display:block;width:min(100%,calc(var(--ticks) * 7px));height:6px;margin:5px 0;background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)}
+.calendar {display:flex;gap:16px}
+.calendar section {min-width:180px;max-width:260px;border-top:2px solid var(--deep)}
+.calendar ul {list-style:none;padding:0}
+.calendar li {padding:8px 0}
+.output {display:flex;align-items:center;min-height:44px;font-size:.82rem}
+@media(min-width:600px) {
+  .channel {grid-template-columns:1.4fr repeat(4,1fr)}
+  .channel b {grid-column:auto}
+}
+@media(min-width:900px) {
+  nav .secondary-nav {display:flex}
+  nav .more {display:none}
+  dialog {inset:0 0 0 auto;width:min(480px,42vw);height:100dvh;max-height:100dvh;border-radius:16px 0 0 16px;padding:24px}
+}
+
+
+/* El botón de título cubre la tarjeta; los controles secundarios siguen accesibles. */
+:is(article,.lane,.events li):has(>h3>button,>h2>button) {position:relative;isolation:isolate}
+:is(article,.events li)>h3>button::after,.lane>h2>button::after {content:"";position:absolute;inset:0;z-index:1}
+.lane>.item,article :is(.actions,a,label,textarea) {position:relative;z-index:2}
+.board:focus-visible {outline-offset:-2px}
