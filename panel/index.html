@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#071017">
+<title>AXTRONIC · Centro de mando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+<style>
+/* Colores de marca: mismos valores que src/ui/tokens.ts */
+:root{--bg:#071017;--card:#101A22;--surface:#1E2C3A;--border:#263640;--text:#F4F7FA;--muted:#8FA3B8;--accent:#00D5C5;--on:#071017;--ok:#22C997;--warn:#F5B942;--bad:#FF5C69;--soft:#00D5C51F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:16px 16px calc(88px + env(safe-area-inset-bottom))}
+h1{font:800 22px Montserrat,sans-serif;margin:4px 0 0}
+h2{font:600 12px Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:24px 0 8px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.vivo{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.vivo i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulso 2s infinite}
+@keyframes pulso{50%{opacity:.35}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;animation:entra .28s ease both}
+.card:nth-child(2){animation-delay:.04s}.card:nth-child(3){animation-delay:.08s}.card:nth-child(n+4){animation-delay:.12s}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}}
+.hero{background:linear-gradient(160deg,#0A2A30,var(--card) 70%);border-color:#00D5C58C}
+.hero b{font:800 64px/1 Montserrat;color:var(--accent);display:block}
+.fila{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{text-align:left;margin:0}.kpi b{font:800 26px Montserrat;display:block}.kpi span{font-size:12px;color:var(--muted)}
+.t{font-weight:600}.m{color:var(--muted);font-size:13px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--surface);color:var(--muted);margin-right:6px}
+.chip.a{background:var(--soft);color:var(--accent)}.chip.w{background:#F5B9421F;color:var(--warn)}.chip.b{background:#FF5C691F;color:var(--bad)}
+.acc{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font:600 14px Inter;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:10px 14px;min-height:44px;cursor:pointer;transition:transform .12s,opacity .2s}
+button:active{transform:scale(.96)}button:disabled{opacity:.4}
+button.p{background:var(--accent);color:var(--on);border-color:var(--accent)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.barra{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--surface);margin:10px 0 6px}
+.barra i{height:100%;transition:flex-grow .6s ease;flex-grow:0}
+.puntos{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+.puntos i{width:18px;height:18px;border-radius:50%;border:2px solid var(--border)}.puntos i.s{background:var(--accent);border-color:var(--accent)}
+nav{position:fixed;inset:auto 0 0 0;display:flex;background:#0B151Cf2;backdrop-filter:blur(8px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;border-radius:0;color:var(--muted);font-size:12px;min-height:60px;padding:6px 2px}
+nav button[aria-current]{color:var(--accent)}nav button em{font-style:normal;display:block;font:800 16px Montserrat}
+#aviso{position:fixed;left:16px;right:16px;bottom:84px;background:var(--surface);border:1px solid var(--border);padding:12px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;text-align:center}
+#aviso.v{opacity:1}
+textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;font:inherit;margin-top:10px}
+.centro{min-height:70vh;display:grid;place-content:center;text-align:center;gap:14px}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.18s}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"><div class="centro"><p class="m">Cargando…</p></div></main>
+<nav id="nav" hidden></nav>
+<div id="aviso" role="status"></div>
+<script type="module">
+const URL_SB = 'https://eqdjmaarjfsdfomkducz.supabase.co';
+const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg'; // clave publicable: el permiso lo decide public.panel() en el servidor
+const DEMO = new URLSearchParams(location.search).has('demo');
+const $ = (s) => document.querySelector(s);
+// Todo texto que viene de la base pasa por aquí: el detalle de un bug lo escribe un tester.
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const hace = (f) => { const h = (Date.now() - new Date(f)) / 36e5; return h < 1 ? 'hace minutos' : h < 48 ? `hace ${Math.round(h)} h` : `hace ${Math.round(h / 24)} días`; };
+const aviso = (t) => { const a = $('#aviso'); a.textContent = t; a.classList.add('v'); setTimeout(() => a.classList.remove('v'), 2600); };
+
+let sb, datos, vista = location.hash.slice(1) || 'hoy';
+const VISTAS = { hoy: 'Hoy', decisiones: 'Decidir', bugs: 'Bugs', fabrica: 'Fábrica', tienda: 'Tienda' };
+
+async function rpc(op, args = {}) {
+  if (DEMO) { aviso('Modo demostración: no se guarda nada'); return null; }
+  const { data, error } = await sb.rpc('panel', { p_op: op, p_args: args });
+  if (error) throw new Error(error.message);
+  return data;
+}
+const metrica = (clave) => { const m = datos.metricas.filter((x) => x[1] === clave).at(-1); return m ? Number(m[2]) : null; };
+const abiertas = () => datos.tareas.filter((t) => !t.closed_at);
+const pendientes = () => datos.decisiones.filter((d) => d.estado === 'pendiente');
+
+const tarjetaDecision = (d) => `<div class="card"><div class="t">${esc(d.titulo)}</div>
+  <div class="m">${esc(d.contexto)}</div><div class="m">${hace(d.created_at)}${d.respuesta ? ' · respondiste: ' + esc(d.respuesta.opcion) : ''}</div>
+  ${d.estado === 'pendiente' ? `<textarea rows="2" placeholder="Comentario (opcional)" aria-label="Comentario" id="c-${esc(d.id)}"></textarea>
+  <div class="acc">${(d.opciones.length ? d.opciones : ['Hecho']).map((o, i) => `<button class="${i ? '' : 'p'}" data-op="decidir" data-id="${esc(d.id)}" data-opcion="${esc(o)}">${esc(o)}</button>`).join('')}</div>` : `<span class="chip a">${esc(d.estado)}</span>`}</div>`;
+
+const ESTADO = { propuesta: ['Propuesta', 'w'], aprobada: ['Aprobada', 'a'], en_curso: ['En curso', 'a'], revision: ['Para revisar', 'w'], needs_human: ['Te necesita', 'b'], integrada: ['Hecha', ''], rechazada: ['Rechazada', ''], descartada: ['Descartada', ''] };
+const tarjetaTarea = (t) => { const [n, c] = ESTADO[t.estado] ?? [t.estado, '']; return `<div class="card"><span class="chip ${c}">${n}</span><span class="chip">${esc(t.linea)}</span>${t.severidad ? `<span class="chip b">${esc(t.severidad)}</span>` : ''}
+  <div class="t" style="margin-top:6px">${esc(t.titulo)}</div><div class="m">${hace(t.updated_at)}${t.pr ? ` · <a href="${esc(t.pr)}" style="color:var(--accent)">PR</a>` : ''}</div>
+  <div class="acc">${t.estado === 'propuesta' || t.estado === 'needs_human' ? `<button class="p" data-op="mover" data-id="${t.id}" data-a="aprobada">Aprobar</button><button data-op="mover" data-id="${t.id}" data-a="descartada">Descartar</button>` : ''}
+  ${t.estado === 'revision' ? `<button class="p" data-op="mover" data-id="${t.id}" data-a="integrada">Marcar fusionada</button><button data-op="mover" data-id="${t.id}" data-a="rechazada">Rechazar</button>` : ''}</div></div>`; };
+
+const tarjetaBug = (b) => `<div class="card"><span class="chip ${b.tarea_id ? 'a' : 'b'}">${b.tarea_id ? 'Con tarea: ' + esc(b.tarea_estado) : 'Sin atender'}</span><span class="chip">${esc(b.fuente)}</span>
+  <div class="t" style="margin-top:6px">${esc(b.titulo)}</div><div class="m">${esc(b.detalle)}</div>
+  <div class="m">${b.veces} ${b.veces === 1 ? 'vez' : 'veces'} · ${hace(b.ultimo)}${b.build ? ' · build ' + esc(b.build) : ''}</div>
+  ${b.tarea_id ? '' : `<div class="acc"><button class="p" data-op="proponer" data-huella="${esc(b.huella)}" data-severidad="alta">Mandar a la fábrica</button></div>`}</div>`;
+
+function pinta() {
+  const dec = pendientes(), tareas = abiertas(), bugsLibres = datos.bugs.filter((b) => !b.tarea_id);
+  const porAprobar = tareas.filter((t) => ['propuesta', 'needs_human', 'revision'].includes(t.estado));
+  const tuyo = dec.length + porAprobar.length + bugsLibres.length;
+  const hechas = datos.tareas.filter((t) => t.estado === 'integrada').length, total = datos.tareas.length;
+  const verif = metrica('play.verificadores_inscritos');
+  const v = {
+    hoy: () => `<div class="card hero"><span class="m">Esperan tu decisión</span><b>${tuyo}</b>
+        <div class="m">${dec.length} decisiones · ${porAprobar.length} tareas · ${bugsLibres.length} ${bugsLibres.length === 1 ? 'bug' : 'bugs'} sin atender</div>
+        ${tuyo ? `<div class="acc"><button class="p" data-ir="${dec.length ? 'decisiones' : porAprobar.length ? 'fabrica' : 'bugs'}">Resolver ahora</button></div>` : '<div class="m" style="margin-top:8px">Nada depende de ti. La fábrica sigue sola.</div>'}</div>
+      <div class="fila">
+        <button class="card kpi" data-ir="bugs"><b>${datos.bugs.length}</b><span>bugs recibidos</span></button>
+        <button class="card kpi" data-ir="fabrica"><b>${tareas.length}</b><span>tareas abiertas</span></button>
+        <button class="card kpi" data-ir="tienda"><b>${verif ?? '—'}/12</b><span>verificadores</span></button></div>
+      <h2>Recomendaciones</h2>${datos.recomendaciones.map((r) => `<div class="card"><span class="chip ${r.prioridad === 1 ? 'b' : 'w'}">${r.prioridad === 1 ? 'Urgente' : 'Conviene'}</span>
+        <div class="t" style="margin-top:6px">${esc(r.titulo)}</div><div class="m">${esc(r.evidencia)}</div>
+        <div class="acc">${r.accion.op === 'proponer' ? `<button class="p" data-op="proponer" data-huella="${esc(r.accion.huella)}">Mandar a la fábrica</button>` : `<button data-ir="${{ ver_decision: 'decisiones', ver_tarea: 'fabrica', ver_fabrica: 'fabrica', ver_play: 'tienda' }[r.accion.op] ?? 'hoy'}">Ver</button>`}</div></div>`).join('') || '<div class="card m">Sin recomendaciones: ninguna regla se cumple ahora.</div>'}
+      <h2>Fábrica</h2><div class="card"><div class="t">${hechas} de ${total} tareas hechas</div>
+        <div class="barra"><i style="flex-grow:${hechas};background:var(--ok)"></i><i style="flex-grow:${tareas.length};background:var(--accent)"></i><i style="flex-grow:${Math.max(total - hechas - tareas.length, 0)};background:var(--border)"></i></div>
+        <div class="m">Verde: hechas · Turquesa: abiertas · Gris: descartadas o rechazadas</div></div>`,
+    decisiones: () => `<h2>Pendientes (${dec.length})</h2>${dec.map(tarjetaDecision).join('') || '<div class="card m">No hay decisiones pendientes.</div>'}
+      <h2>Respondidas y en marcha</h2>${datos.decisiones.filter((d) => d.estado !== 'pendiente').map(tarjetaDecision).join('') || '<div class="card m">Nada todavía.</div>'}`,
+    bugs: () => `<div class="card"><div class="t">${datos.bugs.length} recibidos · ${bugsLibres.length} sin atender</div>
+        <div class="m">Con tan pocos casos se muestran uno por uno, sin porcentajes. Que no haya reportes no quiere decir que no haya problemas: hay ${metrica('beta.instalaciones') ?? '—'} instalaciones de la beta.</div></div>
+      ${datos.bugs.map(tarjetaBug).join('')}`,
+    fabrica: () => `<h2>Esperan tu visto bueno (${porAprobar.length})</h2>${porAprobar.map(tarjetaTarea).join('') || '<div class="card m">Nada por aprobar.</div>'}
+      <h2>En marcha</h2>${tareas.filter((t) => !porAprobar.includes(t)).map(tarjetaTarea).join('') || '<div class="card m">La fábrica no tiene trabajo en curso.</div>'}
+      <h2>Pedir algo nuevo</h2><div class="card"><textarea id="nueva" rows="2" placeholder="Qué quieres que cambie y dónde" aria-label="Petición nueva"></textarea>
+        <div class="acc"><button class="p" data-op="nueva">Proponer tarea</button></div></div>
+      <h2>Cerradas en 30 días</h2>${datos.tareas.filter((t) => t.closed_at).map(tarjetaTarea).join('') || '<div class="card m">Ninguna.</div>'}`,
+    tienda: () => `<div class="card"><div class="t">Verificadores inscritos: ${verif ?? 'sin dato'} de 12</div>
+        <div class="puntos">${Array.from({ length: 12 }, (_, i) => `<i class="${i < (verif ?? 0) ? 's' : ''}"></i>`).join('')}</div>
+        <div class="m">Google pide 12 verificadores inscritos durante 14 días seguidos para solicitar producción.${verif === null ? ' Este dato lo sube el recolector de la PC; aún no ha corrido.' : ''}</div></div>
+      <div class="fila"><div class="card kpi"><b>${metrica('beta.instalaciones') ?? '—'}</b><span>instalaciones beta</span></div>
+        <div class="card kpi"><b>${metrica('acceso.solicitudes') ?? '—'}</b><span>solicitudes de acceso</span></div>
+        <div class="card kpi"><b>${metrica('app.sesiones_7d') ?? '—'}</b><span>sesiones en 7 días</span></div></div>`,
+  };
+  $('#app').innerHTML = `<header><div><span class="m">AXTRONIC</span><h1>${VISTAS[vista]}</h1></div><span class="vivo"><i></i>${DEMO ? 'Demostración' : 'Al día ' + new Date(datos.ahora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</span></header>${v[vista]()}`;
+  $('#nav').hidden = false;
+  $('#nav').innerHTML = Object.entries(VISTAS).map(([k, n]) => `<button data-ir="${k}" ${k === vista ? 'aria-current="page"' : ''}><em>${{ hoy: tuyo, decisiones: dec.length, bugs: bugsLibres.length, fabrica: porAprobar.length, tienda: (verif ?? '—') }[k]}</em>${n}</button>`).join('');
+}
+const repinta = () => (document.startViewTransition ? document.startViewTransition(pinta) : pinta());
+
+async function carga() {
+  datos = DEMO ? await (await fetch('demo.json')).json() : await rpc('resumen');
+  pinta(); // sin transición: en una pestaña que no dibuja, startViewTransition nunca llama y se queda en «Cargando…»
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.ir) { vista = b.dataset.ir; history.replaceState(null, '', '#' + vista); scrollTo(0, 0); return repinta(); }
+  if (b.id === 'entrar') return sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+  if (b.id === 'salir') { await sb.auth.signOut(); return location.reload(); }
+  const { op, ...a } = b.dataset; if (!op) return;
+  b.disabled = true;
+  try {
+    if (op === 'decidir') a.comentario = document.getElementById('c-' + a.id)?.value;
+    if (op === 'nueva') { const t = $('#nueva').value.trim(); if (t.length < 3) return aviso('Escribe qué quieres cambiar'); await rpc('proponer', { titulo: t }); }
+    else await rpc(op, a);
+    if (!DEMO) { aviso('Hecho'); await carga(); }
+  } catch (err) { aviso(err.message); } finally { b.disabled = false; }
+});
+
+const puerta = (texto, boton) => { $('#nav').hidden = true; $('#app').innerHTML = `<div class="centro"><h1>AXTRONIC</h1><p class="m">${texto}</p>${boton}</div>`; };
+if (DEMO) carga();
+else {
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm');
+  sb = createClient(URL_SB, CLAVE);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) puerta('Centro de mando. Solo la cuenta de AXTRONIC.', '<button class="p" id="entrar">Entrar con Google</button>');
+  else carga().then(() => setInterval(() => document.visibilityState === 'visible' && carga().catch(() => {}), 60000))
+    .catch((err) => puerta(/permiso/.test(err.message) ? 'Esta cuenta no tiene acceso.' : 'No se pudo cargar: ' + esc(err.message), '<button id="salir">Cambiar de cuenta</button>'));
+}
+</script>
+</body>
+</html>
