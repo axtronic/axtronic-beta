@@ -1,11 +1,12 @@
-﻿/* global window, URLSearchParams, location, document, matchMedia, clearTimeout, setTimeout, performance, requestAnimationFrame, fetch, history, scrollTo, setInterval */
+﻿/* global window, navigator, URLSearchParams, location, document, matchMedia, clearTimeout, setTimeout, performance, requestAnimationFrame, fetch, history, scrollTo, setInterval */
 const URL_SB = 'https://eqdjmaarjfsdfomkducz.supabase.co';
 const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg';
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[c]);
-const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda' };
+const views = { hoy:'Hoy', decisiones:'Decidir', acceso:'Acceso', fabrica:'Fábrica', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda' };
 const paths = {
+  acceso:'M4 21a8 8 0 0 1 16 0 M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   hoy:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
   decisiones:'M8 5H4v16h16V5h-4 M8 3h8v4H8z M8 14l3 3 5-6',
   fabrica:'M3 4h5v12H3z M10 4h5v16h-5z M17 4h4v8h-4z',
@@ -27,7 +28,7 @@ const paths = {
   x:'M4 18h15 M4 13h11 M4 8h16',
   flecha:'M4 12h15 M13 6l6 6-6 6'
 };
-const icon = name => `<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="${paths[name] ?? paths.bugs}"/></svg>`;
+const icon = name => `<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="${Object.hasOwn(paths,name)?paths[name]:paths.redes}"/></svg>`;
 const steps = [
   ['acceso.respuestas_enviadas','Respuestas a «ACCESO»'],
   ['acceso.solicitudes','Solicitudes'], ['beta.instalaciones','Instalaciones'],
@@ -116,8 +117,17 @@ function metricHistory(key) {
   }).join('');
   return `<svg class="spark" role="img" aria-label="Mediciones diarias: ${days.map(([day,v])=>esc(date(day))+' '+num(v)).join(', ')}" viewBox="0 0 ${days.length*7} 28" preserveAspectRatio="none">${bars}</svg><small>${esc(date(days[0][0]))} – ${esc(date(days.at(-1)[0]))}</small>`;
 }
+function freshness(value) {
+  if(!value) return '<small class="fresh">Sin fecha del recolector</small>';
+  const dayOnly=/^\d{4}-\d{2}-\d{2}$/.test(value);
+  const hours=dayOnly?(Date.parse(dayKey(data.ahora))-Date.parse(value))/3600000:(Date.parse(data.ahora)-Date.parse(value))/3600000;
+  const days=Math.floor(hours/24);
+  const age=days>=1?`hace ${days} ${days===1?'día':'días'}`:hours>=1?`hace ${Math.floor(hours)} h`:'hoy';
+  return `<small class="fresh ${hours>48?'bad':''}" title="Corte: ${esc(stamp(value))}">Dato de ${age}</small>`;
+}
+const metricFresh=key=>key.startsWith('redes.')||key.startsWith('play.')?freshness(series(key).at(-1)?.[0]):'';
 function metricCard(key,label,symbol,period,value=latest(key)) {
-  return `<button class="kpi" data-detail="metric" data-key="${key}"><span class="metric-name">${icon(symbol)}${label}</span><strong>${count(value)}</strong><small>${period}</small>${metricHistory(key)}</button>`;
+  return `<button class="kpi" data-detail="metric" data-key="${key}"><span class="metric-name">${icon(symbol)}${label}</span><strong>${count(value)}</strong><small>${period}</small>${metricHistory(key)}${metricFresh(key)}</button>`;
 }
 function kpis() {
   return '<section class="kpis">'+[[2,'instalacion'],[1,'solicitudes'],[3,'cuentas'],[4,'ejercicio']].map(([i,symbol])=>
@@ -129,23 +139,58 @@ function funnel() {
     const value = latest(key);
     const bars = value!=null && value < 10 ? Array.from({length:value ?? 0},(_,i)=>`<rect x="${i*100/max}" width="${86/max}" height="6" rx="1"/>`).join('') : `<rect width="${100*(value??0)/max}" height="6" rx="1"/>`;
     return `<li><button class="plain" data-detail="metric" data-key="${key}"><span class="spread"><span>${label}</span><b>${num(value)}</b></span><svg aria-hidden="true" viewBox="0 0 100 6" preserveAspectRatio="none">${bars}</svg></button></li>`;
-  }).join('')}</ol><p class="note">Cada fuente cuenta por separado. Los pasos pueden incluir personas distintas.</p>`,'captacion');
+  }).join('')}</ol><p class="note">Cada fuente cuenta por separado. Los pasos pueden incluir personas distintas.</p>${go('acceso','Ver recorrido por persona')}`,'captacion');
 }
 function storePath() {
   const n = latest('play.verificadores_inscritos');
   const milestones = [['Prueba cerrada','Activa'],['12 verificadores',n==null?'Sin dato':n>=12?'Meta alcanzada':n+' inscritos'],['14 días seguidos','Por confirmar'],['Pedir producción','Por confirmar']];
-  return panel('Camino a la tienda',`<div class="store-number"><strong>${count(n)}</strong> de 12 verificadores</div>
+  return panel('Camino a la tienda',`<div class="store-number">${metricFresh('play.verificadores_inscritos')}<strong>${count(n)}</strong> de 12 verificadores</div>
     <div class="points">${Array.from({length:12},(_,i)=>`<button data-detail="point" data-key="${i+1}" aria-label="Lugar ${i+1} de 12"><i class="${n!=null && i<n?'filled':''}">${i+1}</i></button>`).join('')}</div>
     <p class="note">${n==null?'El recolector de la PC sube el número de inscritos.':'Se necesitan 12 inscritos durante 14 días seguidos.'}</p>
     <ol class="timeline">${milestones.map(([label,status],i)=>`<li class="${i===0 || (i===1 && n>=12)?'done':''}"><button class="plain" data-detail="milestone" data-key="${i}"><b>${label}</b><small>${esc(status)}</small></button></li>`).join('')}</ol>`,'store');
 }
-const destinations = {ver_play:'tienda',ver_decision:'decisiones',ver_fabrica:'fabrica',ver_tarea:'fabrica'};
+const external = (url,label) => typeof url==='string' && url.startsWith('https://')
+  ? `<a class="action-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : '';
+const accessSteps = [['solicito','Pidieron acceso'],['correo','Correo enviado'],['grupo','En el grupo'],['cuenta','Cuenta creada'],['primera_sesion','Primera sesión']];
+const people = () => data.accesos ?? [];
+const lastStep = p => accessSteps.findLastIndex(([field])=>p[field]);
+const dayMs = 86400000;
+const isStuck = p => {
+  const stage=lastStep(p);
+  return stage>=0 && stage<4 && Date.parse(data.ahora)-Date.parse(p[accessSteps[stage][0]])>2*dayMs;
+};
+let accessFilter='all';
+const groupUrl='https://groups.google.com/g/axtronic-acceso/members';
+const playUrl='https://play.google.com/apps/testing/com.axtronic.app';
+function personCard(p,detail=false) {
+  const stage=lastStep(p);
+  const next=['Falta enviarle el primer correo.','Ya se envió el correo. Comprueba si entró al grupo.','Ya confirmaste el grupo. Falta registrar una cuenta con este correo.','Ya tiene cuenta. Falta su primera sesión registrada.','Ya hizo su primera sesión. No requiere seguimiento para empezar a entrenar.'];
+  const subject=encodeURIComponent('Tu acceso anticipado a AXTRONIC');
+  const stepsHtml=accessSteps.map(([field,label])=>`<li class="${p[field]?'done':''}"><b>${label}</b><small>${p[field]?esc(stamp(p[field])):field==='grupo'||field==='solicito'?'No se sabe':'Pendiente'}</small></li>`).join('');
+  return `<article class="item person"><h3>${detail?esc(p.email):detailButton('person',p.id,p.email)}</h3><small>Origen · ${esc(p.origen || 'Directo')} · Correos enviados: ${num(p.correos)}</small><ol class="stepper">${stepsHtml}</ol><p>${next[stage] ?? 'Sin avance registrado.'}</p><div class="actions">${external(groupUrl,'Abrir miembros del grupo')}<button data-op="grupo" data-id="${esc(p.id)}" data-en="${!p.grupo}">${p.grupo?'Quitar la marca':'Marcar que ya está en el grupo'}</button><a class="action-link" href="mailto:${esc(encodeURIComponent(p.email))}?subject=${esc(subject)}">Escribirle</a><button data-copy="${esc(p.email)}">Copiar correo</button>${external(playUrl,'Ver la prueba en Google Play')}</div></article>`;
+}
+function accessView() {
+  const rows=people();
+  const filterButton=(key,label,n)=>`<button data-filter="${key}" aria-pressed="${key===accessFilter}">${label} <b>${n}</b></button>`;
+  const filtered=rows.filter(p=>accessFilter==='all'||(accessFilter==='stuck'?isStuck(p):String(lastStep(p))===accessFilter));
+  return panel('Recorrido de acceso',`<div class="access-stages">${accessSteps.map(([field,label],i)=>filterButton(String(i),label,rows.filter(p=>p[field]).length)).join('')}</div><p>Los totales cuentan cada paso registrado. Toca un paso para ver a quienes llegaron hasta ahí.</p><p>El grupo es abierto. Nadie necesita tu aprobación para entrar. Dale seguimiento a quien se atoró y marca su ingreso cuando lo compruebes.</p><p class="note">El servidor desconoce si instalaron la app o activaron la prueba en Google Play. Si usan otra cuenta de Google en la app, no podemos enlazarla con su solicitud. Solo sabemos que entraron al grupo cuando tú lo marcas.</p>`)+
+    panel('Personas',`<div class="actions">${filterButton('all','Todas',rows.length)}${filterButton('stuck','Atoradas',rows.filter(isStuck).length)}</div><div class="people">${filtered.map(p=>personCard(p)).join('') || (rows.length?'<p>Nadie en este paso.</p>':'<p>Cuando llegue la primera solicitud, aquí podrás seguir su recorrido.</p>')}</div>`);
+}
+function stuckCard() {
+  const n=people().filter(isStuck).length;
+  return panel('Personas atoradas',`<strong class="big">${n}</strong><p>Con más de dos días desde su último paso registrado y sin primera sesión.</p><button data-ir="acceso" data-access="stuck">Ver seguimiento</button>`);
+}
 function recItem(r) {
-  const a = r.accion;
-  const target=Object.hasOwn(destinations,a.op)?destinations[a.op]:'hoy';
-  const button = a.op === 'ver_tarea' ? detailButton('task',a.id,'Ver tarea','link') : a.op === 'proponer' ? `<button data-op="proponer" data-huella="${esc(a.huella)}">Mandar a la fábrica</button>` :
-    `<button data-ir="${target}" data-target="${esc(a.id)}">Ver ${({ver_play:'tienda',ver_decision:'decisión',ver_tarea:'tarea',ver_fabrica:'fábrica'})[a.op] ?? 'detalle'}</button>`;
-  return `<article class="item">${priority(r.prioridad)}<h3>${detailButton('rec',data.recomendaciones.indexOf(r),r.titulo)}</h3><p>${esc(r.evidencia)}</p>${button}</article>`;
+  const a=r.accion;
+  let action='';
+  switch(a.op) {
+    case 'ver_decision': action=detailButton('decision',a.id,'Atender decisión',''); break;
+    case 'ver_tarea': action=detailButton('task',a.id,'Revisar tarea',''); break;
+    case 'proponer': action=`<button data-op="proponer" data-huella="${esc(a.huella)}">Mandar a la fábrica</button>`; break;
+    case 'ver_play': action=external(playUrl,'Abrir la prueba en Google Play')+go('acceso','Dar seguimiento'); break;
+    case 'ver_fabrica': action='<button data-ir="fabrica" data-compose>Proponer tarea</button>'; break;
+  }
+  return `<article class="item">${priority(r.prioridad)}<h3>${detailButton('rec',data.recomendaciones.indexOf(r),r.titulo)}</h3><p>${esc(r.evidencia)}</p>${a.op==='ver_play'?metricFresh('play.verificadores_inscritos'):''}<div class="actions">${action}</div></article>`;
 }
 const priority = p => p===1 ? chip('Urgente','bad') : p===2 ? chip('Conviene','warn') : chip('Prioridad baja');
 function recommendations() {
@@ -353,6 +398,7 @@ narrowPlant.addEventListener('change',()=>{
   scene.outerHTML=plantScene(Boolean(scene.closest('.mini-plant')));
   if(restoreFocus) [...document.querySelectorAll('.factory-scene [data-detail]')].find(el=>el.dataset.detail===focused.dataset.detail&&el.dataset.key===focused.dataset.key)?.focus({preventScroll:true});
 });
+const taskNext={propuesta:'Aprueba la propuesta o descártala.',needs_human:'Revisa por qué se detuvo y decide si puede continuar.',aprobada:'Espera la pasada de las 03:30 o las 05:30 de la mañana, hora de México.',en_curso:'La fábrica está trabajando. Por ahora no necesitas intervenir.',revision:'Abre el cambio y, después de revisarlo, márcalo como fusionado o recházalo.',integrada:'El cambio ya se integró. No hay acciones pendientes.',rechazada:'El cambio se rechazó. La tarea está cerrada.',descartada:'La propuesta se descartó. La tarea está cerrada.'};
 function taskCard(t,detail=false,expanded=false) {
   const move = (state,label,primary=false)=>`<button class="${primary?'primary':''}" data-op="mover" data-id="${esc(t.id)}" data-a="${state}">${label}</button>`;
   let actions='';
@@ -361,7 +407,7 @@ function taskCard(t,detail=false,expanded=false) {
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
   return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
     <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>
-    ${/^https?:\/\//i.test(t.pr)?`<a href="${esc(t.pr)}">Ver cambio</a>`:''}<div class="actions">${actions}</div></article>`;
+    <h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
 }
 function factory() {
   const lanes=stations.map(([name,states,tone],i)=>states.length ? `<section class="lane"><h2><button class="plain spread" data-detail="station" data-key="${i}"><i class="${tone}"></i>${name}<b>${rowsAt(i).length}</b></button></h2>${rowsAt(i).map(t=>taskCard(t)).join('') || '<small>Sin tareas</small>'}</section>`:'').join('');
@@ -369,18 +415,26 @@ function factory() {
   return plant()+'<h2>Vista de lista</h2><section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
     panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="2"></textarea><button class="primary" data-op="nueva">Proponer tarea</button>');
 }
-function decision(d) {
+function decision(d,detail=false) {
   const age = Math.max(0, Math.floor((new Date(data.ahora)-new Date(d.created_at))/86400000));
-  const options = d.opciones.length ? d.opciones : ['Hecho'];
+  const options = d.opciones ?? [];
+  const prefix=detail===true?'detalle-':'';
   const wait = d.estado==='pendiente';
-  return `<article class="module decision" tabindex="-1" id="item-${esc(d.id)}">${wait?`<small>${num(age)} ${age===1?'día':'días'} esperando</small><div class="age"><i class="${age>=7?'bad':age>=3?'warn':'accent'}" style="width:${100*(age+1)/(age+7)}%"></i></div>`:chip(d.estado)}
-    <h3>${detailButton('decision',d.id,d.titulo)}</h3><p>${esc(d.contexto)}</p>${wait?`<label for="c-${esc(d.id)}">Comentario opcional</label><textarea id="c-${esc(d.id)}" rows="2"></textarea>
-    <div class="actions">${options.map((o,i)=>`<button class="${i?'':'primary'}" data-op="decidir" data-id="${esc(d.id)}" data-opcion="${esc(o)}">${esc(o)}</button>`).join('')}</div>`:d.respuesta?`<p>Elegiste: ${esc(d.respuesta.opcion)}</p>`:''}</article>`;
+  return `<article class="module decision" tabindex="-1" id="${prefix}item-${esc(d.id)}">${wait?`<small>${num(age)} ${age===1?'día':'días'} esperando</small><div class="age"><i class="${age>=7?'bad':age>=3?'warn':'accent'}" style="width:${100*(age+1)/(age+7)}%"></i></div>`:chip(d.estado)}
+    <h3>${detail===true?esc(d.titulo):detailButton('decision',d.id,d.titulo)}</h3><p>${esc(d.contexto)}</p>${wait?`<label for="${prefix}c-${esc(d.id)}">Comentario opcional</label><textarea id="${prefix}c-${esc(d.id)}" data-comment rows="2"></textarea>
+    <div class="actions">${options.map((o,i)=>`<button class="${i?'':'primary'}" data-op="decidir" data-id="${esc(d.id)}" data-opcion="${esc(o)}">${esc(o)}</button>`).join('')}</div>`:d.respuesta?`<p>Elegiste: ${esc(d.respuesta.opcion)}</p>`:''}
+    ${d.resolucion?`<p>Qué se hizo · ${esc(d.resolucion)}</p>`:''}
+    <div class="actions">${(d.enlaces??[]).map(e=>external(e.url,e.texto)).join('')}</div>
+    ${d.estado!=='resuelta'?`<label for="${prefix}r-${esc(d.id)}">Qué se hizo (opcional)</label><textarea id="${prefix}r-${esc(d.id)}" data-resolution maxlength="2000" rows="2"></textarea>`:''}
+    <div class="actions">${d.estado!=='resuelta'?`<button data-op="resolver_decision" data-id="${esc(d.id)}">${wait?'Ya está resuelta':'Marcar resuelta'}</button>`:''}${wait?'':`<button data-op="reabrir_decision" data-id="${esc(d.id)}">Reabrir</button>`}</div></article>`;
 }
 function decisions() {
   const groups = [['Aplicando',data.decisiones.filter(d=>d.estado==='aplicando')],['Otras respuestas',data.decisiones.filter(d=>!['pendiente','aplicando'].includes(d.estado))]];
   return `<h2 class="section-title">Pendientes <span>${pending().length}</span></h2><div class="grid">${pending().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(decision).join('') || '<p>Todo atendido.</p>'}</div>`+
     groups.filter(([,rows])=>rows.length).map(([title,rows])=>`<details class="module" data-group="${title}"><summary>${title} · ${rows.length}</summary><div class="grid">${rows.map(decision).join('')}</div></details>`).join('');
+}
+function bugAction(b) {
+  return `<p>${b.tarea_id?'La fábrica ya tiene este caso. Abre la tarea para ver su estado y su historial.':'Al enviarlo se crea una propuesta. Luego podrás aprobarla o descartarla en Fábrica.'}</p><div class="actions">${b.tarea_id?detailButton('task',b.tarea_id,'Ver la tarea',''):`<button data-op="proponer" data-huella="${esc(b.huella)}">Mandar a la fábrica</button>`}</div>`;
 }
 function bugs() {
   const reports = data.bugs.filter(b=>b.fuente==='reporte').reduce((sum,b)=>sum+Number(b.veces),0);
@@ -388,8 +442,7 @@ function bugs() {
   const labels = {reporte:'Reporte',crash:'Fallo automático',ejercicio:'Ejercicio'};
   return panel(detailButton('inbox','','Bandeja de bugs'),`<strong class="big">${count(data.bugs.length)}</strong> casos · ${free().length} sin tarea<p>${num(reports)} ${reports===1?'reporte':'reportes'} ${installs==null?'· instalaciones sin dato':'de '+num(installs)+' instalaciones'}</p>`)+
     `<div class="grid">${data.bugs.map(b=>`<article class="module"><div class="metric-name">${icon(Object.hasOwn(labels,b.fuente)?b.fuente:'bugs')}${esc(Object.hasOwn(labels,b.fuente)?labels[b.fuente]:b.fuente)}</div><h3>${detailButton('bug',b.huella,b.titulo)}</h3><p>${esc(b.detalle)}</p>
-    <small>${num(b.veces)} ${b.veces===1?'vez':'veces'} · ${esc(date(b.ultimo))}${b.build?' · Versión '+esc(b.build):''}</small><div class="actions">${b.tarea_id?
-    `<button data-detail="task" data-key="${esc(b.tarea_id)}">Ver tarea · ${esc(b.tarea_estado)}</button>`:`<button class="primary" data-op="proponer" data-huella="${esc(b.huella)}">Mandar a la fábrica</button>`}</div></article>`).join('')}</div>`;
+    <small>${num(b.veces)} ${b.veces===1?'vez':'veces'} · ${esc(date(b.ultimo))}${b.build?' · Versión '+esc(b.build):''}</small>${bugAction(b)}</article>`).join('')}</div>`;
 }
 const channels={instagram:'Instagram',facebook:'Facebook',youtube:'YouTube',tiktok:'TikTok',x:'X'};
 const socialStates=[
@@ -400,7 +453,7 @@ const queue=()=>data.ajustes?.['redes.cola'];
 const pauseSetting=()=>data.ajustes?.['redes.pausa'];
 const releases=()=>data.versiones ?? [];
 const channelName=c=>Object.hasOwn(channels,c)?channels[c]:c;
-const outputLabels={publicada:'Publicada',programada:'Programada',sin_enviar:'Sin enviar',pausada:'Pausada'};
+const outputLabels={publicada:'Publicada',programada:'Programada',sin_enviar:'Sin enviar',pausada:'Pausada',lista:'Lista',pendiente_revision:'Pendiente de revisión',reservada:'Reservada',en_espera:'En espera'};
 const stateName=s=>Object.hasOwn(outputLabels,s)?outputLabels[s]:s;
 const zone='America/Mexico_City';
 function stamp(value) {
@@ -416,13 +469,50 @@ function outputRow(o) {
   return typeof o.url==='string' && o.url.startsWith('https://') ? `<a class="output" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">${label} ↗</a>` : `<span class="output">${label}</span>`;
 }
 function pieces() { return queue()?.piezas ?? []; }
-function pieceCard(p) {
-  return `<article class="item">${chip(p.tipo)} ${chip(p.estado)}<h3>${detailButton('piece',p.id,p.campana || p.id)}</h3><p>${esc(p.cta)}</p>${(p.salidas??[]).map(outputRow).join('')}</article>`;
+const pieceHints={publicada:'Abre la publicación para verla en su red.',programada:'Consulta las fechas por red. Los ajustes de programación se hacen en la sesión de redes.',lista:'Programa la pieza en la sesión de redes.',pendiente_revision:'Aprueba la pieza en la sesión de redes. Hasta entonces no se publica en ningún sitio.',reservada:'Está apartada en el banco. Revisa su destino en la sesión de redes.',en_espera:'Queda en el banco hasta que se retome en la sesión de redes.',pausada:'Consulta el motivo antes de retomarla en la sesión de redes.'};
+function preview(p) {
+  const valid=typeof p.mini==='string' && /^[0-9a-f]{12}\.webp$/.test(p.mini);
+  const type=String(p.tipo || '');
+  const symbol=/video|reel|short/i.test(type)?'youtube':/carrusel|imagen|historia/i.test(type)?'instagram':'reporte';
+  return `<div class="preview"><span>${icon(symbol)} Sin vista previa</span>${valid?`<img loading="lazy" src="media/${esc(p.mini)}" alt="Miniatura de ${esc(type)}: ${esc(p.campana || p.id)}">`:''}</div>`;
+}
+document.addEventListener('error',event=>{
+  if(event.target.matches?.('.preview img')) event.target.remove();
+},true);
+function pieceCard(p,o) {
+  return `<article class="item">${p.estado==='pendiente_revision'?'':preview(p)}${chip(p.tipo)} ${chip(stateName(p.estado))}<h3>${detailButton('piece',p.id,p.campana || p.id)}</h3>${o?outputRow(o):''}</article>`;
+}
+const dayKey=value=>new Intl.DateTimeFormat('sv-SE',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
+function publicationCalendar(outputs) {
+  const today=dayKey(data.ahora),days=new Map([[today,[]]]);
+  for(const row of outputs) {
+    const day=dayKey(row.o.cuando);
+    if(!days.has(day)) days.set(day,[]);
+    days.get(day).push(row);
+  }
+  const mondays=new Set([...days.keys()].map(day=>{
+    const t=Date.parse(day);
+    return t-((new Date(t).getUTCDay()+6)%7)*dayMs;
+  }));
+  return [...mondays].sort((a,b)=>a-b).map(start=>{
+    const cells=Array.from({length:7},(_,i)=>{
+      const day=new Date(start+i*dayMs).toISOString().slice(0,10),rows=days.get(day)??[];
+      const label=new Date(day).toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'});
+      return `<section class="cal-day ${day===today?'today':''} ${rows.length?'':'empty'}"><h4>${esc(label)}${day===today?' · Hoy':''}</h4>${rows.map(({p,o})=>{
+        const label=p.campana||p.tipo, published=o.estado==='publicada';
+        return `<div class="cal-entry">${preview(p)}${chip(stateName(o.estado),published?'ok':'accent')}<small>${icon(o.canal)} ${esc(channelName(o.canal))} · ${esc(new Date(o.cuando).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',timeZone:zone}))}</small>${detailButton('piece',p.id,label)}${published?external(o.url,'Ver publicación'):''}</div>`;
+      }).join('') || '<small>Sin publicaciones</small>'}</section>`;
+    });
+    return `<div class="cal-week">${cells.join('')}</div>`;
+  }).join('');
+}
+function pieceLane(title,rows,empty,description='') {
+  return panel(title,description+`<div class="piece-lane">${rows.map(({p,o})=>pieceCard(p,o)).join('') || '<p>'+empty+'</p>'}</div>`);
 }
 function social() {
   const pause=pauseSetting(),q=queue();
   const brake=panel('Freno de publicaciones',`<div class="brake ${pause?.activa?'paused':''}"><div><strong>${pause?.activa?'Publicaciones en pausa desde '+esc(stamp(pause._al)):pause?'Publicaciones habilitadas':'Estado de pausa sin dato'}</strong><p>La tarea de la mañana consulta este freno antes de publicar. Lo ya programado dentro de cada red no se cancela desde aquí.</p></div><button class="switch" role="switch" aria-checked="${!!pause?.activa}" aria-label="Pausa de publicaciones" data-detail="pause"><i></i>${pause?.activa?'Reanudar':'Pausar publicaciones'}</button></div>`);
-  const kpi='<section class="kpis">'+socialStates.map(([,key,title])=>metricCard('redes.'+key,title,'redes','Salidas')).join('')+'</section>';
+  const kpi='<section class="kpis">'+metricCard('redes.piezas','Piezas','redes','En la cola')+socialStates.map(([,key,title])=>metricCard('redes.'+key,title,'redes','Salidas')).join('')+'</section>';
   if(!q) return brake+kpi+panel('Cola de redes','<p>El recolector de la PC aún no la ha subido.</p>');
   const outputs=pieces().flatMap(p=>(p.salidas??[]).map(o=>({p,o})));
   const bars=Object.entries(channels).map(([key,label])=>{
@@ -432,14 +522,15 @@ function social() {
     }).join('');
     return `<button class="channel" data-detail="channel" data-key="${key}"><b>${icon(key)} ${label}</b>${groups}</button>`;
   }).join('');
-  const days=new Map();
-  for(const {p,o} of outputs.filter(({o})=>Number.isFinite(Date.parse(o.cuando))).sort((a,b)=>Date.parse(a.o.cuando)-Date.parse(b.o.cuando))) {
-    const day=new Date(o.cuando).toLocaleDateString('es-MX',{dateStyle:'long',timeZone:zone});
-    if(!days.has(day)) days.set(day,[]);
-    days.get(day).push(`<li>${detailButton('piece',p.id,p.campana || p.tipo)}${outputRow(o)}</li>`);
-  }
-  return brake+kpi+panel('Por red',bars)+panel('Calendario de publicaciones',`<div class="calendar">${[...days].map(([day,list])=>`<section><h3>${esc(day)}</h3><ul>${list.join('')}</ul></section>`).join('') || '<p>Sin salidas con fecha.</p>'}</div>`)+
-    panel(detailButton('metric','redes.piezas','Piezas'),`<div class="grid">${pieces().map(pieceCard).join('') || '<p>Sin piezas en la cola.</p>'}</div><p>${num(q.sin_salidas)} piezas más sin programar</p>`);
+  const dated=outputs.filter(({o})=>Number.isFinite(Date.parse(o.cuando))).sort((a,b)=>Date.parse(a.o.cuando)-Date.parse(b.o.cuando));
+  const byState=state=>pieces().filter(p=>p.estado===state).map(p=>({p}));
+  const bank=pieces().filter(p=>['reservada','en_espera'].includes(p.estado));
+  return brake+kpi+panel('Por red',freshness(q._al)+bars)+panel('Calendario de publicaciones',freshness(q._al)+publicationCalendar(dated))+
+    pieceLane('Lo que viene',dated.filter(({o})=>o.estado==='programada'),'Sin publicaciones programadas.',freshness(q._al))+
+    pieceLane('Listas para programar',byState('lista').filter(({p})=>!p.salidas?.some(o=>o.cuando)),'Sin piezas listas.',freshness(q._al))+
+    pieceLane('Esperan tu revisión',byState('pendiente_revision'),'Sin piezas por revisar.',freshness(q._al)+'<p>Apruébalas en la sesión de redes. Hasta entonces no se publican en ningún sitio.</p>')+
+    (byState('pausada').length?pieceLane('Piezas pausadas',byState('pausada'),'',freshness(q._al)):'')+
+    `<details class="module" data-group="banco"><summary>Banco de piezas · ${bank.length}</summary>${freshness(q._al)}<div class="piece-lane">${bank.map(p=>pieceCard(p)).join('') || '<p>El banco está vacío.</p>'}</div></details>`;
 }
 function versions() {
   const items=releases().map((v,i)=>`<li><small>${esc(stamp(v.publicada))}</small><h3>${detailButton('release',i,'Beta '+v.version+' · Build '+v.build)}</h3><p class="lines">${esc(v.notas)}</p></li>`);
@@ -465,6 +556,7 @@ function closeDetail() {
   if(!drawer.open) return;
   ++detailGeneration;
   drawer.close();
+  $('#detalle-cuerpo').replaceChildren();
   opener?.focus({preventScroll:true});
 }
 drawer.addEventListener('cancel',e=>{e.preventDefault();closeDetail();});
@@ -500,14 +592,24 @@ function metricDetail(key,title,explain='') {
   const target=beta||key==='play.build'?'versiones':socialKey?'redes':'tienda';
   const definition=metricInfo[key] ?? 'Salidas con estado «'+title.toLowerCase()+'» en el corte de redes.';
   const source=beta?'Registro de versiones':socialKey||key.startsWith('play.')?'Recolector de la PC':'Métricas diarias del panel';
-  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${historyTable(rows)}${go(target,'Ver '+views[target])}`);
+  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${go(target,'Ver '+views[target])}`);
 }
 async function openDetail(kind,key) {
   const generation=++detailGeneration;
+  if(kind==='search') {
+    showDetail('Buscar en el panel','<label for="consulta">Buscar</label><input id="consulta" type="search" autocomplete="off"><div id="resultados" aria-live="polite">'+searchResults('')+'</div>');
+    $('#consulta').focus();
+    return;
+  }
   if(kind==='inbox') {
     return showDetail('Bandeja de bugs',`<p>La bandeja agrupa los reportes por huella. Hay ${data.bugs.length} casos y ${free().length} todavía pueden enviarse a la fábrica.</p><small>Resumen del panel · ${esc(stamp(data.ahora))}</small><p>Solo hay datos del corte actual.</p>${free().map(b=>detailButton('bug',b.huella,b.titulo)).join('') || go('bugs','Ver bugs')}`);
   }
-  if(kind==='more') return showDetail('Más',['bugs','versiones','tienda'].map(k=>go(k,views[k])).join(''));
+  if(kind==='person') {
+    const person=people().find(p=>String(p.id)===key);
+    if(person) showDetail(person.email,personCard(person,true));
+    return;
+  }
+  if(kind==='more') return showDetail('Más',['redes','bugs','versiones','tienda'].map(k=>go(k,views[k])).join(''));
   if(kind==='pause') {
     const paused=!!pauseSetting()?.activa;
     return showDetail(paused?'Reanudar publicaciones':'Pausar publicaciones',`<p>${paused?'La tarea de la mañana podrá volver a publicar.':'La tarea de la mañana dejará de publicar mientras el freno esté activo.'} Lo ya programado en cada red conserva su fecha.</p><div class="actions"><button class="primary" data-op="pausar" data-active="${!paused}">Confirmar ${paused?'reanudación':'pausa'}</button><button data-close>Cancelar</button></div>`);
@@ -547,16 +649,16 @@ async function openDetail(kind,key) {
   }
   if(kind==='piece'||kind==='channel') {
     const list=kind==='piece'?pieces().filter(p=>p.id===key):pieces().filter(p=>p.salidas?.some(o=>o.canal===key));
-    const body=list.map(p=>`<article class="item"><h3>${esc(p.campana || p.tipo)}</h3>${chip(p.tipo)} ${chip(p.estado)}<p>${esc(p.cta)}</p>${(p.salidas??[]).filter(o=>kind==='piece'||o.canal===key).map(outputRow).join('')}</article>`).join('');
-    return showDetail(kind==='piece'?'Detalle de pieza':channelName(key),`<small>Cola de publicaciones · ${esc(stamp(queue()?._al))}</small>${body || '<p>Sin salidas para este canal.</p>'}${go('redes','Ver redes')}`);
+    const body=list.map(p=>`<article class="item"><h3>${esc(p.campana || p.tipo)}</h3>${p.estado==='pendiente_revision'?'':preview(p)}${chip(p.tipo)} ${chip(stateName(p.estado))}<p>${esc(Object.hasOwn(pieceHints,p.estado)?pieceHints[p.estado]:'Consulta esta pieza en la sesión de redes.')}</p><p>${esc(p.cta)}</p>${(p.salidas??[]).filter(o=>kind==='piece'||o.canal===key).map(outputRow).join('') || '<small>Sin salidas registradas.</small>'}</article>`).join('');
+    return showDetail(kind==='piece'?'Detalle de pieza':channelName(key),`${freshness(queue()?._al)}<small>Cola de publicaciones · ${esc(stamp(queue()?._al))}</small>${body || '<p>Sin salidas para este canal.</p>'}${go('redes','Ver redes')}`);
   }
   if(kind==='decision') {
     const d=data.decisiones.find(row=>row.id===key);
-    return showDetail(d.titulo,`<p>${esc(d.contexto)}</p>${chip(d.estado)}<small>Registro de decisiones · ${esc(stamp(d.created_at))}</small><button data-ir="decisiones" data-target="${esc(d.id)}">Ver decisión y respuestas</button>`);
+    return d && showDetail(d.titulo,decision(d,true));
   }
   if(kind==='bug') {
     const b=data.bugs.find(row=>row.huella===key);
-    return showDetail(b.titulo,`<p>${esc(b.detalle)}</p><small>Bandeja de bugs · ${esc(stamp(b.ultimo))} · ${num(b.veces)} apariciones</small>${b.tarea_id?detailButton('task',b.tarea_id,'Ver tarea'):`<button data-op="proponer" data-huella="${esc(b.huella)}">Mandar a la fábrica</button>`}`);
+    return showDetail(b.titulo,`<p>${esc(b.detalle)}</p><small>Bandeja de bugs · ${esc(stamp(b.ultimo))} · ${num(b.veces)} apariciones</small>${bugAction(b)}`);
   }
   if(kind==='rec') {
     const row=data.recomendaciones[key];
@@ -567,11 +669,42 @@ async function openDetail(kind,key) {
     return showDetail('Beta '+v.version,`<small>Registro de versiones · ${esc(stamp(v.publicada))}</small><strong class="big">Build ${num(v.build)}</strong><p class="lines">${esc(v.notas)}</p>${go('versiones','Ver versiones')}`);
   }
 }
+function todayList() {
+  const queues=[
+    pending().slice().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(d=>['Decisión',d.titulo,detailButton('decision',d.id,'Elegir respuesta','')]),
+    free().map(b=>['Bug',b.titulo,`<button data-op="proponer" data-huella="${esc(b.huella)}">Mandar a la fábrica</button>`]),
+    data.tareas.filter(t=>t.estado==='propuesta').map(t=>['Tarea',t.titulo,`<button data-op="mover" data-id="${esc(t.id)}" data-a="aprobada">Aprobar</button>`]),
+    people().filter(isStuck).sort((a,b)=>Date.parse(a[accessSteps[lastStep(a)][0]])-Date.parse(b[accessSteps[lastStep(b)][0]])).map(p=>['Acceso',p.email,detailButton('person',p.id,'Dar seguimiento','')]),
+    pauseSetting()?.activa?[['Redes','Publicaciones en pausa',detailButton('pause','','Revisar el freno','')]]:[]
+  ];
+  const rows=[];
+  while(rows.length<7 && queues.some(q=>q.length)) {
+    for(const q of queues) if(q.length && rows.length<7) rows.push(q.shift());
+  }
+  return panel('Tu lista de hoy',rows.length?`<ol class="today-list">${rows.map(([type,title,action])=>`<li><div><small>${type}</small><b>${esc(title)}</b></div>${action}</li>`).join('')}</ol>`:'<p>Todo atendido por ahora.</p>');
+}
+function searchResults(query) {
+  const norm=text=>String(text??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const terms=norm(query).trim().split(/\s+/);
+  if(!terms[0]) return '<p>Busca por título, correo, campaña o versión.</p>';
+  const entries=[
+    ...data.tareas.map(t=>['task',t.id,'Tarea',t.titulo,[t.estado,t.rama]]),
+    ...data.decisiones.map(d=>['decision',d.id,'Decisión',d.titulo,[d.contexto,d.estado]]),
+    ...people().map(p=>['person',p.id,'Persona',p.email,[p.origen]]),
+    ...pieces().map(p=>['piece',p.id,'Pieza',p.campana || p.id,[p.tipo,stateName(p.estado),p.cta]]),
+    ...releases().map((v,i)=>['release',i,'Versión','Beta '+v.version+' · Build '+v.build,[v.notas]])
+  ];
+  return entries.filter(([,key,type,label,extra])=>terms.every(term=>norm([type,key,label,...extra].join(' ')).includes(term))).map(([kind,key,type,label])=>detailButton(kind,key,type+' · '+label,'search-hit')).join('') || '<p>Sin coincidencias.</p>';
+}
+document.addEventListener('input',e=>{
+  if(e.target.id==='consulta') $('#resultados').innerHTML=searchResults(e.target.value);
+});
 function draw() {
-  const render = {hoy:()=>attention()+kpis()+'<div class="grid">'+funnel()+storePath()+recommendations()+plant(true)+'</div>',
-    decisiones:decisions,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<div class="grid">'+storePath()+funnel()+'</div><section class="kpis">'+metricCard('play.verificadores_lista','Lista de verificadores','cuentas','Correos registrados')+'</section>'};
+  const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
+    decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<div class="grid">'+storePath()+funnel()+'</div><section class="kpis">'+metricCard('play.verificadores_lista','Lista de verificadores','cuentas','Correos registrados')+'</section>'};
+  $('#buscar').hidden=false;
   $('nav').hidden=false;
-  $('nav').innerHTML=Object.entries(views).map(([k,label])=>`<button class="${['bugs','versiones','tienda'].includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${['bugs','versiones','tienda'].includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;
+  $('nav').innerHTML=Object.entries(views).map(([k,label])=>`${k==='hoy'?'<span class="nav-label">Decidir</span>':k==='fabrica'?'<span class="nav-label">Operación</span>':''}<button class="${['redes','bugs','versiones','tienda'].includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${['redes','bugs','versiones','tienda'].includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;
   $('#titulo').textContent=view==='hoy'?'Vista general':views[view];
   $('#app').innerHTML=render[view]();
   if (!reduced.matches && !document.hidden) {
@@ -603,8 +736,8 @@ async function load(refresh=false) {
   }
   if (generation!==request) return;
   // Un refresco conserva el comentario, el foco y los grupos abiertos.
-  if (refresh && (busy || drawer.open || $('#app textarea:focus, #app details[open], #app button:focus, .factory-scene [role="button"]:focus') || [...document.querySelectorAll('textarea')].some(t=>t.value))) return;
-  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (view==='fabrica' && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
+  if (refresh && (busy || drawer.open || $('#app a:focus') || $('#app textarea:focus, #app details[open], #app button:focus, .factory-scene [role="button"]:focus') || [...document.querySelectorAll('textarea')].some(t=>t.value))) return;
+  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
   status();
@@ -692,7 +825,7 @@ function navigate(button) {
   const paint=()=>{
     refreshView();
     scrollTo(0,0);
-    const el=target && document.getElementById('item-'+target);
+    const el=button.hasAttribute('data-compose')?$('#nueva'):target && document.getElementById('item-'+target);
     if (el) {
       const details=el.closest('details');
       if (details) details.open=true;
@@ -707,6 +840,11 @@ function navigate(button) {
   } else paint();
 }
 document.addEventListener('keydown',e=>{
+  if(e.key==='/' && data && !busy && !drawer.open && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest('input,textarea,[contenteditable]')) {
+    e.preventDefault();
+    openDetail('search','');
+    return;
+  }
   if(e.key!=='Enter' && e.key!==' ') return;
   const target=e.target.closest('.factory-scene [role=button]');
   if(!target) return;
@@ -723,6 +861,17 @@ document.addEventListener('click',async e=>{
   if (!b) return;
   if (b.id==='cerrar' || b.hasAttribute('data-close')) return closeDetail();
   if (busy) return;
+  if(b.hasAttribute('data-copy')) {
+    try { await navigator.clipboard.writeText(b.dataset.copy); notice('Copiado'); }
+    catch { notice('No se pudo copiar. Selecciona el correo para copiarlo.'); }
+    return;
+  }
+  if(b.dataset.filter) {
+    accessFilter=b.dataset.filter;
+    refreshView();
+    return;
+  }
+  if(b.dataset.ir==='acceso') accessFilter=b.dataset.access || 'all';
   if (b.dataset.detail) {
     b.focus({preventScroll:true});
     return openDetail(b.dataset.detail,b.dataset.key);
@@ -742,7 +891,10 @@ document.addEventListener('click',async e=>{
       if (titulo.length<3) return notice('Escribe qué quieres cambiar.');
       args={titulo}; break;
     }
-    case 'decidir': args={id,opcion,comentario:document.getElementById('c-'+id).value}; break;
+    case 'decidir': args={id,opcion,comentario:b.closest('article').querySelector('[data-comment]').value}; break;
+    case 'resolver_decision': args={id,resolucion:b.closest('article').querySelector('[data-resolution]').value.trim()}; break;
+    case 'reabrir_decision': args={id}; break;
+    case 'grupo': args={id,en:b.dataset.en==='true'}; break;
     case 'mover': args={id,a}; break;
     case 'proponer': args={huella}; break;
     default: return;
@@ -751,16 +903,19 @@ document.addEventListener('click',async e=>{
   try {
     const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
     if (error) throw Error(error.message);
-    closeDetail();
+    const keepPerson=op==='grupo' && drawer.open && b.isConnected;
+    if(!keepPerson) closeDetail();
     if(op==='mover') await travel(id,a);
     if(op==='nueva' && $('#nueva')?.value.trim()===args.titulo) $('#nueva').value='';
     if(op==='decidir' && document.getElementById('c-'+id)?.value===args.comentario) document.getElementById('c-'+id).value='';
     await load();
+    if(keepPerson && drawer.open && b.isConnected) await openDetail('person',id);
     notice('Cambio guardado.');
   } catch (error) { notice(error.message); }
   finally { busy=false; b.disabled=false; }
 });
 function gate(message,button) {
+  $('#buscar').hidden=true;
   $('nav').hidden=true;
   $('#app').innerHTML=panel('Acceso al panel',`<p>${esc(message)}</p>${button}`);
 }

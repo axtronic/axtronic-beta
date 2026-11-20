@@ -32,7 +32,8 @@
       "severidad": null,
       "pr": "https://github.com/axtronic/axtronic/pulls",
       "updated_at": "2026-11-19T10:00:00Z",
-      "closed_at": null
+      "closed_at": null,
+      "rama": "factory/ajustes-cuenta"
     },
     {
       "id": "f91dff62-0000-4000-8000-000000000004",
@@ -134,7 +135,12 @@
         "Sí, prepáralo",
         "Después de producción"
       ],
-      "enlaces": [],
+      "enlaces": [
+        {
+          "texto": "Abrir Play Console",
+          "url": "https://play.google.com/console/"
+        }
+      ],
       "estado": "pendiente",
       "respuesta": null,
       "created_at": "2026-11-16T18:00:00Z",
@@ -179,6 +185,27 @@
       },
       "created_at": "2026-11-15T10:00:00Z",
       "updated_at": "2026-11-15T10:00:00Z"
+    },
+    {
+      "id": "fecha-encuesta",
+      "titulo": "Fecha de la siguiente encuesta",
+      "contexto": "Elegiste abrir la encuesta el lunes.",
+      "opciones": [
+        "El lunes",
+        "El viernes"
+      ],
+      "enlaces": [
+        {
+          "texto": "Ver el calendario editorial",
+          "url": "https://example.com/calendario"
+        }
+      ],
+      "estado": "respondida",
+      "respuesta": {
+        "opcion": "El lunes"
+      },
+      "created_at": "2026-11-18T14:00:00Z",
+      "updated_at": "2026-11-19T15:00:00Z"
     }
   ],
   "recomendaciones": [
@@ -410,9 +437,9 @@
     ["2026-11-19", "play.verificadores_lista", 7],
     ["2026-11-20", "redes.publicadas", 3],
     ["2026-11-20", "redes.programadas", 3],
-    ["2026-11-20", "redes.sin_enviar", 2],
+    ["2026-11-20", "redes.sin_enviar", 1],
     ["2026-11-20", "redes.pausadas", 2],
-    ["2026-11-20", "redes.piezas", 7],
+    ["2026-11-20", "redes.piezas", 8],
     ["2026-11-20", "play.build", 73],
     ["2026-11-20", "play.verificadores_lista", 7]
   ],
@@ -536,7 +563,7 @@
       "_al": "2026-11-20T20:30:00Z"
     },
     "redes.cola": {
-      "sin_salidas": 1,
+      "sin_salidas": 3,
       "piezas": [
         {
           "id": "pieza-1",
@@ -557,7 +584,8 @@
               "cuando": "2026-11-19T16:00:00Z",
               "url": "https://example.com/pausa"
             }
-          ]
+          ],
+          "mini": "00000000000a.webp"
         },
         {
           "id": "pieza-2",
@@ -578,7 +606,8 @@
               "cuando": "2026-11-21T15:00:00Z",
               "url": null
             }
-          ]
+          ],
+          "mini": "00000000000b.webp"
         },
         {
           "id": "pieza-3",
@@ -599,12 +628,13 @@
               "cuando": "2026-11-22T16:00:00Z",
               "url": null
             }
-          ]
+          ],
+          "mini": "00000000000c.webp"
         },
         {
           "id": "pieza-4",
           "tipo": "Historia",
-          "estado": "sin_enviar",
+          "estado": "lista",
           "campana": "Reto de noviembre",
           "cta": "Comparte tu avance",
           "salidas": [
@@ -614,7 +644,8 @@
               "cuando": null,
               "url": null
             }
-          ]
+          ],
+          "mini": "00000000000d.webp"
         },
         {
           "id": "pieza-5",
@@ -635,22 +666,35 @@
               "cuando": null,
               "url": null
             }
-          ]
+          ],
+          "mini": null
         },
         {
           "id": "pieza-6",
           "tipo": "Texto",
-          "estado": "sin_enviar",
+          "estado": "pendiente_revision",
           "campana": "Sesión de cinco minutos",
           "cta": "Elige tu horario",
-          "salidas": [
-            {
-              "canal": "x",
-              "estado": "sin_enviar",
-              "cuando": null,
-              "url": null
-            }
-          ]
+          "salidas": [],
+          "mini": null
+        },
+        {
+          "id": "pieza-7",
+          "tipo": "Carrusel",
+          "estado": "reservada",
+          "campana": "Rutina para el fin de semana",
+          "cta": "Guarda la rutina",
+          "mini": null,
+          "salidas": []
+        },
+        {
+          "id": "pieza-8",
+          "tipo": "Carrusel",
+          "estado": "en_espera",
+          "campana": "Volver después de una pausa",
+          "cta": "Guarda la rutina",
+          "mini": null,
+          "salidas": []
         }
       ],
       "_al": "2026-11-20T20:30:00Z"
@@ -674,6 +718,74 @@
       "version": "0.8.2",
       "notas": "Nueva guía para colocar el teléfono.",
       "publicada": "2026-11-07T17:00:00Z"
+    }
+  ],
+  "accesos": [
+    {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "email": "alma@example.com",
+      "origen": "Carrusel de bienvenida",
+      "correos": 1,
+      "solicito": "2026-11-12T12:00:00Z",
+      "correo": "2026-11-13T12:00:00Z",
+      "grupo": "2026-11-14T12:00:00Z",
+      "cuenta": "2026-11-15T12:00:00Z",
+      "primera_sesion": "2026-11-16T12:00:00Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000002",
+      "email": "bruno@example.com",
+      "origen": "Video de sentadilla",
+      "correos": 1,
+      "solicito": "2026-11-15T12:00:00Z",
+      "correo": "2026-11-16T12:00:00Z",
+      "grupo": null,
+      "cuenta": null,
+      "primera_sesion": null
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000003",
+      "email": "celia@example.com",
+      "origen": null,
+      "correos": 0,
+      "solicito": "2026-11-19T12:00:00Z",
+      "correo": null,
+      "grupo": null,
+      "cuenta": null,
+      "primera_sesion": null
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "email": "diego@example.com",
+      "origen": null,
+      "correos": 1,
+      "solicito": "2026-11-17T12:00:00Z",
+      "correo": "2026-11-18T12:00:00Z",
+      "grupo": "2026-11-18T12:00:00Z",
+      "cuenta": "2026-11-19T12:00:00Z",
+      "primera_sesion": null
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000005",
+      "email": "elena@example.com",
+      "origen": "Encuesta de horarios",
+      "correos": 1,
+      "solicito": "2026-11-16T12:00:00Z",
+      "correo": "2026-11-17T12:00:00Z",
+      "grupo": "2026-11-19T12:00:00Z",
+      "cuenta": null,
+      "primera_sesion": null
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000006",
+      "email": "felipe@example.com",
+      "origen": "Historia de la beta",
+      "correos": 0,
+      "solicito": "2026-11-20T12:00:00Z",
+      "correo": null,
+      "grupo": null,
+      "cuenta": null,
+      "primera_sesion": null
     }
   ]
 }
