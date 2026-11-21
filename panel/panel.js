@@ -1,11 +1,15 @@
-﻿/* global window, navigator, URLSearchParams, location, document, matchMedia, clearTimeout, setTimeout, performance, requestAnimationFrame, fetch, history, scrollTo, setInterval */
+/* global window, navigator, URLSearchParams, location, document, matchMedia, clearTimeout, setTimeout, performance, requestAnimationFrame, fetch, history, scrollTo, setInterval */
 const URL_SB = 'https://eqdjmaarjfsdfomkducz.supabase.co';
 const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg';
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[c]);
-const views = { hoy:'Hoy', decisiones:'Decidir', acceso:'Acceso', fabrica:'Fábrica', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda' };
+const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda' };
+const primaryViews = ['hoy','decisiones','fabrica','sesiones'];
+const moreViews = Object.keys(views).filter(key=>!primaryViews.includes(key));
 const paths = {
+  sesiones:'M2 12h5l3-8 4 16 3-8h5',
+  equipo:'M9 3h6v5H9z M12 8v5 M5 16v-3h14v3 M2 16h6v5H2z M16 16h6v5h-6z',
   acceso:'M4 21a8 8 0 0 1 16 0 M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   hoy:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
   decisiones:'M8 5H4v16h16V5h-4 M8 3h8v4H8z M8 14l3 3 5-6',
@@ -186,9 +190,8 @@ const playUrl='https://play.google.com/apps/testing/com.axtronic.app';
 function personCard(p,detail=false) {
   const stage=lastStep(p);
   const next=['Falta enviarle el primer correo.','Ya se envió el correo. Comprueba si entró al grupo.','Ya confirmaste el grupo. Falta registrar una cuenta con este correo.','Ya tiene cuenta. Falta su primera sesión registrada.','Ya hizo su primera sesión. No requiere seguimiento para empezar a entrenar.'];
-  const subject=encodeURIComponent('Tu acceso anticipado a AXTRONIC');
   const stepsHtml=accessSteps.map(([field,label])=>`<li class="${p[field]?'done':''}"><b>${label}</b><small>${p[field]?esc(stamp(p[field])):field==='grupo'||field==='solicito'?'No se sabe':'Pendiente'}</small></li>`).join('');
-  return `<article class="item person"><h3>${detail?esc(p.email):detailButton('person',p.id,p.email)}</h3><small>Origen · ${esc(p.origen || 'Directo')} · Correos enviados: ${num(p.correos)}</small><ol class="stepper">${stepsHtml}</ol><p>${next[stage] ?? 'Sin avance registrado.'}</p><div class="actions">${external(groupUrl,'Abrir miembros del grupo')}<button data-op="grupo" data-id="${esc(p.id)}" data-en="${!p.grupo}">${p.grupo?'Quitar la marca':'Marcar que ya está en el grupo'}</button><a class="action-link" href="mailto:${esc(encodeURIComponent(p.email))}?subject=${esc(subject)}">Escribirle</a><button data-copy="${esc(p.email)}">Copiar correo</button>${external(playUrl,'Ver la prueba en Google Play')}</div></article>`;
+  return `<article class="item person"><h3>${detail?esc(p.email):detailButton('person',p.id,p.email)}</h3><small>Origen · ${esc(p.origen || 'Directo')} · Correos enviados: ${num(p.correos)}</small><ol class="stepper">${stepsHtml}</ol><p>${next[stage] ?? 'Sin avance registrado.'}</p><div class="actions">${external(groupUrl,'Abrir miembros del grupo')}<button data-op="grupo" data-id="${esc(p.id)}" data-en="${!p.grupo}">${p.grupo?'Quitar la marca':'Marcar que ya está en el grupo'}</button><a class="action-link" href="mailto:${esc(encodeURIComponent(p.email))}?subject=${esc(encodeURIComponent('Tu acceso anticipado a AXTRONIC'))}">Escribirle</a><button data-copy="${esc(p.email)}">Copiar correo</button>${external(playUrl,'Ver la prueba en Google Play')}</div></article>`;
 }
 function accessView() {
   const rows=people();
@@ -371,7 +374,7 @@ function box(deck,i,t,j,rows) {
   const pile=rows.length>6,[x,y]=slot(deck,i,j,rows.length);
   const delay=stale(t), label=pile?`${rows.length} tareas en ${stations[i][0]}`:[t.titulo,stateNames[t.estado],delay].filter(Boolean).join(' · ');
   const layers=pile?[2,1].map(n=>`<g transform="translate(0 ${n*11.8})">${cube(stateMarks[t.estado])}</g>`).join(''):'';
-  return `<g class="crate-anchor ${stateColors[t.estado]}" transform="translate(${x} ${y})" ${control(pile?'station':'task',pile?i:t.id,label)}><title>${esc(label)}</title><g class="crate-slide">${delay?'<ellipse class="held-ring" cy="-3" rx="16" ry="10"/>':''}${layers}${cube(stateMarks[t.estado])}${pile?badge(-27,String(rows.length),'total'):''}</g></g>`;
+  return `<g class="crate-anchor ${stateColors[t.estado]} ${(pile?!rows.some(taskMatches):!taskMatches(t))?'dimmed':''}" transform="translate(${x} ${y})" ${control(pile?'station':'task',pile?i:t.id,label)}><title>${esc(label)}</title><g class="crate-slide">${delay?'<ellipse class="held-ring" cy="-3" rx="16" ry="10"/>':''}${layers}${cube(stateMarks[t.estado])}${pile?badge(-27,String(rows.length),'total'):''}</g></g>`;
 }
 function plantStation(deck,i,compact) {
   const [name,,tone]=stations[i], rows=rowsAt(i), caption=stationCaption(i,rows);
@@ -426,14 +429,29 @@ function taskCard(t,detail=false,expanded=false) {
   if (['propuesta','needs_human'].includes(t.estado)) actions=move('aprobada','Aprobar',true)+move('descartada','Descartar');
   if (t.estado==='revision') actions=move('integrada','Marcar fusionada',true)+move('rechazada','Rechazar');
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
-  return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
+  return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(segmentName(t.segmento),'accent')} ${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
     <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>
-    <h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
+    ${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
+}
+const segmentKeys=['app','diseno','reloj','datos','redes','publicacion','finanzas','legal','fabrica'];
+let team=null, factorySegment='', openTasksOnly=false, sessionSegment='', sessionFilter='';
+const segmentInfo=key=>team?.segmentos.find(s=>s.clave===key);
+const segmentName=key=>segmentInfo(key)?.nombre || key || 'Sin segmento';
+const openTask=t=>!t.closed_at && !['integrada','rechazada','descartada'].includes(t.estado);
+const taskMatches=t=>(!factorySegment || t.segmento===factorySegment) && (!openTasksOnly || openTask(t));
+function segmentSelector(t) {
+  const options=segmentKeys.map(key=>`<option value="${esc(key)}" ${key===t.segmento?'selected':''}>${esc(segmentName(key))}</option>`).join('');
+  return `<p>La atiende: ${esc(segmentInfo(t.segmento)?.agente || 'Sin agente registrado')}</p><label for="segmento-tarea">Cambiar segmento</label><div class="actions"><select id="segmento-tarea">${t.segmento?'':'<option selected disabled>Elige un segmento</option>'}${options}</select><button data-op="segmentar" data-id="${esc(t.id)}">Guardar segmento</button></div>`;
 }
 function factory() {
-  const lanes=stations.map(([name,states,tone],i)=>states.length ? `<section class="lane"><h2><button class="plain spread" data-detail="station" data-key="${i}"><i class="${tone}"></i>${name}<b>${rowsAt(i).length}</b></button></h2>${rowsAt(i).map(t=>taskCard(t)).join('') || '<small>Sin tareas</small>'}</section>`:'').join('');
-  const others=data.tareas.filter(t=>stageOf(t.estado)<0);
-  return plant()+'<h2>Vista de lista</h2><section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
+  const lanes=stations.map(([name,states,tone],i)=>{
+    if(!states.length) return '';
+    const rows=rowsAt(i).filter(taskMatches);
+    return `<section class="lane"><h2><button class="plain spread" data-detail="station" data-key="${i}"><i class="${tone}"></i>${name}<b>${rows.length}</b></button></h2>${rows.map(t=>taskCard(t)).join('') || '<small>Sin tareas</small>'}</section>`;
+  }).join('');
+  const others=data.tareas.filter(t=>stageOf(t.estado)<0 && taskMatches(t));
+  const filters=['',...segmentKeys].map(k=>`<button data-factory-segment="${esc(k)}" aria-pressed="${factorySegment===k}">${esc(k?segmentName(k):'Todos')}</button>`).join('');
+  return plant()+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
     panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="2"></textarea><button class="primary" data-op="nueva">Proponer tarea</button>');
 }
 function decision(d,detail=false) {
@@ -445,13 +463,106 @@ function decision(d,detail=false) {
     <h3>${detail===true?esc(d.titulo):detailButton('decision',d.id,d.titulo)}</h3><p>${esc(d.contexto)}</p>${wait?`<label for="${prefix}c-${esc(d.id)}">Comentario opcional</label><textarea id="${prefix}c-${esc(d.id)}" data-comment rows="2"></textarea>
     <div class="actions">${options.map((o,i)=>`<button class="${i?'':'primary'}" data-op="decidir" data-id="${esc(d.id)}" data-opcion="${esc(o)}">${esc(o)}</button>`).join('')}</div>`:d.respuesta?`<p>Elegiste: ${esc(d.respuesta.opcion)}</p>`:''}
     ${d.resolucion?`<p>Qué se hizo · ${esc(d.resolucion)}</p>`:''}
-    <div class="actions">${(d.enlaces??[]).map(e=>external(e.url,e.texto)).join('')}</div>
+    <div class="actions">${(d.enlaces??[]).map(e=>e.doc?detailButton('documento',e.doc,e.texto,''):external(e.url,e.texto)).join('')}</div>
     ${d.estado!=='resuelta'?`<label for="${prefix}r-${esc(d.id)}">Qué se hizo (opcional)</label><textarea id="${prefix}r-${esc(d.id)}" data-resolution maxlength="2000" rows="2"></textarea>`:''}
     <div class="actions">${d.estado!=='resuelta'?`<button data-op="resolver_decision" data-id="${esc(d.id)}">${wait?'Ya está resuelta':'Marcar resuelta'}</button>`:''}${wait?'':`<button data-op="reabrir_decision" data-id="${esc(d.id)}">Reabrir</button>`}</div></article>`;
 }
+const sessions=()=>data.sesiones ?? [];
+const sessionTitle=s=>s.tema || 'Sin instrucción todavía';
+const elapsed=s=>Math.max(0,Date.parse(data.ahora)-Date.parse(s.ultima));
+const lostSignal=s=>s.estado==='trabajando' && (!Number.isFinite(elapsed(s)) || elapsed(s)>30*60000);
+const working=s=>s.estado==='trabajando' && !lostSignal(s);
+const activeSession=s=>working(s) || s.estado==='esperando';
+function sessionLink(segment,label,filter='',id='') {
+  return `<button data-ir="sesiones" data-segment="${esc(segment)}" data-session-state="${esc(filter)}" data-target="${esc(id)}">${esc(label)}</button>`;
+}
+function taskLink(segment,label,open=false) {
+  return `<button data-ir="fabrica" data-segment="${esc(segment)}" ${open?'data-only-open':''}>${esc(label)}</button>`;
+}
+function sessionSummary() {
+  const rows=sessions();
+  const silent=rows.filter(lostSignal).length;
+  return panel('Sesiones',`<p><b>${rows.filter(working).length}</b> trabajando ahora · <b>${rows.filter(s=>s.estado==='esperando').length}</b> esperándote${silent?' · '+num(silent)+' sin señal':''}</p>${go('sesiones','Ver sesiones')}`);
+}
+function sessionCard(s) {
+  const minutes=Math.floor(elapsed(s)/60000);
+  const age=!Number.isFinite(minutes)?'Sin fecha':minutes<1?'hace menos de 1 min':minutes<60?`hace ${minutes} min`:minutes<1440?`hace ${Math.floor(minutes/60)} h`:`hace ${Math.floor(minutes/1440)} ${minutes<2880?'día':'días'}`;
+  let status=chip('Terminada');
+  if(working(s)) status=chip('Trabajando','ok signal');
+  if(lostSignal(s)) status=chip(Number.isFinite(minutes)?`Sin señal desde hace ${minutes} min`:'Sin señal','bad');
+  if(s.estado==='esperando') status=chip('Esperándote','warn');
+  return `<article class="module" data-session-card tabindex="-1" id="item-${esc(s.id)}">${status} ${chip(segmentName(s.segmento))}<h3>${esc(sessionTitle(s))}</h3><small>Rama · ${esc(s.rama || 'Sin rama')}</small><small>Carpeta · ${esc(s.carpeta || 'Sin carpeta')}</small><p>${num(s.turnos)} ${s.turnos===1?'instrucción':'instrucciones'} · Última actividad ${esc(age)}</p>${lostSignal(s)?'<p>La sesión pudo haberse cerrado sin avisar.</p>':''}${s.segmento?taskLink(s.segmento,'Ver tareas de este segmento'):''}</article>`;
+}
+function sessionsView() {
+  const rows=sessions().filter(s=>(!sessionSegment || s.segmento===sessionSegment) && (s.estado!=='terminada' || elapsed(s)<=3*dayMs));
+  const filters=[['trabajando','Trabajando ahora',working],['esperando','Te esperan',s=>s.estado==='esperando'],['terminada','Terminadas (3 días)',s=>s.estado==='terminada']];
+  const controls=filters.map(([key,label,test])=>`<button data-session-filter="${key}" aria-pressed="${sessionFilter===key}"><strong>${rows.filter(test).length}</strong>${label}</button>`).join('');
+  const test=sessionFilter==='activas'?activeSession:filters.find(([key])=>key===sessionFilter)?.[2];
+  const list=rows.filter(s=>!test || test(s)).sort((a,b)=>Date.parse(b.ultima)-Date.parse(a.ultima));
+  return `<div class="session-counts">${controls}</div><div><p>Cada sesión de Claude Code del proyecto avisa al empezar, al recibir una instrucción y al terminar su turno. Solo se guarda el arranque de la instrucción.</p><p>El panel solo muestra la actividad. Para darle otra instrucción, abre la sesión en Claude Code.</p>${sessionSegment?chip(segmentName(sessionSegment)):''} ${sessionFilter==='activas'?chip('Sesiones activas'):''} ${sessionFilter || sessionSegment?go('sesiones','Ver todas las sesiones'):''}</div><div class="grid">${list.map(sessionCard).join('') || '<p>No hay sesiones para esta selección.</p>'}</div>`;
+}
+function teamDiagram(columns) {
+  const segments=team.segmentos, width=columns*240, center=width/2;
+  const rows=Math.ceil(segments.length/columns), base=174+rows*74;
+  function node(key,label,x,y) {
+    return `<g role="button" tabindex="0" aria-label="${esc(label)}" data-team-node="${esc(key)}" transform="translate(${x} ${y})"><path class="org-edge" d="M-94 4l8-6h179l-7 6z"/><rect x="-94" y="4" width="188" height="44" rx="4"/><text y="31" text-anchor="middle">${esc(label)}</text></g>`;
+  }
+  let wires=`M${center} 51v25 M${center} 124v14`;
+  const nodes=segments.map((s,i)=>{
+    const x=120+240*(i%columns), y=154+74*Math.floor(i/columns);
+    wires+=` M${center} 138H${x-110}V${y+26}h16 M${x+94} ${y+26}h16V${base-14}H${center}V${base}`;
+    return node(s.clave,s.nombre,x,y);
+  }).join('');
+  return `<svg class="org-chart cols-${columns}" viewBox="0 0 ${width} ${base+55}" role="group" aria-label="Organización de AXTRONIC"><path class="org-wire" d="${wires}"/>${node('dueno','Dueño',center,3)}${node('director',team.director.nombre,center,76)}${nodes}${node('compartido',team.compartido.nombre,center,base)}</svg>`;
+}
+function focusTeamCard(node) {
+  const card=document.getElementById('equipo-'+node.dataset.teamNode);
+  card.focus({preventScroll:true});
+  card.scrollIntoView({block:'start'});
+}
+function teamView() {
+  if(!team) return panel('Equipo','<p>No se pudo cargar la organización del equipo.</p>');
+  const {director,compartido,segmentos}=team;
+  const card=(key,title,body)=>`<article class="module" data-team-card tabindex="-1" id="equipo-${esc(key)}"><h2>${esc(title)}</h2>${body}</article>`;
+  const cards=segmentos.map(s=>{
+    const tasks=data.tareas.filter(t=>t.segmento===s.clave && openTask(t)).length;
+    const active=sessions().filter(row=>row.segmento===s.clave && activeSession(row)).length;
+    return card(s.clave,s.nombre,`<p>${esc(s.hace)}</p><p>La atiende: <b>${esc(s.agente)}</b></p><h3>Cerebro del segmento</h3><code>${esc(s.cerebro)}</code><h3>Skills</h3>${s.skills.map(x=>chip(x)).join(' ') || '<small>Sin skills registradas.</small>'}<h3>Flujo de trabajo</h3><ol class="team-steps">${s.pasos.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><h3>Lo que te toca a ti</h3><p>${esc(s.te_toca)}</p><div class="actions">${taskLink(s.clave,'Ver tareas abiertas · '+tasks,true)}${sessionLink(s.clave,'Ver sesiones activas · '+active,'activas')}</div>`);
+  });
+  return panel('Organización',teamDiagram(1)+teamDiagram(3))+'<div class="grid">'+card('dueno','Dueño','<p>Tú decides qué aprobar. Cada segmento indica cuándo necesita tu intervención.</p>')+
+    card('director',director.nombre,`<p>${esc(director.hace)}</p>${director.cerebro.map(x=>`<p><code>${esc(x)}</code></p>`).join('')}`)+cards.join('')+
+    card('compartido',compartido.nombre,`<ul>${compartido.archivos.map(f=>`<li><code>${esc(f.ruta)}</code><p>${esc(f.que)}</p></li>`).join('')}</ul><h3>Cómo aprende</h3><p>${esc(compartido.como_aprende)}</p>`)+'</div>';
+}
+function documentLists() {
+  const docs=data.documentos ?? [];
+  const buttons=rows=>rows.map(d=>detailButton('documento',d.clave,d.titulo,'search-hit')).join('');
+  const answered=docs.filter(d=>d.respondido!=null);
+  return panel('Documentos que esperan tu respuesta',buttons(docs.filter(d=>d.respondido==null)) || '<p>Todo contestado.</p>')+
+    `<details class="module" data-group="documentos"><summary>Ya contestados · ${answered.length}</summary>${buttons(answered) || '<p>Aún no hay respuestas.</p>'}</details>`;
+}
+function documentBody(value) {
+  const html=[];
+  let tag='', lines=[];
+  function flush() {
+    if(tag==='p') html.push('<p>'+lines.join(' ')+'</p>');
+    else if(tag) html.push('<'+tag+'>'+lines.join('')+'</'+tag+'>');
+    tag=''; lines=[];
+  }
+  for(const line of esc(value).split(/\r?\n/)) {
+    if(!line.trim()) { flush(); continue; }
+    if(line.startsWith('## ')) { flush(); html.push('<h3>'+line.slice(3)+'</h3>'); continue; }
+    const number=/^(\d+)\. (.*)$/.exec(line);
+    const next=number?'ol':line.startsWith('- ')?'ul':'p';
+    if(next!==tag) flush();
+    tag=next;
+    lines.push(number?`<li value="${number[1]}">${number[2]}</li>`:tag==='ul'?'<li>'+line.slice(2)+'</li>':line);
+  }
+  flush();
+  return html.join('');
+}
 function decisions() {
   const groups = [['Aplicando',data.decisiones.filter(d=>d.estado==='aplicando')],['Otras respuestas',data.decisiones.filter(d=>!['pendiente','aplicando'].includes(d.estado))]];
-  return `<h2 class="section-title">Pendientes <span>${pending().length}</span></h2><div class="grid">${pending().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(decision).join('') || '<p>Todo atendido.</p>'}</div>`+
+  return documentLists()+`<h2 class="section-title">Pendientes <span>${pending().length}</span></h2><div class="grid">${pending().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(decision).join('') || '<p>Todo atendido.</p>'}</div>`+
     groups.filter(([,rows])=>rows.length).map(([title,rows])=>`<details class="module" data-group="${title}"><summary>${title} · ${rows.length}</summary><div class="grid">${rows.map(decision).join('')}</div></details>`).join('');
 }
 function bugAction(b) {
@@ -561,7 +672,42 @@ function versions() {
     panel('Cambios hechos por la fábrica',integrated.length?`<ol class="events">${integrated.map(t=>`<li><small>${esc(stamp(t.closed_at??t.updated_at))}</small>${detailButton('task',t.id,t.titulo)}</li>`).join('')}</ol>`:'<p>Aún no hay tareas integradas.</p>');
 }
 const drawer=$('#detalle');
-let opener,detailGeneration=0;
+let opener,detailGeneration=0, documentDraft=null;
+const dirtyDocument=()=>documentDraft && $('#respuesta-doc')?.value!==documentDraft.saved;
+window.addEventListener('beforeunload',event=>{
+  if(!dirtyDocument()) return;
+  event.preventDefault();
+  event.returnValue='';
+});
+function mayLeaveDocument() {
+  return !dirtyDocument() || window.confirm('Hay cambios sin guardar en tu respuesta. ¿Quieres descartarlos?');
+}
+async function openDocument(key,generation) {
+  showDetail('Documento','<p role="status">Cargando documento…</p>');
+  drawer.classList.add('document-drawer');
+  try {
+    let doc;
+    if(DEMO) {
+      const fixture=data.documentos_demo;
+      if(fixture && Object.hasOwn(fixture,key)) doc={...data.documentos?.find(d=>d.clave===key),...fixture[key]};
+    } else {
+      const result=await sb.rpc('panel',{p_op:'documento',p_args:{clave:key}});
+      if(result.error) throw Error(result.error.message);
+      doc=result.data;
+    }
+    if(generation!==detailGeneration) return;
+    if(!doc || typeof doc.cuerpo!=='string') throw Error('No se encontró el documento.');
+    const saved=doc.respuesta ?? '';
+    showDetail(doc.titulo,`<small>Origen · ${esc(doc.origen)}</small><small id="fecha-respuesta">${doc.respondido?'Contestado · '+esc(stamp(doc.respondido)):'Sin contestar'}</small><div class="document-body">${documentBody(doc.cuerpo)}</div><label for="respuesta-doc">Tu respuesta</label><textarea id="respuesta-doc" maxlength="20000" rows="9" aria-describedby="cuenta-respuesta">${'\n'+esc(saved)}</textarea><small id="cuenta-respuesta"></small><button class="primary" data-op="responder_documento">Guardar respuesta</button>`);
+    documentDraft={key,saved:$('#respuesta-doc').value};
+    responseCount();
+  } catch(err) {
+    if(generation===detailGeneration) showDetail('Documento','<p>'+esc(err.message)+'</p>'+detailButton('documento',key,'Reintentar'));
+  }
+}
+function responseCount() {
+  $('#cuenta-respuesta').textContent=$('#respuesta-doc').value.length.toLocaleString('es-MX')+' de 20,000 caracteres';
+}
 function showDetail(title,body) {
   if(!drawer.open) {
     opener=document.activeElement;
@@ -574,11 +720,17 @@ function showDetail(title,body) {
   $('#cerrar').focus();
 }
 function closeDetail() {
-  if(!drawer.open) return;
+  if(!drawer.open) return true;
+  if(!mayLeaveDocument()) return false;
+  documentDraft=null;
+  drawer.classList.remove('document-drawer');
   ++detailGeneration;
   drawer.close();
   $('#detalle-cuerpo').replaceChildren();
-  opener?.focus({preventScroll:true});
+  const original=opener?.isConnected?opener:[...document.querySelectorAll('button,[role=button]')].find(el=>
+    el.dataset.detail===opener?.dataset.detail && el.dataset.key===opener?.dataset.key && el.textContent===opener?.textContent && el.getClientRects().length);
+  (original || $('#contenido')).focus({preventScroll:true});
+  return true;
 }
 drawer.addEventListener('cancel',e=>{e.preventDefault();closeDetail();});
 drawer.addEventListener('click',e=>{
@@ -620,7 +772,11 @@ function metricDetail(key,title,explain='') {
   showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${key==='acceso.grupo_miembros'?external(groupUrl,'Abrir el grupo'):key.startsWith('play.')?external(PLAY+(key==='play.verificadores_inscritos'?'/app-dashboard':'/statistics'),'Abrir en Play Console'):''}${go(target,'Ver '+views[target])}`);
 }
 async function openDetail(kind,key) {
+  if(!mayLeaveDocument()) return;
+  documentDraft=null;
+  drawer.classList.remove('document-drawer');
   const generation=++detailGeneration;
+  if(kind==='documento') return openDocument(key,generation);
   if(kind==='search') {
     showDetail('Buscar en el panel','<label for="consulta">Buscar</label><input id="consulta" type="search" autocomplete="off"><div id="resultados" aria-live="polite">'+searchResults('')+'</div>');
     $('#consulta').focus();
@@ -634,7 +790,7 @@ async function openDetail(kind,key) {
     if(person) showDetail(person.email,personCard(person,true));
     return;
   }
-  if(kind==='more') return showDetail('Más',['redes','bugs','versiones','tienda'].map(k=>go(k,views[k])).join(''));
+  if(kind==='more') return showDetail('Más','<div class="more-links">'+moreViews.map(k=>go(k,views[k])).join('')+'</div>');
   if(kind==='pause') {
     const paused=!!pauseSetting()?.activa;
     return showDetail(paused?'Reanudar publicaciones':'Pausar publicaciones',`<p>${paused?'La tarea de la mañana podrá volver a publicar.':'La tarea de la mañana dejará de publicar mientras el freno esté activo.'} Lo ya programado en cada red conserva su fecha.</p><div class="actions"><button class="primary" data-op="pausar" data-active="${!paused}">Confirmar ${paused?'reanudación':'pausa'}</button><button data-close>Cancelar</button></div>`);
@@ -651,6 +807,7 @@ async function openDetail(kind,key) {
       }
       if(generation!==detailGeneration || !drawer.open) return;
       if(!task?.id) throw Error('No se encontró la tarea.');
+      task={...data.tareas.find(t=>t.id===key),...task};
       const events=[...(task.eventos??[])].sort((a,b)=>Date.parse(a.at)-Date.parse(b.at));
       showDetail(task.titulo,taskCard(task,true,true)+`<h3>Historial</h3><ol class="events">${events.map(e=>`<li><small>${esc(stamp(e.at))}</small><b>${esc(e.actor)} · ${esc(e.tipo)}</b><p class="lines">${esc(typeof e.detalle==='object' && e.detalle!==null?JSON.stringify(e.detalle):e.detalle)}</p></li>`).join('')}</ol>${events.length?'':'<p>Sin eventos registrados.</p>'}`);
     } catch(err) { if(generation===detailGeneration) showDetail('Detalle de tarea','<p>'+esc(err.message)+'</p>'+detailButton('task',key,'Reintentar')); }
@@ -658,7 +815,7 @@ async function openDetail(kind,key) {
   }
   if(kind==='station') {
     const [name,states,,actor,description]=stations[key];
-    const rows=Number(key)===0?data.tareas.filter(t=>t.estado==='propuesta'):rowsAt(Number(key));
+    const rows=(Number(key)===0?data.tareas.filter(t=>t.estado==='propuesta'):rowsAt(Number(key))).filter(taskMatches);
     return showDetail(name,`<p>${description}</p><small>Actúa: ${actor} · Registro de fábrica · ${esc(stamp(data.ahora))}</small>${Number(key)===0?'<h3>Propuestas en aprobación</h3>':''}${rows.map(t=>taskCard(t,true)).join('') || (states.length?'<p>Sin tareas.</p>':'')}${go('fabrica','Ver la planta')}`);
   }
   if(kind==='point'||kind==='milestone') {
@@ -706,6 +863,7 @@ function todayList() {
   while(rows.length<7 && queues.some(q=>q.length)) {
     for(const q of queues) if(q.length && rows.length<7) rows.push(q.shift());
   }
+  rows.unshift(...sessions().filter(s=>s.estado==='esperando').map(s=>['Sesión',sessionTitle(s),sessionLink(s.segmento,'Ver sesión','esperando',s.id)]));
   return panel('Tu lista de hoy',rows.length?`<ol class="today-list">${rows.map(([type,title,action])=>`<li><div><small>${type}</small><b>${esc(title)}</b></div>${action}</li>`).join('')}</ol>`:'<p>Todo atendido por ahora.</p>');
 }
 function searchResults(query) {
@@ -722,14 +880,15 @@ function searchResults(query) {
   return entries.filter(([,key,type,label,extra])=>terms.every(term=>norm([type,key,label,...extra].join(' ')).includes(term))).map(([kind,key,type,label])=>detailButton(kind,key,type+' · '+label,'search-hit')).join('') || '<p>Sin coincidencias.</p>';
 }
 document.addEventListener('input',e=>{
+  if(e.target.id==='respuesta-doc') responseCount();
   if(e.target.id==='consulta') $('#resultados').innerHTML=searchResults(e.target.value);
 });
 function draw() {
-  const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
-    decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
+  const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+sessionSummary()+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
+    equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
   $('#buscar').hidden=false;
-  $('nav').hidden=false;
-  $('nav').innerHTML=Object.entries(views).map(([k,label])=>`${k==='hoy'?'<span class="nav-label">Decidir</span>':k==='fabrica'?'<span class="nav-label">Operación</span>':''}<button class="${['redes','bugs','versiones','tienda'].includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${['redes','bugs','versiones','tienda'].includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;
+  $('#navegacion').hidden=false;
+  $('#navegacion').innerHTML=Object.entries(views).map(([k,label])=>`${k==='hoy'?'<span class="nav-label">Decidir</span>':k==='fabrica'?'<span class="nav-label">Operación</span>':''}<button class="${moreViews.includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${moreViews.includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;
   $('#titulo').textContent=view==='hoy'?'Vista general':views[view];
   $('#app').innerHTML=render[view]();
   if (!reduced.matches && !document.hidden) {
@@ -761,8 +920,9 @@ async function load(refresh=false) {
   }
   if (generation!==request) return;
   // Un refresco conserva el comentario, el foco y los grupos abiertos.
-  if (refresh && (busy || drawer.open || $('#app a:focus') || $('#app textarea:focus, #app details[open], #app button:focus, .factory-scene [role="button"]:focus') || [...document.querySelectorAll('textarea')].some(t=>t.value))) return;
-  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
+  const liveView=['sesiones','equipo','fabrica'].includes(view);
+  if (refresh && (busy || drawer.open || $('#app a:focus') || $('#app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('textarea')].some(t=>t.value))) return;
+  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
   status();
@@ -785,8 +945,8 @@ function refreshView() {
   if (boardScroll != null && $('.board')) $('.board').scrollLeft = boardScroll;
   if (active.isConnected) return;
   const replacement = active.id ? document.getElementById(active.id) :
-    [...document.querySelectorAll('button,summary,.factory-scene [role=button]')].find(el =>
-      el.tagName === active.tagName && el.textContent === active.textContent &&
+    [...document.querySelectorAll('button,summary,[role=button]')].find(el =>
+      el.tagName === active.tagName && (el.textContent === active.textContent || active.hasAttribute('data-session-filter') || active.hasAttribute('data-team-node') || active.hasAttribute('data-segment')) && el.getClientRects().length &&
       JSON.stringify(el.dataset) === JSON.stringify(active.dataset) && group === el.closest('details')?.dataset.group);
   replacement?.focus({preventScroll:true});
   if (active.tagName === 'TEXTAREA') replacement?.setSelectionRange(active.selectionStart,active.selectionEnd);
@@ -838,13 +998,21 @@ async function travel(id,state) {
 }
 window.addEventListener('hashchange',()=>{
   if(!data || location.hash==='#contenido') return;
-  closeDetail();
+  if(!closeDetail()) { history.replaceState(null,'','#'+view); return; }
   view=Object.hasOwn(views,location.hash.slice(1))?location.hash.slice(1):'hoy';
   draw();
   $('#contenido').focus();
 });
 function navigate(button) {
   view=button.dataset.ir;
+  if(view==='fabrica') {
+    factorySegment=button.dataset.segment || '';
+    openTasksOnly=button.hasAttribute('data-only-open');
+  }
+  if(view==='sesiones') {
+    sessionSegment=button.dataset.segment || '';
+    sessionFilter=button.dataset.sessionState || '';
+  }
   const target=button.dataset.target;
   history.replaceState(null,'','#'+view);
   const paint=()=>{
@@ -871,15 +1039,17 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(e.key!=='Enter' && e.key!==' ') return;
-  const target=e.target.closest('.factory-scene [role=button]');
+  const target=e.target.closest('.factory-scene [role=button],[data-team-node]');
   if(!target) return;
   e.preventDefault();
-  if(!busy && !e.repeat) openDetail(target.dataset.detail,target.dataset.key);
+  if(busy || e.repeat) return;
+  if(target.hasAttribute('data-team-node')) focusTeamCard(target);
+  else openDetail(target.dataset.detail,target.dataset.key);
 });
 document.addEventListener('click',async e=>{
-  let b=e.target.closest('button,.factory-scene [role=button]');
+  let b=e.target.closest('button,.factory-scene [role=button],[data-team-node]');
   // En el espacio libre de una tarjeta se abre su control de lectura.
-  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog') && !window.getSelection()?.toString()) {
+  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog,[data-session-card],[data-team-card]') && !window.getSelection()?.toString()) {
     const card=e.target.closest('.item,.module,.hero,.lane,.calendar li,.events li');
     b=card?.querySelector('button[data-detail],button[data-ir]');
   }
@@ -889,6 +1059,14 @@ document.addEventListener('click',async e=>{
   if(b.hasAttribute('data-copy')) {
     try { await navigator.clipboard.writeText(b.dataset.copy); notice('Copiado'); }
     catch { notice('No se pudo copiar. Selecciona el correo para copiarlo.'); }
+    return;
+  }
+  if(b.hasAttribute('data-team-node')) return focusTeamCard(b);
+  if(b.hasAttribute('data-factory-segment') || b.hasAttribute('data-open-tasks') || b.hasAttribute('data-session-filter')) {
+    if(b.hasAttribute('data-factory-segment')) factorySegment=b.dataset.factorySegment;
+    if(b.hasAttribute('data-open-tasks')) openTasksOnly=!openTasksOnly;
+    if(b.hasAttribute('data-session-filter')) sessionFilter=sessionFilter===b.dataset.sessionFilter?'':b.dataset.sessionFilter;
+    refreshView();
     return;
   }
   if(b.dataset.filter) {
@@ -901,7 +1079,7 @@ document.addEventListener('click',async e=>{
     b.focus({preventScroll:true});
     return openDetail(b.dataset.detail,b.dataset.key);
   }
-  if (b.dataset.ir && drawer.open) closeDetail();
+  if (b.dataset.ir && drawer.open && !closeDetail()) return;
   if (b.dataset.ir) return navigate(b);
   if (b.id==='entrar') return sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});
   if (b.id==='salir') { await sb.auth.signOut(); return location.reload(); }
@@ -910,6 +1088,8 @@ document.addEventListener('click',async e=>{
   if (DEMO) return notice('Demostración. Los cambios no se guardan.');
   let args;
   switch (op) {
+    case 'segmentar': args={id,segmento:$('#segmento-tarea').value}; if(!segmentKeys.includes(args.segmento)) return; break;
+    case 'responder_documento': args={clave:documentDraft.key,respuesta:$('#respuesta-doc').value}; break;
     case 'pausar': args={activa:b.dataset.active==='true'}; break;
     case 'nueva': {
       const titulo=$('#nueva').value.trim();
@@ -928,6 +1108,23 @@ document.addEventListener('click',async e=>{
   try {
     const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
     if (error) throw Error(error.message);
+    if(op==='responder_documento') {
+      if(b.isConnected) documentDraft.saved=args.respuesta;
+      try { await load(); }
+      catch { return notice('Respuesta guardada. No se pudo actualizar el resumen.'); }
+      if(b.isConnected) {
+        const answered=data.documentos?.find(d=>d.clave===args.clave)?.respondido;
+        $('#fecha-respuesta').textContent=answered?'Contestado · '+stamp(answered):'Respuesta guardada';
+        notice($('#respuesta-doc').value===args.respuesta?'Respuesta guardada.':'Respuesta guardada. Hay cambios nuevos sin guardar.');
+      }
+      return;
+    }
+    if(op==='segmentar') {
+      await load();
+      if(drawer.open && b.isConnected) await openDetail('task',id);
+      notice('Segmento guardado.');
+      return;
+    }
     const keepPerson=op==='grupo' && drawer.open && b.isConnected;
     if(!keepPerson) closeDetail();
     if(op==='mover') await travel(id,a);
@@ -941,7 +1138,7 @@ document.addEventListener('click',async e=>{
 });
 function gate(message,button) {
   $('#buscar').hidden=true;
-  $('nav').hidden=true;
+  $('#navegacion').hidden=true;
   $('#app').innerHTML=panel('Acceso al panel',`<p>${esc(message)}</p>${button}`);
 }
 async function init() {
@@ -951,6 +1148,13 @@ async function init() {
     const {data:{session}}=await sb.auth.getSession();
     if (!session) return gate('Solo para la cuenta de AXTRONIC.','<button class="primary" id="entrar">Entrar con Google</button>');
   }
+  try {
+    const response=await fetch('equipo.json');
+    if(response.ok) {
+      const catalog=await response.json();
+      if(Array.isArray(catalog?.segmentos) && catalog.director && catalog.compartido) team=catalog;
+    }
+  } catch { /* Equipo muestra su estado vacío. */ }
   await load();
   setInterval(()=>{
     if (!document.hidden && !busy) load(true).catch(()=>$('#estado').textContent='Actualización pendiente');

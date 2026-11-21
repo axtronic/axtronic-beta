@@ -1,0 +1,91 @@
+{
+  "_nota": "Organización por segmentos. La fuente es docs/factory/organizacion.md; si cambia una, cambia la otra.",
+  "director": {
+    "nombre": "Director",
+    "hace": "Recibe cada petición, decide a qué segmento pertenece y qué tan riesgosa es, y la entrega al especialista con su flujo. No ejecuta: asigna, vigila y te avisa cuando algo te toca a ti.",
+    "cerebro": [".claude/rules/general.md", "docs/decisions.md", "docs/estado.md"]
+  },
+  "compartido": {
+    "nombre": "Cerebro compartido",
+    "archivos": [
+      { "ruta": ".claude/rules/general.md", "que": "Lecciones que valen para todos" },
+      { "ruta": "docs/decisions.md", "que": "Decisiones tuyas, de solo añadir" },
+      { "ruta": "docs/estado.md", "que": "Dónde está cada cosa hoy" }
+    ],
+    "como_aprende": "Cuando corriges algo o se resuelve un error que se repetiría, la lección se escribe en el momento en el cerebro del segmento (o en el compartido si vale para todos)."
+  },
+  "segmentos": [
+    {
+      "clave": "app", "nombre": "App", "agente": "builder",
+      "hace": "Código de la app: conteo, entrenamiento, pantallas con lógica, bugs.",
+      "cerebro": ".claude/rules/vision-cinematica.md",
+      "skills": ["diagnosticar-conteo-con-grabacion", "ajustar-cinematica-con-datos", "agregar-ejercicio", "probar-app-en-telefono"],
+      "pasos": ["Petición o bug", "Spec con prueba", "Implementar", "Revisores", "Puerta", "Tu revisión"],
+      "te_toca": "Aprobar la tarea y fusionar el cambio."
+    },
+    {
+      "clave": "diseno", "nombre": "Diseño", "agente": "revisor-ui",
+      "hace": "Pantallas, textos, tarjetas e imágenes del teléfono con el estilo de la app.",
+      "cerebro": ".claude/rules/ui-i18n.md",
+      "skills": ["agregar-pantalla-ux2", "proponer-diseno-premium", "fotos-de-ejercicio", "construir-hud-desde-referencia"],
+      "pasos": ["Petición", "Propuesta", "Tu visto bueno", "Implementar", "Verla en teléfono"],
+      "te_toca": "Elegir la propuesta y dar el visto bueno visual."
+    },
+    {
+      "clave": "reloj", "nombre": "Reloj", "agente": "builder",
+      "hace": "App de Wear OS: pantallas, enlace con el teléfono, ritmo y batería.",
+      "cerebro": ".claude/rules/reloj.md",
+      "skills": ["reloj-disenar-pantalla", "reloj-enlace-telefono", "reloj-operar-por-adb", "reloj-medir-latencia-y-bateria"],
+      "pasos": ["Plan de pantallas", "Diseño", "Tu aprobación", "Implementar", "Medir en el reloj"],
+      "te_toca": "Aprobar cada pantalla y prestar el reloj para medir."
+    },
+    {
+      "clave": "datos", "nombre": "Datos", "agente": "sesión principal",
+      "hace": "Base de datos, permisos y sincronización. Nunca se delega.",
+      "cerebro": ".claude/rules/datos-supabase.md",
+      "skills": ["migrar-esquema", "supabase"],
+      "pasos": ["Leer el esquema vivo", "Migración", "Prueba SQL", "Aplicar", "Verificar"],
+      "te_toca": "Autorizar cambios que borren o renombren algo."
+    },
+    {
+      "clave": "redes", "nombre": "Redes y contenido", "agente": "dirección de redes",
+      "hace": "Reels, publicaciones, respuestas a comentarios y lectura de resultados.",
+      "cerebro": ".claude/rules/redes.md",
+      "skills": ["producir-reel-medido", "producir-reel-con-ia", "operar-redes-de-marca", "analizar-reels-referencia"],
+      "pasos": ["Idea", "Producir", "Revisión editorial", "Programar", "Publicar", "Leer resultados"],
+      "te_toca": "Aprobar piezas en revisión y pausar si hace falta."
+    },
+    {
+      "clave": "publicacion", "nombre": "Publicación", "agente": "sesión principal",
+      "hace": "Builds, beta y Google Play: versiones, verificadores y requisitos de la tienda.",
+      "cerebro": ".claude/rules/publicacion.md",
+      "skills": ["publicar-en-play", "publicar-beta", "publicar-reloj-con-beta", "compilar-e-instalar-beta"],
+      "pasos": ["Integrar", "Compilar", "Probar en teléfono", "Subir", "Revisión de Google"],
+      "te_toca": "Conseguir verificadores y aceptar condiciones de Google."
+    },
+    {
+      "clave": "finanzas", "nombre": "Finanzas", "agente": "finanzas",
+      "hace": "Libro de gastos e ingresos, costos, punto de equilibrio y preguntas para el contador.",
+      "cerebro": ".claude/rules/finanzas.md",
+      "skills": [],
+      "pasos": ["Tus respuestas", "Libro de gastos", "Escenarios", "Preguntas al contador", "Tu decisión"],
+      "te_toca": "Contestar el cuestionario y decidir con tu contador."
+    },
+    {
+      "clave": "legal", "nombre": "Legal", "agente": "revisor-seguridad",
+      "hace": "Aviso de privacidad, términos, retención y que cada cambio de datos quede documentado.",
+      "cerebro": ".claude/rules/general.md",
+      "skills": ["sharp-edges", "fp-check"],
+      "pasos": ["Cambio de datos", "Actualizar documento", "Subir versión", "Publicar web legal"],
+      "te_toca": "Revisión de un abogado cuando el cambio lo amerite."
+    },
+    {
+      "clave": "fabrica", "nombre": "Fábrica y panel", "agente": "sesión principal",
+      "hace": "Este panel, la cola, la puerta y los agentes: que todo lo demás corra solo.",
+      "cerebro": ".claude/rules/panel-fabrica.md",
+      "skills": ["operar-fabrica", "coordinar-oleadas", "integrar-entregas"],
+      "pasos": ["Necesidad", "Datos en el servidor", "Vista con Codex", "Revisión de seguridad", "Publicar"],
+      "te_toca": "Decir qué quieres ver y decidir desde aquí."
+    }
+  ]
+}

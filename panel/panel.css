@@ -341,3 +341,37 @@ h4 {margin:12px 0 4px}
 a.points {text-decoration:none;color:inherit}
 a.points {grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
 @media (max-width:700px) { a.points {grid-template-columns:repeat(6,minmax(0,1fr));gap:6px} }
+
+.session-counts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.session-counts button {background:var(--card);text-align:left;padding:12px;overflow-wrap:anywhere}
+.session-counts strong {display:block;color:var(--accent);font:var(--heading);font-size:1.6rem;margin-bottom:4px}
+:is([data-session-filter],[data-factory-segment],[data-open-tasks])[aria-pressed=true] {border-color:var(--accent);color:var(--accent)}
+.signal::before {content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+@media(prefers-reduced-motion:no-preference) { .signal::before {animation:pulse 2.4s ease-in-out infinite} }
+.crate-anchor.dimmed {opacity:.25}
+.crate-anchor.dimmed:focus-visible {opacity:1}
+.scope {justify-self:start}
+.more-links {display:grid}
+.more-links .link {text-align:left;margin:0}
+#segmento-tarea {min-height:44px;max-width:100%;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font:inherit}
+.document-drawer {inset:0;width:100%;height:100dvh;max-height:100dvh;border-radius:0;padding-top:max(20px,env(safe-area-inset-top))}
+.document-body {margin:24px 0;border-block:1px solid var(--border);padding:12px 0;line-height:1.65}
+.document-body p {color:var(--text)}
+#cuenta-respuesta {margin:0 0 12px}
+.team-steps {display:flex;flex-wrap:wrap;gap:8px 22px;padding-left:22px}
+.team-steps li {padding-right:6px}
+.org-chart {display:block;width:100%;height:auto;max-width:300px;margin:auto}
+.org-chart.cols-3 {display:none}
+.org-chart [role=button] {cursor:pointer}
+.org-chart rect {fill:var(--surface);stroke:var(--muted)}
+.org-edge {fill:var(--deep)}
+.org-chart text {font:600 14px Inter,system-ui,sans-serif;fill:var(--text)}
+.org-wire {fill:none;stroke:var(--deep);stroke-width:2}
+.org-chart [role=button]:is(:hover,:focus-visible) rect {stroke:var(--accent);stroke-width:3}
+@media(min-width:900px) {
+  .document-drawer {inset:0 0 0 auto;width:min(780px,74vw);border-radius:16px 0 0 16px}
+}
+@media(min-width:1050px) {
+  .org-chart.cols-1 {display:none}
+  .org-chart.cols-3 {display:block;max-width:900px}
+}
