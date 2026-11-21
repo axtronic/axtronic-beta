@@ -31,7 +31,7 @@ const paths = {
 const icon = name => `<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="${Object.hasOwn(paths,name)?paths[name]:paths.redes}"/></svg>`;
 const steps = [
   ['acceso.respuestas_enviadas','Respuestas a «ACCESO»'],
-  ['acceso.solicitudes','Solicitudes'], ['beta.instalaciones','Instalaciones'],
+  ['acceso.solicitudes','Solicitudes'], ['beta.instalaciones','Beta por GitHub'],
   ['app.cuentas','Cuentas'], ['app.sesiones_7d','Sesiones en 7 días']
 ];
 const stations = [
@@ -133,21 +133,42 @@ function kpis() {
   return '<section class="kpis">'+[[2,'instalacion'],[1,'solicitudes'],[3,'cuentas'],[4,'ejercicio']].map(([i,symbol])=>
     metricCard(steps[i][0],i===4?'Sesiones':steps[i][1],symbol,i===4?'Últimos 7 días':'Acumuladas')).join('')+'</section>';
 }
+const PLAY='https://play.google.com/console/developers/6516826902763385354/app/4974626724056146255';
+// Cada paso: clave de la métrica, qué cuenta, de dónde sale y a dónde lleva (página externa o vista del panel).
+const journey = () => [
+  ['acceso.respuestas_enviadas','Comentaron «ACCESO»','Les respondimos con el enlace en Instagram, Facebook o YouTube.','Respuesta automática',null,'redes','Ver redes'],
+  ['acceso.solicitudes','Pidieron acceso','Dejaron su correo en la página de acceso anticipado.','Formulario',null,'acceso','Ver quiénes son'],
+  ['acceso.grupo_miembros','Entraron al grupo','Miembros del Grupo de Google de verificadores. Te incluye a ti.','Grupo de Google',groupUrl,null,'Abrir el grupo'],
+  ['play.verificadores_inscritos','Aceptaron ser verificadores','Activaron la prueba cerrada en Google Play. Se necesitan 12.','Google Play Console',PLAY+'/app-dashboard',null,'Abrir Play Console'],
+  ['play.instalaciones_28d','Instalaron la app','Instalaciones desde Google Play en los últimos 28 días.','Google Play Console',PLAY+'/statistics',null,'Ver estadísticas en Play'],
+  ['app.cuentas','Crearon su cuenta','Cuentas registradas dentro de la app.','Servidor de AXTRONIC',null,'acceso','Ver recorrido por persona'],
+  ['app.sesiones_7d','Entrenaron esta semana','Sesiones de ejercicio en los últimos 7 días.','Servidor de AXTRONIC',null,null,'']
+];
 function funnel() {
-  const max = Math.max(1,...steps.map(([k])=>latest(k) ?? 0));
-  return panel('Embudo de captación',`<ol class="funnel">${steps.map(([key,label])=>{
+  const rows = journey();
+  const max = Math.max(1,...rows.map(([k])=>latest(k) ?? 0));
+  let prev = null;
+  const items = rows.map(([key,label,what,source,url,target,action],i)=>{
     const value = latest(key);
-    const bars = value!=null && value < 10 ? Array.from({length:value ?? 0},(_,i)=>`<rect x="${i*100/max}" width="${86/max}" height="6" rx="1"/>`).join('') : `<rect width="${100*(value??0)/max}" height="6" rx="1"/>`;
-    return `<li><button class="plain" data-detail="metric" data-key="${key}"><span class="spread"><span>${label}</span><b>${num(value)}</b></span><svg aria-hidden="true" viewBox="0 0 100 6" preserveAspectRatio="none">${bars}</svg></button></li>`;
-  }).join('')}</ol><p class="note">Cada fuente cuenta por separado. Los pasos pueden incluir personas distintas.</p>${go('acceso','Ver recorrido por persona')}`,'captacion');
+    const bars = value==null ? '' : value < 13 ? Array.from({length:value},(_,j)=>`<rect x="${j*100/Math.max(max,12)}" width="${86/Math.max(max,12)}" height="6" rx="1"/>`).join('') : `<rect width="${100*value/max}" height="6" rx="1"/>`;
+    // Si un paso tiene más que el anterior, no es un error: son fuentes distintas y hay gente que entró por otra vía.
+    const more = value!=null && prev!=null && value>prev ? '<small class="warn">Más que en el paso anterior: incluye personas que entraron por otra vía.</small>' : '';
+    if (value!=null) prev = value;
+    const link = url ? external(url,action) : target ? go(target,action) : '';
+    return `<li><span class="step-n" aria-hidden="true">${i+1}</span><div class="step-body"><span class="spread"><b>${label}</b><strong>${num(value)}</strong></span>
+      <small>${what} <span class="chip">${source}</span> ${metricFresh(key)}</small>${more}
+      <svg aria-hidden="true" viewBox="0 0 100 6" preserveAspectRatio="none">${bars}</svg>${link}</div></li>`;
+  }).join('');
+  return panel('Del comentario al uso',`<p class="note">Siete pasos, de quien comenta en redes a quien ya entrena. Cada número viene de su propia fuente (se indica en cada paso), así que no son siempre las mismas personas. El recorrido de cada persona está en Acceso.</p><ol class="journey">${items}</ol>`,'captacion');
 }
 function storePath() {
   const n = latest('play.verificadores_inscritos');
-  const milestones = [['Prueba cerrada','Activa'],['12 verificadores',n==null?'Sin dato':n>=12?'Meta alcanzada':n+' inscritos'],['14 días seguidos','Por confirmar'],['Pedir producción','Por confirmar']];
-  return panel('Camino a la tienda',`<div class="store-number">${metricFresh('play.verificadores_inscritos')}<strong>${count(n)}</strong> de 12 verificadores</div>
-    <div class="points">${Array.from({length:12},(_,i)=>`<button data-detail="point" data-key="${i+1}" aria-label="Lugar ${i+1} de 12"><i class="${n!=null && i<n?'filled':''}">${i+1}</i></button>`).join('')}</div>
-    <p class="note">${n==null?'El recolector de la PC sube el número de inscritos.':'Se necesitan 12 inscritos durante 14 días seguidos.'}</p>
-    <ol class="timeline">${milestones.map(([label,status],i)=>`<li class="${i===0 || (i===1 && n>=12)?'done':''}"><button class="plain" data-detail="milestone" data-key="${i}"><b>${label}</b><small>${esc(status)}</small></button></li>`).join('')}</ol>`,'store');
+  const milestones = [['Prueba cerrada','Activa'],['12 verificadores',n==null?'Sin dato':n>=12?'Meta alcanzada':n+' aceptaron'],['14 días seguidos','Empieza al llegar a 12'],['Pedir producción','Después de los 14 días']];
+  return panel('Camino a la tienda',`<div class="store-number">${metricFresh('play.verificadores_inscritos')}<strong>${count(n)}</strong> de 12 verificadores aceptaron</div>
+    <a class="points" href="${PLAY}/app-dashboard" target="_blank" rel="noopener noreferrer" aria-label="Abrir Play Console: ${n==null?'sin dato':n} de 12 verificadores">${Array.from({length:12},(_,i)=>`<i class="${n!=null && i<n?'filled':''}">${i+1}</i>`).join('')}</a>
+    <p class="note">${n==null?'El recolector de la PC sube este número cada mañana.':'Google pide 12 verificadores que acepten y sigan 14 días seguidos. Faltan '+Math.max(0,12-n)+'.'}</p>
+    <ol class="timeline">${milestones.map(([label,status],i)=>`<li class="${i===0 || (i===1 && n>=12)?'done':''}"><button class="plain" data-detail="milestone" data-key="${i}"><b>${label}</b><small>${esc(status)}</small></button></li>`).join('')}</ol>
+    <div class="actions">${external(PLAY+'/app-dashboard','Abrir Play Console')}${external(PLAY+'/closed-testing','Ver la prueba cerrada')}${external(groupUrl,'Ver miembros del grupo')}${external(playUrl,'Enlace para invitar verificadores')}</div>`,'store');
 }
 const external = (url,label) => typeof url==='string' && url.startsWith('https://')
   ? `<a class="action-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>` : '';
@@ -565,7 +586,11 @@ drawer.addEventListener('click',e=>{
   const r=drawer.getBoundingClientRect();
   if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) closeDetail();
 });
+const metricNames={'acceso.grupo_miembros':'En el grupo de Google','play.verificadores_inscritos':'Verificadores que aceptaron','play.instalaciones_28d':'Instalaciones desde Play','play.dispositivos_activos':'Dispositivos activos','play.build':'Build en Google Play'};
 const metricInfo={
+  'acceso.grupo_miembros':'Miembros del Grupo de Google de verificadores (te incluye a ti). El grupo es la lista que usa Google Play para la prueba cerrada.',
+  'play.instalaciones_28d':'Instalaciones de la app desde Google Play en los últimos 28 días, según Play Console.',
+  'play.dispositivos_activos':'Dispositivos que usaron la app en el último mes, según Play Console.',
   'acceso.respuestas_enviadas':'Respuestas enviadas a quienes escribieron «ACCESO».',
   'acceso.solicitudes':'Solicitudes de acceso recibidas.',
   'beta.instalaciones':'Instalaciones acumuladas de la beta.',
@@ -592,7 +617,7 @@ function metricDetail(key,title,explain='') {
   const target=beta||key==='play.build'?'versiones':socialKey?'redes':'tienda';
   const definition=metricInfo[key] ?? 'Salidas con estado «'+title.toLowerCase()+'» en el corte de redes.';
   const source=beta?'Registro de versiones':socialKey||key.startsWith('play.')?'Recolector de la PC':'Métricas diarias del panel';
-  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${go(target,'Ver '+views[target])}`);
+  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${key==='acceso.grupo_miembros'?external(groupUrl,'Abrir el grupo'):key.startsWith('play.')?external(PLAY+(key==='play.verificadores_inscritos'?'/app-dashboard':'/statistics'),'Abrir en Play Console'):''}${go(target,'Ver '+views[target])}`);
 }
 async function openDetail(kind,key) {
   const generation=++detailGeneration;
@@ -644,7 +669,7 @@ async function openDetail(kind,key) {
     return metricDetail('play.verificadores_inscritos',kind==='point'?'Lugar '+key+' de 12':names[key],kind==='point'?status+' El número muestra el total de inscritos registrados.':notes[key]);
   }
   if(kind==='metric') {
-    const title=steps.find(([k])=>k===key)?.[1] ?? socialStates.find(([,k])=>'redes.'+k===key)?.[2] ?? (key==='beta.build'?'Último build de la beta':'Build en Google Play');
+    const title=steps.find(([k])=>k===key)?.[1] ?? socialStates.find(([,k])=>'redes.'+k===key)?.[2] ?? (key==='beta.build'?'Último build de la beta':metricNames[key] ?? key);
     return metricDetail(key,key==='redes.piezas'?'Piezas':key==='play.verificadores_lista'?'Lista de verificadores':title);
   }
   if(kind==='piece'||kind==='channel') {
@@ -701,7 +726,7 @@ document.addEventListener('input',e=>{
 });
 function draw() {
   const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
-    decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<div class="grid">'+storePath()+funnel()+'</div><section class="kpis">'+metricCard('play.verificadores_lista','Lista de verificadores','cuentas','Correos registrados')+'</section>'};
+    decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
   $('#buscar').hidden=false;
   $('nav').hidden=false;
   $('nav').innerHTML=Object.entries(views).map(([k,label])=>`${k==='hoy'?'<span class="nav-label">Decidir</span>':k==='fabrica'?'<span class="nav-label">Operación</span>':''}<button class="${['redes','bugs','versiones','tienda'].includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${['redes','bugs','versiones','tienda'].includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;

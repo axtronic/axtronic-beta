@@ -260,188 +260,1126 @@
     }
   ],
   "metricas": [
-    ["2026-11-07", "acceso.respuestas_enviadas", 0],
-    ["2026-11-07", "acceso.solicitudes", 0],
-    ["2026-11-07", "beta.instalaciones", 0],
-    ["2026-11-07", "app.cuentas", 0],
-    ["2026-11-07", "app.sesiones_7d", 0],
-    ["2026-11-07", "play.verificadores_inscritos", 0],
-    ["2026-11-08", "acceso.respuestas_enviadas", 0],
-    ["2026-11-08", "acceso.solicitudes", 0],
-    ["2026-11-08", "beta.instalaciones", 0],
-    ["2026-11-08", "app.cuentas", 0],
-    ["2026-11-08", "app.sesiones_7d", 0],
-    ["2026-11-08", "play.verificadores_inscritos", 0],
-    ["2026-11-09", "acceso.respuestas_enviadas", 1],
-    ["2026-11-09", "acceso.solicitudes", 0],
-    ["2026-11-09", "beta.instalaciones", 1],
-    ["2026-11-09", "app.cuentas", 0],
-    ["2026-11-09", "app.sesiones_7d", 1],
-    ["2026-11-09", "play.verificadores_inscritos", 1],
-    ["2026-11-10", "acceso.respuestas_enviadas", 1],
-    ["2026-11-10", "acceso.solicitudes", 0],
-    ["2026-11-10", "beta.instalaciones", 1],
-    ["2026-11-10", "app.cuentas", 0],
-    ["2026-11-10", "app.sesiones_7d", 1],
-    ["2026-11-10", "play.verificadores_inscritos", 1],
-    ["2026-11-11", "acceso.respuestas_enviadas", 1],
-    ["2026-11-11", "acceso.solicitudes", 1],
-    ["2026-11-11", "beta.instalaciones", 2],
-    ["2026-11-11", "app.cuentas", 1],
-    ["2026-11-11", "app.sesiones_7d", 2],
-    ["2026-11-11", "play.verificadores_inscritos", 2],
-    ["2026-11-12", "acceso.respuestas_enviadas", 2],
-    ["2026-11-12", "acceso.solicitudes", 1],
-    ["2026-11-12", "beta.instalaciones", 2],
-    ["2026-11-12", "app.cuentas", 1],
-    ["2026-11-12", "app.sesiones_7d", 2],
-    ["2026-11-12", "play.verificadores_inscritos", 2],
-    ["2026-11-13", "acceso.respuestas_enviadas", 2],
-    ["2026-11-13", "acceso.solicitudes", 1],
-    ["2026-11-13", "beta.instalaciones", 2],
-    ["2026-11-13", "app.cuentas", 1],
-    ["2026-11-13", "app.sesiones_7d", 2],
-    ["2026-11-13", "play.verificadores_inscritos", 2],
-    ["2026-11-14", "acceso.respuestas_enviadas", 2],
-    ["2026-11-14", "acceso.solicitudes", 1],
-    ["2026-11-14", "beta.instalaciones", 3],
-    ["2026-11-14", "app.cuentas", 1],
-    ["2026-11-14", "app.sesiones_7d", 3],
-    ["2026-11-14", "play.verificadores_inscritos", 3],
-    ["2026-11-15", "acceso.respuestas_enviadas", 2],
-    ["2026-11-15", "acceso.solicitudes", 1],
-    ["2026-11-15", "beta.instalaciones", 3],
-    ["2026-11-15", "app.cuentas", 1],
-    ["2026-11-15", "app.sesiones_7d", 2],
-    ["2026-11-15", "play.verificadores_inscritos", 3],
-    ["2026-11-16", "acceso.respuestas_enviadas", 3],
-    ["2026-11-16", "acceso.solicitudes", 1],
-    ["2026-11-16", "beta.instalaciones", 3],
-    ["2026-11-16", "app.cuentas", 1],
-    ["2026-11-16", "app.sesiones_7d", 2],
-    ["2026-11-16", "play.verificadores_inscritos", 3],
-    ["2026-11-17", "acceso.respuestas_enviadas", 3],
-    ["2026-11-17", "acceso.solicitudes", 2],
-    ["2026-11-17", "beta.instalaciones", 4],
-    ["2026-11-17", "app.cuentas", 2],
-    ["2026-11-17", "app.sesiones_7d", 1],
-    ["2026-11-17", "play.verificadores_inscritos", 4],
-    ["2026-11-18", "acceso.respuestas_enviadas", 3],
-    ["2026-11-18", "acceso.solicitudes", 2],
-    ["2026-11-18", "beta.instalaciones", 4],
-    ["2026-11-18", "app.cuentas", 2],
-    ["2026-11-18", "app.sesiones_7d", 2],
-    ["2026-11-18", "play.verificadores_inscritos", 4],
-    ["2026-11-19", "acceso.respuestas_enviadas", 4],
-    ["2026-11-19", "acceso.solicitudes", 2],
-    ["2026-11-19", "beta.instalaciones", 5],
-    ["2026-11-19", "app.cuentas", 2],
-    ["2026-11-19", "app.sesiones_7d", 3],
-    ["2026-11-19", "play.verificadores_inscritos", 5],
-    ["2026-11-20", "acceso.respuestas_enviadas", 4],
-    ["2026-11-20", "acceso.solicitudes", 2],
-    ["2026-11-20", "beta.instalaciones", 5],
-    ["2026-11-20", "app.cuentas", 2],
-    ["2026-11-20", "app.sesiones_7d", 3],
-    ["2026-11-20", "play.verificadores_inscritos", 5],
-    ["2026-11-07", "redes.publicadas", 0],
-    ["2026-11-07", "redes.programadas", 0],
-    ["2026-11-07", "redes.sin_enviar", 1],
-    ["2026-11-07", "redes.pausadas", 0],
-    ["2026-11-07", "redes.piezas", 1],
-    ["2026-11-07", "play.build", 72],
-    ["2026-11-07", "play.verificadores_lista", 1],
-    ["2026-11-08", "redes.publicadas", 0],
-    ["2026-11-08", "redes.programadas", 0],
-    ["2026-11-08", "redes.sin_enviar", 1],
-    ["2026-11-08", "redes.pausadas", 0],
-    ["2026-11-08", "redes.piezas", 2],
-    ["2026-11-08", "play.build", 72],
-    ["2026-11-08", "play.verificadores_lista", 1],
-    ["2026-11-09", "redes.publicadas", 0],
-    ["2026-11-09", "redes.programadas", 0],
-    ["2026-11-09", "redes.sin_enviar", 1],
-    ["2026-11-09", "redes.pausadas", 0],
-    ["2026-11-09", "redes.piezas", 3],
-    ["2026-11-09", "play.build", 72],
-    ["2026-11-09", "play.verificadores_lista", 2],
-    ["2026-11-10", "redes.publicadas", 0],
-    ["2026-11-10", "redes.programadas", 1],
-    ["2026-11-10", "redes.sin_enviar", 1],
-    ["2026-11-10", "redes.pausadas", 0],
-    ["2026-11-10", "redes.piezas", 4],
-    ["2026-11-10", "play.build", 72],
-    ["2026-11-10", "play.verificadores_lista", 2],
-    ["2026-11-11", "redes.publicadas", 1],
-    ["2026-11-11", "redes.programadas", 1],
-    ["2026-11-11", "redes.sin_enviar", 1],
-    ["2026-11-11", "redes.pausadas", 0],
-    ["2026-11-11", "redes.piezas", 5],
-    ["2026-11-11", "play.build", 72],
-    ["2026-11-11", "play.verificadores_lista", 3],
-    ["2026-11-12", "redes.publicadas", 1],
-    ["2026-11-12", "redes.programadas", 1],
-    ["2026-11-12", "redes.sin_enviar", 2],
-    ["2026-11-12", "redes.pausadas", 0],
-    ["2026-11-12", "redes.piezas", 6],
-    ["2026-11-12", "play.build", 72],
-    ["2026-11-12", "play.verificadores_lista", 3],
-    ["2026-11-13", "redes.publicadas", 1],
-    ["2026-11-13", "redes.programadas", 2],
-    ["2026-11-13", "redes.sin_enviar", 2],
-    ["2026-11-13", "redes.pausadas", 0],
-    ["2026-11-13", "redes.piezas", 7],
-    ["2026-11-13", "play.build", 72],
-    ["2026-11-13", "play.verificadores_lista", 4],
-    ["2026-11-14", "redes.publicadas", 1],
-    ["2026-11-14", "redes.programadas", 2],
-    ["2026-11-14", "redes.sin_enviar", 2],
-    ["2026-11-14", "redes.pausadas", 2],
-    ["2026-11-14", "redes.piezas", 7],
-    ["2026-11-14", "play.build", 73],
-    ["2026-11-14", "play.verificadores_lista", 4],
-    ["2026-11-15", "redes.publicadas", 2],
-    ["2026-11-15", "redes.programadas", 2],
-    ["2026-11-15", "redes.sin_enviar", 2],
-    ["2026-11-15", "redes.pausadas", 2],
-    ["2026-11-15", "redes.piezas", 7],
-    ["2026-11-15", "play.build", 73],
-    ["2026-11-15", "play.verificadores_lista", 5],
-    ["2026-11-16", "redes.publicadas", 2],
-    ["2026-11-16", "redes.programadas", 3],
-    ["2026-11-16", "redes.sin_enviar", 2],
-    ["2026-11-16", "redes.pausadas", 2],
-    ["2026-11-16", "redes.piezas", 7],
-    ["2026-11-16", "play.build", 73],
-    ["2026-11-16", "play.verificadores_lista", 5],
-    ["2026-11-17", "redes.publicadas", 2],
-    ["2026-11-17", "redes.programadas", 3],
-    ["2026-11-17", "redes.sin_enviar", 2],
-    ["2026-11-17", "redes.pausadas", 2],
-    ["2026-11-17", "redes.piezas", 7],
-    ["2026-11-17", "play.build", 73],
-    ["2026-11-17", "play.verificadores_lista", 6],
-    ["2026-11-18", "redes.publicadas", 2],
-    ["2026-11-18", "redes.programadas", 3],
-    ["2026-11-18", "redes.sin_enviar", 2],
-    ["2026-11-18", "redes.pausadas", 2],
-    ["2026-11-18", "redes.piezas", 7],
-    ["2026-11-18", "play.build", 73],
-    ["2026-11-18", "play.verificadores_lista", 6],
-    ["2026-11-19", "redes.publicadas", 3],
-    ["2026-11-19", "redes.programadas", 3],
-    ["2026-11-19", "redes.sin_enviar", 2],
-    ["2026-11-19", "redes.pausadas", 2],
-    ["2026-11-19", "redes.piezas", 7],
-    ["2026-11-19", "play.build", 73],
-    ["2026-11-19", "play.verificadores_lista", 7],
-    ["2026-11-20", "redes.publicadas", 3],
-    ["2026-11-20", "redes.programadas", 3],
-    ["2026-11-20", "redes.sin_enviar", 1],
-    ["2026-11-20", "redes.pausadas", 2],
-    ["2026-11-20", "redes.piezas", 8],
-    ["2026-11-20", "play.build", 73],
-    ["2026-11-20", "play.verificadores_lista", 7]
+    [
+      "2026-11-07",
+      "acceso.respuestas_enviadas",
+      0
+    ],
+    [
+      "2026-11-07",
+      "acceso.solicitudes",
+      0
+    ],
+    [
+      "2026-11-07",
+      "beta.instalaciones",
+      0
+    ],
+    [
+      "2026-11-07",
+      "app.cuentas",
+      0
+    ],
+    [
+      "2026-11-07",
+      "app.sesiones_7d",
+      0
+    ],
+    [
+      "2026-11-07",
+      "play.verificadores_inscritos",
+      0
+    ],
+    [
+      "2026-11-08",
+      "acceso.respuestas_enviadas",
+      0
+    ],
+    [
+      "2026-11-08",
+      "acceso.solicitudes",
+      0
+    ],
+    [
+      "2026-11-08",
+      "beta.instalaciones",
+      0
+    ],
+    [
+      "2026-11-08",
+      "app.cuentas",
+      0
+    ],
+    [
+      "2026-11-08",
+      "app.sesiones_7d",
+      0
+    ],
+    [
+      "2026-11-08",
+      "play.verificadores_inscritos",
+      0
+    ],
+    [
+      "2026-11-09",
+      "acceso.respuestas_enviadas",
+      1
+    ],
+    [
+      "2026-11-09",
+      "acceso.solicitudes",
+      0
+    ],
+    [
+      "2026-11-09",
+      "beta.instalaciones",
+      1
+    ],
+    [
+      "2026-11-09",
+      "app.cuentas",
+      0
+    ],
+    [
+      "2026-11-09",
+      "app.sesiones_7d",
+      1
+    ],
+    [
+      "2026-11-09",
+      "play.verificadores_inscritos",
+      1
+    ],
+    [
+      "2026-11-10",
+      "acceso.respuestas_enviadas",
+      1
+    ],
+    [
+      "2026-11-10",
+      "acceso.solicitudes",
+      0
+    ],
+    [
+      "2026-11-10",
+      "beta.instalaciones",
+      1
+    ],
+    [
+      "2026-11-10",
+      "app.cuentas",
+      0
+    ],
+    [
+      "2026-11-10",
+      "app.sesiones_7d",
+      1
+    ],
+    [
+      "2026-11-10",
+      "play.verificadores_inscritos",
+      1
+    ],
+    [
+      "2026-11-11",
+      "acceso.respuestas_enviadas",
+      1
+    ],
+    [
+      "2026-11-11",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-11",
+      "beta.instalaciones",
+      2
+    ],
+    [
+      "2026-11-11",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-11",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-11",
+      "play.verificadores_inscritos",
+      2
+    ],
+    [
+      "2026-11-12",
+      "acceso.respuestas_enviadas",
+      2
+    ],
+    [
+      "2026-11-12",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-12",
+      "beta.instalaciones",
+      2
+    ],
+    [
+      "2026-11-12",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-12",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-12",
+      "play.verificadores_inscritos",
+      2
+    ],
+    [
+      "2026-11-13",
+      "acceso.respuestas_enviadas",
+      2
+    ],
+    [
+      "2026-11-13",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-13",
+      "beta.instalaciones",
+      2
+    ],
+    [
+      "2026-11-13",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-13",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-13",
+      "play.verificadores_inscritos",
+      2
+    ],
+    [
+      "2026-11-14",
+      "acceso.respuestas_enviadas",
+      2
+    ],
+    [
+      "2026-11-14",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-14",
+      "beta.instalaciones",
+      3
+    ],
+    [
+      "2026-11-14",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-14",
+      "app.sesiones_7d",
+      3
+    ],
+    [
+      "2026-11-14",
+      "play.verificadores_inscritos",
+      3
+    ],
+    [
+      "2026-11-15",
+      "acceso.respuestas_enviadas",
+      2
+    ],
+    [
+      "2026-11-15",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-15",
+      "beta.instalaciones",
+      3
+    ],
+    [
+      "2026-11-15",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-15",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-15",
+      "play.verificadores_inscritos",
+      3
+    ],
+    [
+      "2026-11-16",
+      "acceso.respuestas_enviadas",
+      3
+    ],
+    [
+      "2026-11-16",
+      "acceso.solicitudes",
+      1
+    ],
+    [
+      "2026-11-16",
+      "beta.instalaciones",
+      3
+    ],
+    [
+      "2026-11-16",
+      "app.cuentas",
+      1
+    ],
+    [
+      "2026-11-16",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-16",
+      "play.verificadores_inscritos",
+      3
+    ],
+    [
+      "2026-11-17",
+      "acceso.respuestas_enviadas",
+      3
+    ],
+    [
+      "2026-11-17",
+      "acceso.solicitudes",
+      2
+    ],
+    [
+      "2026-11-17",
+      "beta.instalaciones",
+      4
+    ],
+    [
+      "2026-11-17",
+      "app.cuentas",
+      2
+    ],
+    [
+      "2026-11-17",
+      "app.sesiones_7d",
+      1
+    ],
+    [
+      "2026-11-17",
+      "play.verificadores_inscritos",
+      4
+    ],
+    [
+      "2026-11-18",
+      "acceso.respuestas_enviadas",
+      3
+    ],
+    [
+      "2026-11-18",
+      "acceso.solicitudes",
+      2
+    ],
+    [
+      "2026-11-18",
+      "beta.instalaciones",
+      4
+    ],
+    [
+      "2026-11-18",
+      "app.cuentas",
+      2
+    ],
+    [
+      "2026-11-18",
+      "app.sesiones_7d",
+      2
+    ],
+    [
+      "2026-11-18",
+      "play.verificadores_inscritos",
+      4
+    ],
+    [
+      "2026-11-19",
+      "acceso.respuestas_enviadas",
+      4
+    ],
+    [
+      "2026-11-19",
+      "acceso.solicitudes",
+      2
+    ],
+    [
+      "2026-11-19",
+      "beta.instalaciones",
+      5
+    ],
+    [
+      "2026-11-19",
+      "app.cuentas",
+      2
+    ],
+    [
+      "2026-11-19",
+      "app.sesiones_7d",
+      3
+    ],
+    [
+      "2026-11-19",
+      "play.verificadores_inscritos",
+      5
+    ],
+    [
+      "2026-11-20",
+      "acceso.respuestas_enviadas",
+      4
+    ],
+    [
+      "2026-11-20",
+      "acceso.solicitudes",
+      2
+    ],
+    [
+      "2026-11-20",
+      "beta.instalaciones",
+      5
+    ],
+    [
+      "2026-11-20",
+      "app.cuentas",
+      2
+    ],
+    [
+      "2026-11-20",
+      "app.sesiones_7d",
+      3
+    ],
+    [
+      "2026-11-20",
+      "play.verificadores_inscritos",
+      5
+    ],
+    [
+      "2026-11-07",
+      "redes.publicadas",
+      0
+    ],
+    [
+      "2026-11-07",
+      "redes.programadas",
+      0
+    ],
+    [
+      "2026-11-07",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-07",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-07",
+      "redes.piezas",
+      1
+    ],
+    [
+      "2026-11-07",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-07",
+      "play.verificadores_lista",
+      1
+    ],
+    [
+      "2026-11-08",
+      "redes.publicadas",
+      0
+    ],
+    [
+      "2026-11-08",
+      "redes.programadas",
+      0
+    ],
+    [
+      "2026-11-08",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-08",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-08",
+      "redes.piezas",
+      2
+    ],
+    [
+      "2026-11-08",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-08",
+      "play.verificadores_lista",
+      1
+    ],
+    [
+      "2026-11-09",
+      "redes.publicadas",
+      0
+    ],
+    [
+      "2026-11-09",
+      "redes.programadas",
+      0
+    ],
+    [
+      "2026-11-09",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-09",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-09",
+      "redes.piezas",
+      3
+    ],
+    [
+      "2026-11-09",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-09",
+      "play.verificadores_lista",
+      2
+    ],
+    [
+      "2026-11-10",
+      "redes.publicadas",
+      0
+    ],
+    [
+      "2026-11-10",
+      "redes.programadas",
+      1
+    ],
+    [
+      "2026-11-10",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-10",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-10",
+      "redes.piezas",
+      4
+    ],
+    [
+      "2026-11-10",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-10",
+      "play.verificadores_lista",
+      2
+    ],
+    [
+      "2026-11-11",
+      "redes.publicadas",
+      1
+    ],
+    [
+      "2026-11-11",
+      "redes.programadas",
+      1
+    ],
+    [
+      "2026-11-11",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-11",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-11",
+      "redes.piezas",
+      5
+    ],
+    [
+      "2026-11-11",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-11",
+      "play.verificadores_lista",
+      3
+    ],
+    [
+      "2026-11-12",
+      "redes.publicadas",
+      1
+    ],
+    [
+      "2026-11-12",
+      "redes.programadas",
+      1
+    ],
+    [
+      "2026-11-12",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-12",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-12",
+      "redes.piezas",
+      6
+    ],
+    [
+      "2026-11-12",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-12",
+      "play.verificadores_lista",
+      3
+    ],
+    [
+      "2026-11-13",
+      "redes.publicadas",
+      1
+    ],
+    [
+      "2026-11-13",
+      "redes.programadas",
+      2
+    ],
+    [
+      "2026-11-13",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-13",
+      "redes.pausadas",
+      0
+    ],
+    [
+      "2026-11-13",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-13",
+      "play.build",
+      72
+    ],
+    [
+      "2026-11-13",
+      "play.verificadores_lista",
+      4
+    ],
+    [
+      "2026-11-14",
+      "redes.publicadas",
+      1
+    ],
+    [
+      "2026-11-14",
+      "redes.programadas",
+      2
+    ],
+    [
+      "2026-11-14",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-14",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-14",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-14",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-14",
+      "play.verificadores_lista",
+      4
+    ],
+    [
+      "2026-11-15",
+      "redes.publicadas",
+      2
+    ],
+    [
+      "2026-11-15",
+      "redes.programadas",
+      2
+    ],
+    [
+      "2026-11-15",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-15",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-15",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-15",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-15",
+      "play.verificadores_lista",
+      5
+    ],
+    [
+      "2026-11-16",
+      "redes.publicadas",
+      2
+    ],
+    [
+      "2026-11-16",
+      "redes.programadas",
+      3
+    ],
+    [
+      "2026-11-16",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-16",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-16",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-16",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-16",
+      "play.verificadores_lista",
+      5
+    ],
+    [
+      "2026-11-17",
+      "redes.publicadas",
+      2
+    ],
+    [
+      "2026-11-17",
+      "redes.programadas",
+      3
+    ],
+    [
+      "2026-11-17",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-17",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-17",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-17",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-17",
+      "play.verificadores_lista",
+      6
+    ],
+    [
+      "2026-11-18",
+      "redes.publicadas",
+      2
+    ],
+    [
+      "2026-11-18",
+      "redes.programadas",
+      3
+    ],
+    [
+      "2026-11-18",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-18",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-18",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-18",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-18",
+      "play.verificadores_lista",
+      6
+    ],
+    [
+      "2026-11-19",
+      "redes.publicadas",
+      3
+    ],
+    [
+      "2026-11-19",
+      "redes.programadas",
+      3
+    ],
+    [
+      "2026-11-19",
+      "redes.sin_enviar",
+      2
+    ],
+    [
+      "2026-11-19",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-19",
+      "redes.piezas",
+      7
+    ],
+    [
+      "2026-11-19",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-19",
+      "play.verificadores_lista",
+      7
+    ],
+    [
+      "2026-11-20",
+      "redes.publicadas",
+      3
+    ],
+    [
+      "2026-11-20",
+      "redes.programadas",
+      3
+    ],
+    [
+      "2026-11-20",
+      "redes.sin_enviar",
+      1
+    ],
+    [
+      "2026-11-20",
+      "redes.pausadas",
+      2
+    ],
+    [
+      "2026-11-20",
+      "redes.piezas",
+      8
+    ],
+    [
+      "2026-11-20",
+      "play.build",
+      73
+    ],
+    [
+      "2026-11-20",
+      "play.verificadores_lista",
+      7
+    ],
+    [
+      "2026-11-07",
+      "acceso.grupo_miembros",
+      5
+    ],
+    [
+      "2026-11-08",
+      "acceso.grupo_miembros",
+      5
+    ],
+    [
+      "2026-11-09",
+      "acceso.grupo_miembros",
+      6
+    ],
+    [
+      "2026-11-10",
+      "acceso.grupo_miembros",
+      6
+    ],
+    [
+      "2026-11-11",
+      "acceso.grupo_miembros",
+      6
+    ],
+    [
+      "2026-11-12",
+      "acceso.grupo_miembros",
+      6
+    ],
+    [
+      "2026-11-13",
+      "acceso.grupo_miembros",
+      7
+    ],
+    [
+      "2026-11-14",
+      "acceso.grupo_miembros",
+      7
+    ],
+    [
+      "2026-11-15",
+      "acceso.grupo_miembros",
+      7
+    ],
+    [
+      "2026-11-16",
+      "acceso.grupo_miembros",
+      7
+    ],
+    [
+      "2026-11-17",
+      "acceso.grupo_miembros",
+      8
+    ],
+    [
+      "2026-11-18",
+      "acceso.grupo_miembros",
+      8
+    ],
+    [
+      "2026-11-19",
+      "acceso.grupo_miembros",
+      8
+    ],
+    [
+      "2026-11-20",
+      "acceso.grupo_miembros",
+      8
+    ],
+    [
+      "2026-11-07",
+      "play.instalaciones_28d",
+      0
+    ],
+    [
+      "2026-11-08",
+      "play.instalaciones_28d",
+      0
+    ],
+    [
+      "2026-11-09",
+      "play.instalaciones_28d",
+      1
+    ],
+    [
+      "2026-11-10",
+      "play.instalaciones_28d",
+      1
+    ],
+    [
+      "2026-11-11",
+      "play.instalaciones_28d",
+      1
+    ],
+    [
+      "2026-11-12",
+      "play.instalaciones_28d",
+      1
+    ],
+    [
+      "2026-11-13",
+      "play.instalaciones_28d",
+      2
+    ],
+    [
+      "2026-11-14",
+      "play.instalaciones_28d",
+      2
+    ],
+    [
+      "2026-11-15",
+      "play.instalaciones_28d",
+      2
+    ],
+    [
+      "2026-11-16",
+      "play.instalaciones_28d",
+      2
+    ],
+    [
+      "2026-11-17",
+      "play.instalaciones_28d",
+      3
+    ],
+    [
+      "2026-11-18",
+      "play.instalaciones_28d",
+      3
+    ],
+    [
+      "2026-11-19",
+      "play.instalaciones_28d",
+      3
+    ],
+    [
+      "2026-11-20",
+      "play.instalaciones_28d",
+      3
+    ],
+    [
+      "2026-11-07",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-08",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-09",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-10",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-11",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-12",
+      "play.dispositivos_activos",
+      0
+    ],
+    [
+      "2026-11-13",
+      "play.dispositivos_activos",
+      1
+    ],
+    [
+      "2026-11-14",
+      "play.dispositivos_activos",
+      1
+    ],
+    [
+      "2026-11-15",
+      "play.dispositivos_activos",
+      1
+    ],
+    [
+      "2026-11-16",
+      "play.dispositivos_activos",
+      1
+    ],
+    [
+      "2026-11-17",
+      "play.dispositivos_activos",
+      2
+    ],
+    [
+      "2026-11-18",
+      "play.dispositivos_activos",
+      2
+    ],
+    [
+      "2026-11-19",
+      "play.dispositivos_activos",
+      2
+    ],
+    [
+      "2026-11-20",
+      "play.dispositivos_activos",
+      2
+    ]
   ],
   "eventos_demo": {
     "2f28ee83-0000-4000-8000-000000000001": [
