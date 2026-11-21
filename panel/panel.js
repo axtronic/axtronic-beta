@@ -131,7 +131,7 @@ function freshness(value) {
 }
 const metricFresh=key=>key.startsWith('redes.')||key.startsWith('play.')?freshness(series(key).at(-1)?.[0]):'';
 function metricCard(key,label,symbol,period,value=latest(key)) {
-  return `<button class="kpi" data-detail="metric" data-key="${key}"><span class="metric-name">${icon(symbol)}${label}</span><strong>${count(value)}</strong><small>${period}</small>${metricHistory(key)}${metricFresh(key)}</button>`;
+  return `<button class="kpi" data-detail="metric" data-key="${key}"><span class="metric-name">${icon(symbol)}${label}</span><strong>${count(value)}</strong><small>${period}</small>${testingCounts(key)}${metricHistory(key)}${metricFresh(key)}</button>`;
 }
 function kpis() {
   return '<section class="kpis">'+[[2,'instalacion'],[1,'solicitudes'],[3,'cuentas'],[4,'ejercicio']].map(([i,symbol])=>
@@ -160,17 +160,22 @@ function funnel() {
     if (value!=null) prev = value;
     const link = url ? external(url,action) : target ? go(target,action) : '';
     return `<li><span class="step-n" aria-hidden="true">${i+1}</span><div class="step-body"><span class="spread"><b>${label}</b><strong>${num(value)}</strong></span>
-      <small>${what} <span class="chip">${source}</span> ${metricFresh(key)}</small>${more}
+      <small>${what} <span class="chip">${source}</span> ${metricFresh(key)}</small>${testingCounts(key)}${more}
       <svg aria-hidden="true" viewBox="0 0 100 6" preserveAspectRatio="none">${bars}</svg>${link}</div></li>`;
   }).join('');
   return panel('Del comentario al uso',`<p class="note">Siete pasos, de quien comenta en redes a quien ya entrena. Cada número viene de su propia fuente (se indica en cada paso), así que no son siempre las mismas personas. El recorrido de cada persona está en Acceso.</p><ol class="journey">${items}</ol>`,'captacion');
 }
+function testingCounts(key) {
+  if(key!=='play.verificadores_inscritos') return '';
+  const group=latest('acceso.grupo_miembros'), accepted=latest(key);
+  return `<span class="testing-counts">${num(group)} en el grupo (te incluye) → ${num(accepted)} aceptaron la prueba en Google Play → ${accepted==null?'faltantes para 12 sin dato':'faltan '+num(Math.max(0,12-accepted))+' para 12'}</span><small>Estar en el grupo no basta: cada persona debe abrir el enlace de la prueba y aceptar.</small>`;
+}
 function storePath() {
   const n = latest('play.verificadores_inscritos');
   const milestones = [['Prueba cerrada','Activa'],['12 verificadores',n==null?'Sin dato':n>=12?'Meta alcanzada':n+' aceptaron'],['14 días seguidos','Empieza al llegar a 12'],['Pedir producción','Después de los 14 días']];
-  return panel('Camino a la tienda',`<div class="store-number">${metricFresh('play.verificadores_inscritos')}<strong>${count(n)}</strong> de 12 verificadores aceptaron</div>
+  return panel('Camino a la tienda',`<div>${testingCounts('play.verificadores_inscritos')}${metricFresh('play.verificadores_inscritos')}</div>
     <a class="points" href="${PLAY}/app-dashboard" target="_blank" rel="noopener noreferrer" aria-label="Abrir Play Console: ${n==null?'sin dato':n} de 12 verificadores">${Array.from({length:12},(_,i)=>`<i class="${n!=null && i<n?'filled':''}">${i+1}</i>`).join('')}</a>
-    <p class="note">${n==null?'El recolector de la PC sube este número cada mañana.':'Google pide 12 verificadores que acepten y sigan 14 días seguidos. Faltan '+Math.max(0,12-n)+'.'}</p>
+    <p class="note">Google pide que los verificadores sigan inscritos durante 14 días seguidos.</p>
     <ol class="timeline">${milestones.map(([label,status],i)=>`<li class="${i===0 || (i===1 && n>=12)?'done':''}"><button class="plain" data-detail="milestone" data-key="${i}"><b>${label}</b><small>${esc(status)}</small></button></li>`).join('')}</ol>
     <div class="actions">${external(PLAY+'/app-dashboard','Abrir Play Console')}${external(PLAY+'/closed-testing','Ver la prueba cerrada')}${external(groupUrl,'Ver miembros del grupo')}${external(playUrl,'Enlace para invitar verificadores')}</div>`,'store');
 }
@@ -484,14 +489,84 @@ function sessionSummary() {
   const silent=rows.filter(lostSignal).length;
   return panel('Sesiones',`<p><b>${rows.filter(working).length}</b> trabajando ahora · <b>${rows.filter(s=>s.estado==='esperando').length}</b> esperándote${silent?' · '+num(silent)+' sin señal':''}</p>${go('sesiones','Ver sesiones')}`);
 }
-function sessionCard(s) {
-  const minutes=Math.floor(elapsed(s)/60000);
-  const age=!Number.isFinite(minutes)?'Sin fecha':minutes<1?'hace menos de 1 min':minutes<60?`hace ${minutes} min`:minutes<1440?`hace ${Math.floor(minutes/60)} h`:`hace ${Math.floor(minutes/1440)} ${minutes<2880?'día':'días'}`;
+function sessionAge(time) {
+  const minutes=Math.max(0,Math.floor((Date.parse(data.ahora)-Date.parse(time))/60000));
+  return !Number.isFinite(minutes)?'Sin fecha':minutes<1?'hace menos de 1 min':minutes<60?`hace ${minutes} min`:minutes<1440?`hace ${Math.floor(minutes/60)} h`:`hace ${Math.floor(minutes/1440)} ${minutes<2880?'día':'días'}`;
+}
+function sessionStatus(s) {
   let status=chip('Terminada');
   if(working(s)) status=chip('Trabajando','ok signal');
-  if(lostSignal(s)) status=chip(Number.isFinite(minutes)?`Sin señal desde hace ${minutes} min`:'Sin señal','bad');
+  if(lostSignal(s)) status=chip('Sin señal','bad');
   if(s.estado==='esperando') status=chip('Esperándote','warn');
-  return `<article class="module" data-session-card tabindex="-1" id="item-${esc(s.id)}">${status} ${chip(segmentName(s.segmento))}<h3>${esc(sessionTitle(s))}</h3><small>Rama · ${esc(s.rama || 'Sin rama')}</small><small>Carpeta · ${esc(s.carpeta || 'Sin carpeta')}</small><p>${num(s.turnos)} ${s.turnos===1?'instrucción':'instrucciones'} · Última actividad ${esc(age)}</p>${lostSignal(s)?'<p>La sesión pudo haberse cerrado sin avisar.</p>':''}${s.segmento?taskLink(s.segmento,'Ver tareas de este segmento'):''}</article>`;
+  return status;
+}
+const queued=s=>(s.ordenes ?? []).filter(o=>o.estado==='pendiente').length;
+const sessionQuestion=s=>s.pregunta?`<p class="session-question"><small>La sesión te pregunta</small>${esc(s.pregunta)}</p>`:'';
+function sessionCard(s) {
+  const plan=s.plan ?? [], done=plan.filter(p=>p.e==='hecha').length;
+  const step=plan.find(p=>p.e==='en_curso');
+  return `<article class="module session-card" data-session-card tabindex="-1" id="item-${esc(s.id)}">
+    <div class="spread"><span>${sessionStatus(s)} ${chip(segmentName(s.segmento))}</span>${chip(queued(s)+' en cola',queued(s)?'accent':'muted')}</div>
+    <h3>${detailButton('session',s.id,sessionTitle(s))}</h3><small>Rama · ${esc(s.rama || 'Sin rama')}</small><small>Carpeta · ${esc(s.carpeta || 'Sin carpeta')}</small>
+    <small>Última actividad ${esc(sessionAge(s.ultima))} · ${num(s.turnos)} turnos</small>
+    ${lostSignal(s)?'<p>La sesión pudo haberse cerrado sin avisar.</p>':''}
+    <div class="plan-progress">${plan.length?`<small>Plan · ${done}/${plan.length} pasos completados</small><progress aria-label="Avance del plan" value="${done}" max="${plan.length}"></progress>${step?'<p>En curso · '+esc(step.t)+'</p>':''}`:'<small>Sin plan registrado</small>'}</div>
+    ${sessionQuestion(s)}<div class="actions">${detailButton('session',s.id,s.estado==='terminada'?'Ver contexto':'Abrir sesión','')}${s.segmento?taskLink(s.segmento,'Ver tareas de este segmento'):''}</div></article>`;
+}
+const sessionSections={plan:'Pendiente',context:'Contexto',conversation:'Conversación'};
+function sessionPlan(s) {
+  const labels={pendiente:'Pendiente',en_curso:'En curso',hecha:'Hecha'};
+  const steps=(s.plan ?? []).map(p=>`<li>${chip(labels[p.e],p.e==='hecha'?'ok':p.e==='en_curso'?'accent':'muted')} <span>${esc(p.t)}</span></li>`);
+  return sessionQuestion(s)+(steps.length?`<ol class="session-plan">${steps.join('')}</ol>`:'<p>Sin plan registrado.</p>');
+}
+function sessionContext(s) {
+  return `<h3>Último turno</h3>${documentBody(s.recap || 'Sin recapitulación registrada.')}<h3>Último mensaje de la sesión</h3>${documentBody(s.resumen || 'Sin mensaje registrado.')}`;
+}
+function orderThread(s) {
+  const rows=(s.ordenes ?? []).slice().reverse().map(o=>{
+    const pending=o.estado==='pendiente';
+    const status=pending?'En cola':o.estado==='entregada'?'Entregada · '+sessionAge(o.entregada):'Cancelada';
+    return `<li><small>${o.tipo==='finalizar'?'Finalizar trabajo':'Tu instrucción'} · ${esc(stamp(o.creada))}</small><p class="lines">${esc(o.texto)}</p>${chip(status,pending?'warn':o.estado==='entregada'?'ok':'muted')}
+      ${pending?`<button class="plain" data-op="cancelar_orden" data-id="${esc(o.id)}">Cancelar orden</button>`:''}</li>`;
+  });
+  return rows.length?`<ol class="order-thread">${rows.join('')}</ol>`:'<p>Aún no has enviado órdenes a esta sesión.</p>';
+}
+function sessionDelivery(s) {
+  return s.estado==='esperando'?'La recibirá cuando vuelvas a abrir la sesión o le escribas en Claude Code.':'La recibirá cuando termine su turno actual.';
+}
+function sessionConversation(s) {
+  return `<div id="session-thread">${orderThread(s)}</div><div class="session-compose"><label for="instruction">Tu instrucción</label>
+    <small id="session-delivery">${sessionDelivery(s)} Si pasan 24 h sin entregarse, se cancela.</small>
+    <textarea id="instruction" maxlength="2000" rows="3" aria-describedby="session-delivery instruction-count"></textarea>
+    <div class="spread"><small id="instruction-count">0/2000</small><button class="primary" data-op="ordenar" id="send-instruction" aria-keyshortcuts="Control+Enter">Enviar instrucción</button></div>
+    <small>Ctrl+Enter para enviar</small><div class="actions">${['Continúa','Resume qué falta'].map(t=>`<button data-op="ordenar" data-text="${t}">${t}</button>`).join('')}<button data-op="ordenar" data-type="finalizar">Finalizar trabajo</button></div></div>`;
+}
+function sessionDetail(s) {
+  const active=s.estado!=='terminada';
+  const sections=active?Object.keys(sessionSections):['context'];
+  const bodies={plan:sessionPlan,context:sessionContext,conversation:sessionConversation};
+  return `<div class="session-detail" data-session="${esc(s.id)}"><div id="session-status">${sessionStatus(s)} ${chip(segmentName(s.segmento))}</div>
+    ${active?`<div class="actions section-switch" role="group" aria-label="Secciones de la sesión">${sections.map((k,i)=>`<button data-section="${k}" aria-controls="section-${k}" aria-pressed="${i===0}">${sessionSections[k]}</button>`).join('')}</div>`:''}
+    ${sections.map((k,i)=>`<section id="section-${k}" aria-label="${sessionSections[k]}" ${i?'hidden':''}>${bodies[k](s)}</section>`).join('')}
+    <footer><button data-op="archivar_sesion" data-id="${esc(s.id)}">Quitar del panel</button></footer></div>`;
+}
+function refreshSessionDetail(id) {
+  const s=sessions().find(row=>row.id===id);
+  if(!s) return closeDetail();
+  if((s.estado!=='terminada')!==Boolean($('#instruction'))) return showDetail(sessionTitle(s),sessionDetail(s));
+  $('#detalle-titulo').textContent=sessionTitle(s);
+  $('#session-status').innerHTML=sessionStatus(s)+' '+chip(segmentName(s.segmento));
+  $('#section-context').innerHTML=sessionContext(s);
+  if(!$('#instruction')) return;
+  $('#section-plan').innerHTML=sessionPlan(s);
+  $('#session-delivery').textContent=sessionDelivery(s)+' Si pasan 24 h sin entregarse, se cancela.';
+  const thread=$('#session-thread');
+  const focusedOrder=thread.contains(document.activeElement)?document.activeElement.dataset.id:null;
+  thread.innerHTML=orderThread(s);
+  if(focusedOrder) {
+    const replacement=[...thread.querySelectorAll('button')].find(button=>button.dataset.id===focusedOrder);
+    (replacement || $('#instruction')).focus({preventScroll:true});
+  }
 }
 function sessionsView() {
   const rows=sessions().filter(s=>(!sessionSegment || s.segmento===sessionSegment) && (s.estado!=='terminada' || elapsed(s)<=3*dayMs));
@@ -499,7 +574,7 @@ function sessionsView() {
   const controls=filters.map(([key,label,test])=>`<button data-session-filter="${key}" aria-pressed="${sessionFilter===key}"><strong>${rows.filter(test).length}</strong>${label}</button>`).join('');
   const test=sessionFilter==='activas'?activeSession:filters.find(([key])=>key===sessionFilter)?.[2];
   const list=rows.filter(s=>!test || test(s)).sort((a,b)=>Date.parse(b.ultima)-Date.parse(a.ultima));
-  return `<div class="session-counts">${controls}</div><div><p>Cada sesión de Claude Code del proyecto avisa al empezar, al recibir una instrucción y al terminar su turno. Solo se guarda el arranque de la instrucción.</p><p>El panel solo muestra la actividad. Para darle otra instrucción, abre la sesión en Claude Code.</p>${sessionSegment?chip(segmentName(sessionSegment)):''} ${sessionFilter==='activas'?chip('Sesiones activas'):''} ${sessionFilter || sessionSegment?go('sesiones','Ver todas las sesiones'):''}</div><div class="grid">${list.map(sessionCard).join('') || '<p>No hay sesiones para esta selección.</p>'}</div>`;
+  return `<div class="session-counts">${controls}</div><div>${sessionSegment?chip(segmentName(sessionSegment)):''} ${sessionFilter==='activas'?chip('Sesiones activas'):''} ${sessionFilter || sessionSegment?go('sesiones','Ver todas las sesiones'):''}</div><div class="grid">${list.map(sessionCard).join('') || '<p>No hay sesiones para esta selección.</p>'}</div>`;
 }
 function teamDiagram(columns) {
   const segments=team.segmentos, width=columns*240, center=width/2;
@@ -769,13 +844,18 @@ function metricDetail(key,title,explain='') {
   const target=beta||key==='play.build'?'versiones':socialKey?'redes':'tienda';
   const definition=metricInfo[key] ?? 'Salidas con estado «'+title.toLowerCase()+'» en el corte de redes.';
   const source=beta?'Registro de versiones':socialKey||key.startsWith('play.')?'Recolector de la PC':'Métricas diarias del panel';
-  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p><small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${key==='acceso.grupo_miembros'?external(groupUrl,'Abrir el grupo'):key.startsWith('play.')?external(PLAY+(key==='play.verificadores_inscritos'?'/app-dashboard':'/statistics'),'Abrir en Play Console'):''}${go(target,'Ver '+views[target])}`);
+  showDetail(title,`<strong class="big">${num(beta?releases()[0]?.build:latest(key))}</strong><p>${esc(explain || definition)}</p>${testingCounts(key)}<small>${source} · ${esc(stamp(rows.at(-1)?.[0]))}</small>${metricFresh(key)}${historyTable(rows)}${key==='acceso.grupo_miembros'?external(groupUrl,'Abrir el grupo'):key.startsWith('play.')?external(PLAY+(key==='play.verificadores_inscritos'?'/app-dashboard':'/statistics'),'Abrir en Play Console'):''}${go(target,'Ver '+views[target])}`);
 }
 async function openDetail(kind,key) {
   if(!mayLeaveDocument()) return;
   documentDraft=null;
   drawer.classList.remove('document-drawer');
   const generation=++detailGeneration;
+  if(kind==='session') {
+    const s=sessions().find(row=>row.id===key);
+    if(s) showDetail(sessionTitle(s),sessionDetail(s));
+    return;
+  }
   if(kind==='documento') return openDocument(key,generation);
   if(kind==='search') {
     showDetail('Buscar en el panel','<label for="consulta">Buscar</label><input id="consulta" type="search" autocomplete="off"><div id="resultados" aria-live="polite">'+searchResults('')+'</div>');
@@ -880,6 +960,7 @@ function searchResults(query) {
   return entries.filter(([,key,type,label,extra])=>terms.every(term=>norm([type,key,label,...extra].join(' ')).includes(term))).map(([kind,key,type,label])=>detailButton(kind,key,type+' · '+label,'search-hit')).join('') || '<p>Sin coincidencias.</p>';
 }
 document.addEventListener('input',e=>{
+  if(e.target.id==='instruction') $('#instruction-count').textContent=e.target.value.length+'/2000';
   if(e.target.id==='respuesta-doc') responseCount();
   if(e.target.id==='consulta') $('#resultados').innerHTML=searchResults(e.target.value);
 });
@@ -906,6 +987,25 @@ function status() {
   const time=new Date(data.ahora).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
   $('#estado').innerHTML=`${DEMO?'<span>Demo</span> · ':''}<i></i> Al día ${esc(time)}`;
 }
+let demoSessions, demoOrderId=0;
+function demoSessionOp(op,args,sessionId) {
+  const s=demoSessions.find(row=>row.id===sessionId);
+  if(!s) throw Error('Esa sesión ya no está en el panel.');
+  if(op==='archivar_sesion') {
+    demoSessions=demoSessions.filter(row=>row!==s);
+    return;
+  }
+  if(s.estado==='terminada') throw Error('Esa sesión ya terminó.');
+  if(op==='cancelar_orden') {
+    const order=s.ordenes?.find(o=>o.id===args.id && o.estado==='pendiente');
+    if(!order) throw Error('Esa instrucción ya se entregó o no existe.');
+    order.estado='cancelada';
+    return;
+  }
+  if(queued(s)>=5) throw Error('Esa sesión ya tiene 5 instrucciones sin entregar.');
+  const texto=args.tipo==='finalizar'?'Cierra el trabajo de esta sesión: termina o deja anotado lo que esté a medias, verifica lo hecho, resume qué queda pendiente y detente. No empieces nada nuevo.':args.texto;
+  s.ordenes=[{id:'demo-'+(++demoOrderId),tipo:args.tipo,texto,estado:'pendiente',creada:data.ahora,entregada:null},...(s.ordenes ?? [])];
+}
 async function load(refresh=false) {
   const generation=++request;
   let next;
@@ -913,6 +1013,8 @@ async function load(refresh=false) {
     const response=await fetch('demo.json',{cache:'no-store'});
     if (!response.ok) throw Error('No se pudo leer la demostración.');
     next=await response.json();
+    demoSessions ??= next.sesiones ?? [];
+    next.sesiones=demoSessions.map(s=>({...s,ordenes:(s.ordenes ?? []).slice(0,10).map(o=>({...o}))}));
   } else {
     const {data:summary,error}=await sb.rpc('panel',{p_op:'resumen'});
     if (error) throw Error(error.message);
@@ -921,7 +1023,8 @@ async function load(refresh=false) {
   if (generation!==request) return;
   // Un refresco conserva el comentario, el foco y los grupos abiertos.
   const liveView=['sesiones','equipo','fabrica'].includes(view);
-  if (refresh && (busy || drawer.open || $('#app a:focus') || $('#app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('textarea')].some(t=>t.value))) return;
+  const sessionId=drawer.querySelector('[data-session]')?.dataset.session;
+  if (refresh && (busy || (drawer.open && !sessionId) || $('#app a:focus') || $('#app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('#app textarea')].some(t=>t.value))) return;
   const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
@@ -929,9 +1032,10 @@ async function load(refresh=false) {
   if (!refresh && !dataPainted) { draw(); dataPainted=true; }
   else if (!refresh) refreshView();
   else if (changed) refreshView();
+  if(sessionId && (!refresh || changed)) refreshSessionDetail(sessionId);
 }
 function refreshView() {
-  const fields = [...document.querySelectorAll('textarea')].map(el => [el.id,el.value]);
+  const fields = [...document.querySelectorAll('#app textarea')].map(el => [el.id,el.value]);
   const open = new Set([...document.querySelectorAll('details[open]')].map(el => el.dataset.group));
   const active = document.activeElement;
   const group = active.closest('details')?.dataset.group;
@@ -1033,6 +1137,11 @@ function navigate(button) {
   } else paint();
 }
 document.addEventListener('keydown',e=>{
+  if(e.target.id==='instruction' && e.ctrlKey && e.key==='Enter') {
+    e.preventDefault();
+    if(!busy && !e.repeat && !e.isComposing) $('#send-instruction').click();
+    return;
+  }
   if(e.key==='/' && data && !busy && !drawer.open && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest('input,textarea,[contenteditable]')) {
     e.preventDefault();
     openDetail('search','');
@@ -1049,13 +1158,21 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',async e=>{
   let b=e.target.closest('button,.factory-scene [role=button],[data-team-node]');
   // En el espacio libre de una tarjeta se abre su control de lectura.
-  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog,[data-session-card],[data-team-card]') && !window.getSelection()?.toString()) {
+  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog,[data-team-card]') && !window.getSelection()?.toString()) {
     const card=e.target.closest('.item,.module,.hero,.lane,.calendar li,.events li');
     b=card?.querySelector('button[data-detail],button[data-ir]');
   }
   if (!b) return;
   if (b.id==='cerrar' || b.hasAttribute('data-close')) return closeDetail();
   if (busy) return;
+  if(b.dataset.section) {
+    for(const control of drawer.querySelectorAll('[data-section]')) {
+      const selected=control===b;
+      control.setAttribute('aria-pressed',String(selected));
+      document.getElementById(control.getAttribute('aria-controls')).hidden=!selected;
+    }
+    return;
+  }
   if(b.hasAttribute('data-copy')) {
     try { await navigator.clipboard.writeText(b.dataset.copy); notice('Copiado'); }
     catch { notice('No se pudo copiar. Selecciona el correo para copiarlo.'); }
@@ -1085,9 +1202,25 @@ document.addEventListener('click',async e=>{
   if (b.id==='salir') { await sb.auth.signOut(); return location.reload(); }
   const {op,id,a,opcion,huella}=b.dataset;
   if (!op) return;
-  if (DEMO) return notice('Demostración. Los cambios no se guardan.');
+  const sessionId=b.closest('[data-session]')?.dataset.session;
+  if (DEMO && !sessionId) return notice('Demostración. Los cambios no se guardan.');
   let args;
   switch (op) {
+    case 'ordenar': {
+      args={sesion:sessionId,tipo:b.dataset.type || 'instruccion'};
+      if(args.tipo==='instruccion') {
+        args.texto=(b.dataset.text ?? $('#instruction').value).trim();
+        if(!args.texto || args.texto.length>2000) {
+          $('#instruction').focus();
+          return notice('Escribe una instrucción de 1 a 2000 caracteres.');
+        }
+      }
+      break;
+    }
+    case 'archivar_sesion':
+      if(!window.confirm('¿Quitar esta sesión del panel? Dejará de verse aquí y se cancelarán sus órdenes en cola.')) return;
+      args={id}; break;
+    case 'cancelar_orden': args={id}; break;
     case 'segmentar': args={id,segmento:$('#segmento-tarea').value}; if(!segmentKeys.includes(args.segmento)) return; break;
     case 'responder_documento': args={clave:documentDraft.key,respuesta:$('#respuesta-doc').value}; break;
     case 'pausar': args={activa:b.dataset.active==='true'}; break;
@@ -1106,8 +1239,23 @@ document.addEventListener('click',async e=>{
   }
   busy=true; b.disabled=true;
   try {
-    const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
-    if (error) throw Error(error.message);
+    if(DEMO) demoSessionOp(op,args,sessionId);
+    else {
+      const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
+      if (error) throw Error(error.message);
+    }
+    if(sessionId) {
+      if(op==='archivar_sesion' && b.isConnected) closeDetail();
+      if(b.id==='send-instruction' && b.isConnected && $('#instruction').value.trim()===args.texto) {
+        $('#instruction').value='';
+        $('#instruction-count').textContent='0/2000';
+      }
+      try { await load(); }
+      catch { return notice('Cambio guardado. No se pudo actualizar el resumen.'); }
+      if(drawer.querySelector('[data-session]')?.dataset.session===sessionId && (op==='cancelar_orden' || b.id==='send-instruction')) $('#instruction')?.focus();
+      notice(op==='archivar_sesion'?'Sesión retirada del panel.':op==='ordenar'?'Orden en cola.':'Orden cancelada.');
+      return;
+    }
     if(op==='responder_documento') {
       if(b.isConnected) documentDraft.saved=args.respuesta;
       try { await load(); }

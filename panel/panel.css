@@ -343,6 +343,35 @@ a.points {grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
 @media (max-width:700px) { a.points {grid-template-columns:repeat(6,minmax(0,1fr));gap:6px} }
 
 .session-counts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.session-card h3 {font-size:1.12rem}
+.session-card .spread,.session-compose .spread {flex-wrap:wrap;gap:6px}
+.session-card small {margin:.2rem 0}
+.plan-progress,.session-detail footer {margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.plan-progress progress {display:block;width:100%;height:7px;margin:7px 0;accent-color:var(--accent);border:0;border-radius:8px;overflow:hidden;background:var(--surface)}
+.plan-progress progress::-webkit-progress-bar {background:var(--surface)}
+.plan-progress progress::-webkit-progress-value {background:var(--accent)}
+.plan-progress p {margin:4px 0;color:var(--text)}
+.session-question {padding:10px 14px;border-inline-start:3px solid var(--warn);background:var(--surface);color:var(--text)}
+.session-question small {color:var(--warn);font-weight:600}
+.section-switch {gap:4px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-switch button {flex:1 1 auto;padding-inline:8px}
+.section-switch [aria-pressed=true] {border-color:var(--accent);color:var(--accent);background:var(--hero-start)}
+.session-detail section {margin:14px 0}
+.session-plan {padding-inline-start:24px}
+.session-plan li {margin:10px 0;padding-inline-start:4px}
+.session-plan .chip {margin-right:4px}
+.order-thread {display:grid;gap:8px;padding:0 0 0 12px;list-style:none}
+.order-thread li {background:var(--surface);border-radius:12px 12px 3px 12px;padding:10px 14px}
+.order-thread p {color:var(--text);margin:6px 0}
+.order-thread .plain {margin-inline-start:8px;color:var(--accent)}
+.session-compose {border-block-start:1px solid var(--border);padding-top:16px}
+.session-compose label {color:var(--text);font-weight:600}
+.session-compose .spread {align-items:center}
+.session-detail footer button {background:transparent;color:var(--muted)}
+.testing-counts {display:block;color:var(--text);font-weight:600;margin-block:6px}
+@media(prefers-reduced-motion:no-preference) {
+  .session-detail,.session-detail section:not([hidden]),.order-thread li:last-child {animation:enter .18s ease-out}
+}
 .session-counts button {background:var(--card);text-align:left;padding:12px;overflow-wrap:anywhere}
 .session-counts strong {display:block;color:var(--accent);font:var(--heading);font-size:1.6rem;margin-bottom:4px}
 :is([data-session-filter],[data-factory-segment],[data-open-tasks])[aria-pressed=true] {border-color:var(--accent);color:var(--accent)}

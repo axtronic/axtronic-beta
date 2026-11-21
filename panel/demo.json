@@ -1748,7 +1748,42 @@
       "segmento": "app",
       "turnos": 8,
       "iniciada": "2026-11-20T19:21:00.000Z",
-      "ultima": "2026-11-20T20:26:00.000Z"
+      "ultima": "2026-11-20T20:26:00.000Z",
+      "plan": [
+        {
+          "t": "Revisar los casos de perfil",
+          "e": "hecha"
+        },
+        {
+          "t": "Comparar el conteo por repetición",
+          "e": "en_curso"
+        },
+        {
+          "t": "Anotar los casos pendientes",
+          "e": "pendiente"
+        }
+      ],
+      "recap": "Revisé los casos de perfil y separé las repeticiones dudosas.",
+      "resumen": "## Comparación en curso\n- Revisé la posición inicial.\n- Estoy contrastando las repeticiones dudosas con el conteo esperado.",
+      "pregunta": null,
+      "ordenes": [
+        {
+          "id": "demo-cola",
+          "tipo": "instruccion",
+          "texto": "Incluye los casos en los que se pierde la rodilla de vista.",
+          "estado": "pendiente",
+          "creada": "2026-11-20T20:26:00.000Z",
+          "entregada": null
+        },
+        {
+          "id": "demo-entregada",
+          "tipo": "instruccion",
+          "texto": "Empieza por las sentadillas de perfil.",
+          "estado": "entregada",
+          "creada": "2026-11-20T19:21:00.000Z",
+          "entregada": "2026-11-20T19:25:00Z"
+        }
+      ]
     },
     {
       "id": "sesion-wear",
@@ -1759,7 +1794,12 @@
       "segmento": "reloj",
       "turnos": 3,
       "iniciada": "2026-11-20T18:35:00.000Z",
-      "ultima": "2026-11-20T19:40:00.000Z"
+      "ultima": "2026-11-20T19:40:00.000Z",
+      "recap": null,
+      "resumen": null,
+      "pregunta": null,
+      "plan": [],
+      "ordenes": []
     },
     {
       "id": "sesion-beta",
@@ -1770,7 +1810,21 @@
       "segmento": "publicacion",
       "turnos": 6,
       "iniciada": "2026-11-20T19:11:00.000Z",
-      "ultima": "2026-11-20T20:16:00.000Z"
+      "ultima": "2026-11-20T20:16:00.000Z",
+      "pregunta": "¿Con qué modelo de reloj hacemos la primera prueba?",
+      "recap": "La propuesta está lista para revisión.",
+      "resumen": "Falta elegir el reloj antes de preparar la invitación.",
+      "plan": [
+        {
+          "t": "Preparar la propuesta",
+          "e": "hecha"
+        },
+        {
+          "t": "Confirmar el modelo del reloj",
+          "e": "pendiente"
+        }
+      ],
+      "ordenes": []
     },
     {
       "id": "sesion-portada",
@@ -1781,7 +1835,12 @@
       "segmento": "diseno",
       "turnos": 2,
       "iniciada": "2026-11-20T18:49:00.000Z",
-      "ultima": "2026-11-20T19:54:00.000Z"
+      "ultima": "2026-11-20T19:54:00.000Z",
+      "recap": null,
+      "resumen": null,
+      "pregunta": null,
+      "plan": [],
+      "ordenes": []
     },
     {
       "id": "sesion-registro",
@@ -1792,7 +1851,17 @@
       "segmento": "finanzas",
       "turnos": 5,
       "iniciada": "2026-11-19T18:45:00.000Z",
-      "ultima": "2026-11-19T19:50:00.000Z"
+      "ultima": "2026-11-19T19:50:00.000Z",
+      "recap": "Concilié los gastos del mes y dejé el registro actualizado.",
+      "resumen": "## Cierre del mes\n- Contrasté los importes con sus comprobantes.\n- Registré las diferencias y sus correcciones.",
+      "plan": [
+        {
+          "t": "Conciliar los gastos",
+          "e": "hecha"
+        }
+      ],
+      "pregunta": null,
+      "ordenes": []
     }
   ],
   "documentos": [
