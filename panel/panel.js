@@ -441,7 +441,7 @@ function taskCard(t,detail=false,expanded=false) {
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
   return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(segmentName(t.segmento),'accent')} ${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
     <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>
-    ${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
+    ${expanded && t.spec?`<h4>Pedido completo</h4><p class="lines">${esc(t.spec)}</p>`:''}${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
 }
 const segmentKeys=['app','diseno','reloj','datos','redes','publicacion','finanzas','legal','fabrica'];
 let team=null, factorySegment='', openTasksOnly=false, sessionSegment='', sessionFilter='';
@@ -462,7 +462,7 @@ function factory() {
   const others=data.tareas.filter(t=>stageOf(t.estado)<0 && taskMatches(t));
   const filters=['',...segmentKeys].map(k=>`<button data-factory-segment="${esc(k)}" aria-pressed="${factorySegment===k}">${esc(k?segmentName(k):'Todos')}</button>`).join('');
   return plant()+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
-    panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="2"></textarea><button class="primary" data-op="nueva">Proponer tarea</button>');
+    panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="3" maxlength="20000"></textarea><small>Puede ser largo: la primera línea queda como título y el resto se guarda entero.</small><button class="primary" data-op="nueva">Proponer tarea</button>');
 }
 function decision(d,detail=false) {
   const age = Math.max(0, Math.floor((new Date(data.ahora)-new Date(d.created_at))/86400000));
@@ -506,7 +506,9 @@ function sessionStatus(s) {
   return status;
 }
 const queued=s=>(s.ordenes ?? []).filter(o=>o.estado==='pendiente').length;
-const sessionQuestion=s=>s.pregunta?`<p class="session-question"><small>La sesión te pregunta</small>${esc(s.pregunta)}</p>`:'';
+// Las respuestas que la sesión dejó junto a su pregunta: cada botón la manda como instrucción. Llega cuando la sesión vuelve a moverse.
+const sessionAnswers=s=>s.estado==='esperando' && s.opciones?.length?`<div class="actions session-answers" data-session="${esc(s.id)}" role="group" aria-label="Responder a la sesión">${s.opciones.map((o,i)=>`<button class="${i?'':'primary'}" data-op="ordenar" data-text="${esc(o)}">${esc(o)}</button>`).join('')}</div><small>Tu respuesta le llega cuando la sesión vuelve a moverse.</small>`:'';
+const sessionQuestion=s=>s.pregunta?`<p class="session-question"><small>La sesión te pregunta</small>${esc(s.pregunta)}</p>${sessionAnswers(s)}`:'';
 function sessionCard(s) {
   const plan=s.plan ?? [], done=plan.filter(p=>p.e==='hecha').length;
   const step=plan.find(p=>p.e==='en_curso');

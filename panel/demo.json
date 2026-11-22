@@ -2179,6 +2179,7 @@
       "iniciada": "2026-11-20T19:11:00.000Z",
       "ultima": "2026-11-20T20:16:00.000Z",
       "pregunta": "¿Con qué modelo de reloj hacemos la primera prueba?",
+      "opciones": ["Galaxy Watch", "Pixel Watch"],
       "recap": "La propuesta está lista para revisión.",
       "resumen": "Falta elegir el reloj antes de preparar la invitación.",
       "plan": [
