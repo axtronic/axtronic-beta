@@ -136,6 +136,81 @@
   ],
   "decisiones": [
     {
+      "id": "fin-voz",
+      "titulo": "La voz para vídeos sube de precio el 18 de diciembre",
+      "contexto": "Revisa el uso del servicio antes del siguiente cargo.",
+      "opciones": [
+        "Revisar alternativas",
+        "Mantener el servicio"
+      ],
+      "enlaces": [],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T12:00:00Z"
+    },
+    {
+      "id": "fin-declaracion",
+      "titulo": "Declaración mensual del día 17",
+      "contexto": "Prepara la información de la declaración. Estimación; lo confirma el contador.",
+      "opciones": [
+        "Preparar documentos",
+        "Pedir revisión"
+      ],
+      "enlaces": [],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T12:00:00Z"
+    },
+    {
+      "id": "fin-comision",
+      "titulo": "Inscribirse a la comisión de 15 %",
+      "contexto": "Revisa las condiciones antes del primer cobro.",
+      "opciones": [
+        "Revisar inscripción",
+        "Ver después"
+      ],
+      "enlaces": [
+        {
+          "texto": "Abrir Play Console",
+          "url": "https://play.google.com/console/"
+        }
+      ],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T12:00:00Z"
+    },
+    {
+      "id": "fin-contador",
+      "titulo": "Cita con el contador",
+      "contexto": "Confirma si la iguala cambió por AXTRONIC. Estimación; lo confirma el contador.",
+      "opciones": [
+        "Preparar cita",
+        "Pedir otra fecha"
+      ],
+      "enlaces": [
+        {
+          "texto": "Ver preguntas",
+          "doc": "finanzas-preguntas"
+        }
+      ],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T12:00:00Z"
+    },
+    {
+      "id": "fin-comprobantes",
+      "titulo": "Gastos sin comprobante",
+      "contexto": "Revisa las compras con documentación pendiente.",
+      "opciones": [
+        "Pedir comprobantes",
+        "Consultar al contador"
+      ],
+      "enlaces": [],
+      "estado": "pendiente",
+      "respuesta": null,
+      "created_at": "2026-11-19T12:00:00Z"
+    },
+    {
       "id": "segmento-wear",
       "titulo": "¿Subimos el reloj a un segmento propio de Wear OS?",
       "contexto": "Play lo exige para publicar el AAB del reloj; el build 10 salió sin él.",
@@ -1508,6 +1583,298 @@
     ]
   },
   "ajustes": {
+    "finanzas.resumen": {
+      "demo": true,
+      "corte": "2026-11-22",
+      "suscriptores": 0,
+      "acumulado": 18450,
+      "costo_mensual": {
+        "min": 1900,
+        "max": 2900,
+        "renglones": [
+          {
+            "nombre": "IA de desarrollo",
+            "importe": 1750,
+            "confirmado": true,
+            "nota": ""
+          },
+          {
+            "nombre": "Voz para vídeos",
+            "importe": 110,
+            "confirmado": true,
+            "nota": ""
+          },
+          {
+            "nombre": "Margen",
+            "importe": 40,
+            "confirmado": true,
+            "nota": ""
+          },
+          {
+            "nombre": "Contador",
+            "importe": 1000,
+            "confirmado": false,
+            "nota": "Falta saber si la iguala subió por AXTRONIC."
+          }
+        ]
+      },
+      "mes": {
+        "clave": "2026-11",
+        "importe": 1980,
+        "completo": false
+      },
+      "mes_anterior": {
+        "clave": "2026-10",
+        "importe": 1240,
+        "completo": true
+      },
+      "proveedores": [
+        {
+          "nombre": "IA de desarrollo",
+          "tipo": "servicio",
+          "importe": 2415,
+          "cargos": 2,
+          "meses": [
+            [
+              "2026-10",
+              665
+            ],
+            [
+              "2026-11",
+              1750
+            ]
+          ]
+        },
+        {
+          "nombre": "Voz para vídeos",
+          "tipo": "servicio",
+          "importe": 325,
+          "cargos": 5,
+          "meses": [
+            [
+              "2026-07",
+              35
+            ],
+            [
+              "2026-08",
+              35
+            ],
+            [
+              "2026-09",
+              35
+            ],
+            [
+              "2026-10",
+              110
+            ],
+            [
+              "2026-11",
+              110
+            ]
+          ]
+        },
+        {
+          "nombre": "Teléfono de prueba",
+          "tipo": "equipo",
+          "importe": 15125,
+          "cargos": 1,
+          "meses": [
+            [
+              "2026-06",
+              15125
+            ]
+          ]
+        },
+        {
+          "nombre": "Tienda (pago único)",
+          "tipo": "equipo",
+          "importe": 465,
+          "cargos": 1,
+          "meses": [
+            [
+              "2026-10",
+              465
+            ]
+          ]
+        },
+        {
+          "nombre": "Reloj de prueba",
+          "tipo": "equipo",
+          "importe": 120,
+          "cargos": 1,
+          "meses": [
+            [
+              "2026-11",
+              120
+            ]
+          ]
+        }
+      ],
+      "meses": [
+        [
+          "2026-06",
+          15125
+        ],
+        [
+          "2026-07",
+          35
+        ],
+        [
+          "2026-08",
+          35
+        ],
+        [
+          "2026-09",
+          35
+        ],
+        [
+          "2026-10",
+          1240
+        ],
+        [
+          "2026-11",
+          1980
+        ]
+      ],
+      "equilibrio": [
+        {
+          "plan": "mensual_199",
+          "etiqueta": "Mensual · $199",
+          "comision": 0.15,
+          "neto": 144.1,
+          "min": 14,
+          "max": 21
+        },
+        {
+          "plan": "mensual_199",
+          "etiqueta": "Mensual · $199",
+          "comision": 0.3,
+          "neto": 118.37,
+          "min": 17,
+          "max": 25
+        },
+        {
+          "plan": "anual_2388",
+          "etiqueta": "12 meses · $2,388",
+          "comision": 0.15,
+          "neto": 144.1,
+          "min": 14,
+          "max": 21
+        },
+        {
+          "plan": "anual_2388",
+          "etiqueta": "12 meses · $2,388",
+          "comision": 0.3,
+          "neto": 118.37,
+          "min": 17,
+          "max": 25
+        },
+        {
+          "plan": "anual_1200",
+          "etiqueta": "12 meses con beneficio · $1,200",
+          "comision": 0.15,
+          "neto": 72.41,
+          "min": 27,
+          "max": 41
+        },
+        {
+          "plan": "anual_1200",
+          "etiqueta": "12 meses con beneficio · $1,200",
+          "comision": 0.3,
+          "neto": 59.48,
+          "min": 32,
+          "max": 49
+        }
+      ],
+      "metas": [
+        {
+          "titulo": "Activar el cobro",
+          "detalle": "Completa la configuración de cobros en la tienda.",
+          "hecha": false,
+          "actual": true
+        },
+        {
+          "titulo": "Primer suscriptor",
+          "detalle": "Registra el primer pago recibido.",
+          "hecha": false,
+          "actual": false
+        },
+        {
+          "titulo": "Cubrir el mes",
+          "detalle": "Cubre los servicios mensuales con los ingresos de suscripciones.",
+          "hecha": false,
+          "actual": false
+        },
+        {
+          "titulo": "Recuperar los servicios pagados",
+          "detalle": "Cubre los pagos de servicios anteriores.",
+          "hecha": false,
+          "actual": false
+        },
+        {
+          "titulo": "Recuperar toda la inversión",
+          "detalle": "Recupera también las compras de equipo.",
+          "hecha": false,
+          "actual": false
+        }
+      ],
+      "sin_comprobante": [
+        {
+          "proveedor": "Reloj de prueba",
+          "concepto": "Falta factura o ticket."
+        },
+        {
+          "proveedor": "Teléfono de prueba",
+          "concepto": "Falta factura o ticket."
+        },
+        {
+          "proveedor": "Voz para vídeos",
+          "concepto": "Falta factura o ticket."
+        }
+      ],
+      "recomendaciones": [
+        {
+          "titulo": "Revisa la comisión de 15 % antes de cobrar",
+          "porque": "La tarifa cambia lo que queda de cada pago.",
+          "impacto": "El límite alto del plan mensual baja de 25 a 21 suscriptores.",
+          "accion": {
+            "texto": "Abrir Play Console",
+            "tipo": "url",
+            "valor": "https://play.google.com/console/"
+          }
+        },
+        {
+          "titulo": "Decide si mantienes la voz para vídeos",
+          "porque": "El precio cambia el 18 de diciembre.",
+          "impacto": "Puedes revisar el servicio antes del siguiente cargo.",
+          "accion": {
+            "texto": "Revisar decisión",
+            "tipo": "decision",
+            "valor": "fin-voz"
+          }
+        },
+        {
+          "titulo": "Confirma la iguala con el contador",
+          "porque": "Falta saber qué parte corresponde a AXTRONIC.",
+          "impacto": "El rango del plan mensual al 15 % cambia en 7 suscriptores.",
+          "accion": {
+            "texto": "Ver preguntas",
+            "tipo": "doc",
+            "valor": "finanzas-preguntas"
+          }
+        },
+        {
+          "titulo": "Consigue el comprobante de 3 gastos",
+          "porque": "Hay compras pendientes de documentar.",
+          "impacto": "Podrás revisar los gastos con su respaldo.",
+          "accion": {
+            "texto": "Ver qué pedir",
+            "tipo": "detalle",
+            "valor": "Pide la factura o el ticket del reloj, el teléfono y el servicio de voz."
+          }
+        }
+      ]
+    },
     "redes.pausa": {
       "activa": false,
       "_al": "2026-11-20T20:30:00Z"
@@ -1866,6 +2233,14 @@
   ],
   "documentos": [
     {
+      "clave": "finanzas-preguntas",
+      "titulo": "Preguntas para la cita con el contador",
+      "segmento": "finanzas",
+      "origen": "Finanzas · demostración",
+      "actualizado": "2026-11-22",
+      "respondido": null
+    },
+    {
       "clave": "beta-reloj",
       "titulo": "Propuesta de prueba para el reloj",
       "segmento": "publicacion",
@@ -1883,6 +2258,10 @@
     }
   ],
   "documentos_demo": {
+    "finanzas-preguntas": {
+      "cuerpo": "## Para la cita\n1. ¿La iguala cambió por AXTRONIC?\n2. ¿Qué comprobantes faltan?\n3. ¿Cuándo se revisa la declaración?\n\nEstimación; lo confirma el contador.",
+      "respuesta": null
+    },
     "beta-reloj": {
       "cuerpo": "## Alcance de la prueba\nQueremos abrir una prueba para el reloj.\n\n1. Elegir el modelo para la primera medición.\n2. Confirmar quién probará el enlace con el teléfono.\n\n## Material de revisión\n- Captura del reloj\n- Registro de tiempos\n\nTexto recibido tal cual: <b>negrita</b> y [enlace](https://example.com).",
       "respuesta": null

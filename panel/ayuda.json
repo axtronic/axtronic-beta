@@ -1,0 +1,92 @@
+{
+  "fin.costo_mensual": {
+    "que": "Presupuesto para operar un mes.",
+    "calculo": "El piso incluye los costos confirmados. El techo incluye también los pendientes.",
+    "fuente": "Renglones del presupuesto mensual.",
+    "hacer": "Abre el importe y revisa qué falta confirmar."
+  },
+  "fin.acumulado": {
+    "que": "Todo lo gastado hasta el corte.",
+    "calculo": "Suma los gastos de los meses registrados.",
+    "fuente": "Historial de gastos del resumen.",
+    "hacer": "Abre el total para consultar cada mes."
+  },
+  "fin.mes": {
+    "que": "Gasto registrado en el mes del corte.",
+    "calculo": "Suma los cargos registrados hasta el día indicado.",
+    "fuente": "Cierre parcial del resumen mensual.",
+    "hacer": "Abre la cifra para revisar los proveedores."
+  },
+  "fin.anterior": {
+    "que": "Gasto del mes anterior.",
+    "calculo": "Suma los cargos registrados en ese periodo.",
+    "fuente": "Resumen del periodo anterior.",
+    "hacer": "Revisa si el mes está completo antes de comparar."
+  },
+  "fin.recomendaciones": {
+    "que": "Acciones sugeridas para este corte.",
+    "calculo": "Cada sugerencia incluye un motivo y el efecto esperado.",
+    "fuente": "Recomendaciones del resumen de finanzas.",
+    "hacer": "Abre la acción para revisar el caso."
+  },
+  "fin.proveedores": {
+    "que": "Gastos agrupados por quien cobró.",
+    "calculo": "Cada barra suma los cargos de ese proveedor.",
+    "fuente": "Desglose de servicios y compras del resumen.",
+    "hacer": "Selecciona un proveedor para ver sus meses."
+  },
+  "fin.historial": {
+    "que": "Importes registrados por mes.",
+    "calculo": "Cada barra muestra el total del periodo.",
+    "fuente": "Historial mensual del resumen.",
+    "hacer": "Abre una barra para ver quién cobró."
+  },
+  "fin.equilibrio": {
+    "que": "Suscriptores de pago frente a la meta del mes.",
+    "calculo": "El medidor compara los suscriptores actuales con el extremo alto del escenario elegido.",
+    "fuente": "Suscriptores y escenarios del corte.",
+    "hacer": "Revisa la siguiente meta o cambia el escenario."
+  },
+  "fin.metas": {
+    "que": "Pasos para cubrir y recuperar los gastos.",
+    "calculo": "El resumen indica qué paso sigue y cuáles ya se cumplieron.",
+    "fuente": "Metas del resumen de finanzas.",
+    "hacer": "Abre un paso para ver qué falta."
+  },
+  "fin.calculadora": {
+    "que": "Escenarios para cubrir el costo mensual.",
+    "calculo": "Se consulta el escenario preparado para el plan y la comisión que elijas.",
+    "fuente": "Tabla de equilibrio del resumen.",
+    "hacer": "Selecciona el plan y la comisión que quieres revisar."
+  },
+  "fin.comision": {
+    "que": "Parte del precio que cobra la tienda.",
+    "calculo": "La tasa corresponde al escenario seleccionado.",
+    "fuente": "Condiciones del escenario en el resumen.",
+    "hacer": "Verifica en Play Console qué comisión te corresponde."
+  },
+  "fin.neto": {
+    "que": "Ingreso mensual estimado por suscriptor.",
+    "calculo": "El escenario ya descuenta la comisión y los ajustes previstos. Estimación; lo confirma el contador.",
+    "fuente": "Neto mensual de la tabla de equilibrio.",
+    "hacer": "Revisa el escenario con el contador."
+  },
+  "fin.rango": {
+    "que": "Suscriptores necesarios para cubrir el mes.",
+    "calculo": "El resumen trae una meta para cada extremo del presupuesto. Estimación; lo confirma el contador.",
+    "fuente": "Escenario del plan y la comisión elegidos.",
+    "hacer": "Aclara los costos pendientes para cerrar el rango."
+  },
+  "fin.pendientes": {
+    "que": "Decisiones de finanzas que esperan respuesta.",
+    "calculo": "Se cuentan las decisiones financieras pendientes.",
+    "fuente": "Registro de decisiones del panel.",
+    "hacer": "Abre una decisión para contestarla o marcarla resuelta."
+  },
+  "fin.comprobantes": {
+    "que": "Gastos que todavía necesitan respaldo.",
+    "calculo": "Se cuenta cada caso incluido en la lista del corte.",
+    "fuente": "Lista de gastos sin comprobante del resumen.",
+    "hacer": "Abre la lista y pide la factura o el ticket de cada compra."
+  }
+}

@@ -4,10 +4,11 @@ const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg';
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[c]);
-const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda' };
+const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda', finanzas:'Finanzas' };
 const primaryViews = ['hoy','decisiones','fabrica','sesiones'];
 const moreViews = Object.keys(views).filter(key=>!primaryViews.includes(key));
 const paths = {
+  finanzas:'M3 5h18v14H3z M3 9h18 M7 15h4',
   sesiones:'M2 12h5l3-8 4 16 3-8h5',
   equipo:'M9 3h6v5H9z M12 8v5 M5 16v-3h14v3 M2 16h6v5H2z M16 16h6v5h-6z',
   acceso:'M4 21a8 8 0 0 1 16 0 M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
@@ -746,6 +747,202 @@ function versions() {
     panel('Versiones de la beta',items.length?`<ol class="events">${items.join('')}</ol>`:'<p>Aún no hay versiones registradas.</p>')+
     panel('Cambios hechos por la fábrica',integrated.length?`<ol class="events">${integrated.map(t=>`<li><small>${esc(stamp(t.closed_at??t.updated_at))}</small>${detailButton('task',t.id,t.titulo)}</li>`).join('')}</ol>`:'<p>Aún no hay tareas integradas.</p>');
 }
+let helpCatalog={},helpAnchor,helpPinned=false,helpTimer;
+const helpCard=document.createElement('div');
+helpCard.id='ayuda';
+helpCard.setAttribute('role','tooltip');
+helpCard.hidden=true;
+document.body.append(helpCard);
+function info(key) {
+  if(!Object.hasOwn(helpCatalog,key)) return '';
+  return `<button type="button" class="info" data-ayuda="${esc(key)}" aria-label="Explicación: ${esc(helpCatalog[key].que)}"><span aria-hidden="true">i</span></button>`;
+}
+function hideHelp() {
+  clearTimeout(helpTimer);
+  helpAnchor?.removeAttribute('aria-describedby');
+  helpAnchor=null;
+  helpPinned=false;
+  helpCard.hidden=true;
+}
+function positionHelp() {
+  if(!helpAnchor) return;
+  const r=helpAnchor.getBoundingClientRect();
+  if(r.bottom<0 || r.top>window.innerHeight) return hideHelp();
+  const gap=6,pad=8,w=window.innerWidth,h=window.innerHeight;
+  const width=helpCard.offsetWidth;
+  const area=(helpAnchor.closest('.kpi') || helpAnchor).getBoundingClientRect();
+  // En un título, lo explicado queda debajo y al lado: ahí la tarjeta va arriba para no taparlo.
+  const heading=helpAnchor.closest('h2,h3');
+  const side=!heading && (area.right+gap+width<=w-pad || area.left-gap-width>=pad);
+  const below=h-pad-area.bottom-gap;
+  const above=area.top-pad-gap;
+  const down=heading?above<helpCard.scrollHeight:below>=helpCard.scrollHeight || below>=above;
+  helpCard.style.maxHeight=`${side?h-2*pad:Math.max(44,down?below:above)}px`;
+  const height=helpCard.offsetHeight;
+  const x=side?(area.right+gap+width<=w-pad?area.right+gap:area.left-gap-width):r.left;
+  const y=side?r.top:down?area.bottom+gap:area.top-gap-height;
+  helpCard.style.left=`${Math.max(pad,Math.min(x,w-width-pad))}px`;
+  helpCard.style.top=`${Math.max(pad,Math.min(y,h-height-pad))}px`;
+}
+function showHelp(button) {
+  clearTimeout(helpTimer);
+  if(helpAnchor===button) return;
+  hideHelp();
+  helpAnchor=button;
+  const entry=helpCatalog[button.dataset.ayuda];
+  helpCard.replaceChildren();
+  for(const [key,label] of [['que','Qué es'],['calculo','Cómo se calcula'],['fuente','De dónde sale'],['hacer','Qué hacer']]) {
+    const line=document.createElement('div'),heading=document.createElement('b'),body=document.createElement('span');
+    heading.textContent=label;
+    body.textContent=entry[key];
+    line.append(heading,body);
+    helpCard.append(line);
+  }
+  button.setAttribute('aria-describedby','ayuda');
+  helpCard.hidden=false;
+  positionHelp();
+}
+document.addEventListener('pointerover',e=>{
+  const b=e.target.closest('[data-ayuda]');
+  if(e.pointerType==='touch') return;
+  if(b && (!helpPinned || b===helpAnchor)) showHelp(b);
+  if(helpCard.contains(e.target)) clearTimeout(helpTimer);
+});
+document.addEventListener('pointerout',e=>{
+  if(helpPinned || !helpAnchor || (!helpAnchor.contains(e.target) && !helpCard.contains(e.target))) return;
+  if(helpAnchor.contains(e.relatedTarget) || helpCard.contains(e.relatedTarget)) return;
+  if(document.activeElement!==helpAnchor) helpTimer=setTimeout(hideHelp,250);
+});
+document.addEventListener('focusin',e=>{
+  const b=e.target.closest('[data-ayuda]');
+  if(b) showHelp(b);
+  else if(!helpCard.contains(e.target)) hideHelp();
+});
+document.addEventListener('focusout',e=>{
+  if(helpAnchor===e.target && !helpCard.contains(e.relatedTarget) && !helpCard.matches(':hover')) hideHelp();
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-ayuda]');
+  if(b) {
+    if(helpAnchor===b && helpPinned) return hideHelp();
+    showHelp(b);
+    helpPinned=true;
+  } else if(!helpCard.contains(e.target)) hideHelp();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape' && helpAnchor) hideHelp();});
+window.addEventListener('scroll',positionHelp,true);
+window.addEventListener('resize',positionHelp);
+
+const financeSummary=()=>data.ajustes?.['finanzas.resumen'];
+const pesos=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:2});
+const netPesos=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'});
+const money=n=>Number.isFinite(n)?pesos.format(n):'Sin dato';
+const source=s=>`<small class="fin-source">Resumen de finanzas · ${esc(s.corte)} · MXN</small>`;
+const amount=n=>Number.isFinite(n)?`<span data-count="${esc(n)}" data-money>${esc(money(n))}</span>`:'Sin dato';
+const expenseRange=(cost,format)=>cost.min===cost.max?format(cost.min):`${format(cost.min)} a ${format(cost.max)}`;
+const subRange=row=>row.min===row.max?`${row.min} ${row.min===1?'suscriptor':'suscriptores'}`:`de ${row.min} a ${row.max} suscriptores`;
+const finList=items=>items.length?`<ul class="fin-list">${items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul>`:'<p>Sin renglones registrados.</p>';
+const costLine=r=>`${r.nombre} · ${money(r.importe)}${r.confirmado?'':' · Por confirmar'}${r.nota?' · '+r.nota:''}`;
+const uncertain=c=>c.renglones.filter(r=>!r.confirmado);
+const monthName=k=>/^\d{4}-(0[1-9]|1[0-2])$/.test(k)?new Intl.DateTimeFormat('es-MX',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${k}-01T00:00:00Z`)):String(k);
+const monthNote=(s,m)=>`${monthName(m.clave)} · ${m.completo?'mes completo':s.corte?.startsWith(m.clave+'-')?'al día '+Number(s.corte.slice(8,10)):'corte parcial'}`;
+function financeKpis(s) {
+  const c=s.costo_mensual;
+  const cards=[
+    ['Costo mensual',expenseRange(c,amount),uncertain(c).map(costLine).join(' · ') || 'Presupuesto confirmado',info('fin.costo_mensual'),'costo'],
+    ['Gasto acumulado',amount(s.acumulado),'Desde el primer gasto',info('fin.acumulado'),'acumulado'],
+    ['Este mes',amount(s.mes.importe),monthNote(s,s.mes),info('fin.mes'),'mes'],
+    ['Mes anterior',amount(s.mes_anterior.importe),monthNote(s,s.mes_anterior),info('fin.anterior'),'mes_anterior']
+  ];
+  return `<section class="kpis fin-kpis">${cards.map(([label,value,note,help,key])=>`<article class="kpi"><h2>${label}</h2>${help}<button class="fin-kpi-value" data-detail="fin-kpi" data-key="${key}" aria-label="Ver detalle de ${label}"><strong>${value}</strong></button><p>${esc(note)}</p>${source(s)}</article>`).join('')}</section>`;
+}
+function financeRecs(s) {
+  const cards=s.recomendaciones.map((r,i)=>{
+    const a=r.accion;
+    let action='';
+    if(a?.tipo==='url') action=external(a.valor,a.texto);
+    if(a?.tipo==='doc') action=detailButton('documento',a.valor,a.texto);
+    if(a?.tipo==='decision') action=detailButton('decision',a.valor,a.texto);
+    if(a?.tipo==='detalle') action=detailButton('fin-rec',i,a.texto);
+    return `<article class="fin-rec"><h3>${esc(r.titulo)}</h3><p>${esc(r.porque)}</p><p class="fin-impact">${esc(r.impacto)}</p>${action}</article>`;
+  });
+  return panel('Recomendaciones'+info('fin.recomendaciones'),source(s)+`<div class="fin-rec-grid">${cards.join('') || '<p>Sin recomendaciones en este corte.</p>'}</div>`);
+}
+function financeBars(s) {
+  const maxProvider=Math.max(1,...s.proveedores.map(p=>p.importe));
+  const maxMonth=Math.max(1,...s.meses.map(m=>m[1]));
+  function bar(kind,key,label,value,max,i) {
+    return `<button class="fin-bar" data-detail="${kind}" data-key="${esc(key)}"><span>${esc(label)}</span><b>${esc(money(value))}</b><i aria-hidden="true" style="--width:${Math.max(0,value/max)*100}%;--delay:${Math.min(i,10)*35}ms"></i></button>`;
+  }
+  const group=service=>s.proveedores.map((p,i)=>(p.tipo==='servicio')===service?bar('fin-proveedor',i,p.nombre,p.importe,maxProvider,i):'').join('') || '<p>Sin gastos registrados.</p>';
+  return `<div class="fin-pair">${panel('Gasto por proveedor'+info('fin.proveedores'),source(s)+'<h3>Se repite</h3>'+group(true)+'<h3>Compra de una vez</h3>'+group(false))}${panel('Gasto por mes'+info('fin.historial'),source(s)+s.meses.map(([m,n],i)=>bar('fin-periodo',m,monthName(m),n,maxMonth,i)).join(''))}</div>`;
+}
+let financePlan,financeFee;
+function financeScenario(s) {
+  return s.equilibrio.find(r=>r.plan===financePlan && r.comision===financeFee) ?? s.equilibrio[0];
+}
+function scenarioResult(s,r) {
+  const open=uncertain(s.costo_mensual);
+  return `<strong class="fin-result">${esc(subRange(r))}</strong><div class="fin-net"><span>Neto al mes por suscriptor · <b>${esc(netPesos.format(r.neto))}</b></span>${info('fin.neto')}</div>${open.length?'<h3>Qué mueve el rango</h3>'+finList(open.map(costLine)):''}<small>Estimación; lo confirma el contador</small>${source(s)}`;
+}
+function financeProgress(s) {
+  const r=financeScenario(s);
+  const dial=`<div class="attention"><div class="dial fin-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" pathLength="100"/><circle cx="50" cy="50" r="44" pathLength="100" stroke-dasharray="${r?.max>0?Math.max(0,Math.min(100,100*s.suscriptores/r.max)):0} 100"/></svg><strong>${esc(s.suscriptores)}</strong></div><p>Suscriptores de pago${r?`<br>Meta del escenario · ${esc(r.max)}`:''}</p></div>`;
+  const steps=`<h3>Metas${info('fin.metas')}</h3><ol class="fin-steps">${s.metas.map((m,i)=>`<li style="--delay:${Math.min(i,10)*45}ms"><button data-detail="fin-meta" data-key="${i}"><span class="chip ${m.actual?'accent':'muted'}">${m.hecha?'Cumplida':m.actual?'Siguiente paso':'Pendiente'}</span> ${esc(m.titulo)}</button></li>`).join('')}</ol>`;
+  const opts=(values,selected)=>[...new Map(values)].map(([v,label])=>`<option value="${esc(v)}"${v===selected?' selected':''}>${esc(label)}</option>`).join('');
+  const calc=r?`<div class="fin-selects"><label>Plan<select id="fin-plan">${opts(s.equilibrio.map(x=>[x.plan,x.etiqueta]),r.plan)}</select></label><div><div class="fin-field-title"><label for="fin-fee">Comisión</label>${info('fin.comision')}</div><select id="fin-fee">${opts(s.equilibrio.filter(x=>x.plan===r.plan).map(x=>[x.comision,`${x.comision*100} %`]),r.comision)}</select></div></div><h3>Rango de equilibrio${info('fin.rango')}</h3><div aria-live="polite" id="fin-result">${scenarioResult(s,r)}</div>`:'<p>Sin escenarios cargados.</p>';
+  return panel('¿Cuánto falta?'+info('fin.equilibrio'),source(s)+`<div class="fin-pair"><div><div id="fin-meter">${dial}</div>${steps}</div><div><h3>Calculadora${info('fin.calculadora')}</h3>${calc}</div></div>`);
+}
+document.addEventListener('change',e=>{
+  if(!['fin-plan','fin-fee'].includes(e.target.id)) return;
+  const s=financeSummary();
+  const rows=s.equilibrio.filter(r=>r.plan===$('#fin-plan').value);
+  const r=rows.find(x=>x.comision===Number($('#fin-fee').value)) ?? rows[0];
+  financePlan=r.plan;
+  financeFee=r.comision;
+  const oldFee=$('#fin-fee');
+  oldFee.replaceChildren(...rows.map(x=>{
+    const option=document.createElement('option');
+    option.value=String(x.comision);
+    option.textContent=`${x.comision*100} %`;
+    option.selected=x.comision===r.comision;
+    return option;
+  }));
+  $('#fin-result').innerHTML=scenarioResult(s,r);
+  $('#fin-meter p').innerHTML=`Suscriptores de pago<br>Meta del escenario · ${esc(r.max)}`;
+  $('#fin-meter circle:last-child').setAttribute('stroke-dasharray',`${r.max>0?Math.max(0,Math.min(100,100*s.suscriptores/r.max)):0} 100`);
+});
+function finances() {
+  const s=financeSummary();
+  if(!s) return '<p class="module">Todavía no hay resumen de finanzas cargado</p>';
+  const decisions=pending().filter(d=>d.id.startsWith('fin-'));
+  return `<div class="finances">${s.demo===true?'<div>'+chip('Datos de demostración','accent')+'</div>':''}${financeKpis(s)}${financeRecs(s)}${financeBars(s)}${financeProgress(s)}${panel('¿Qué hago ahora?'+info('fin.pendientes'),source(s)+`<div class="fin-pending">${decisions.map(d=>detailButton('decision',d.id,d.titulo)).join('') || '<p>Sin decisiones pendientes.</p>'}</div><div class="fin-receipts">${detailButton('fin-comprobantes','lista',`${s.sin_comprobante.length} gastos sin comprobante`)}${info('fin.comprobantes')}</div>`)}</div>`;
+}
+function financeDetail(kind,key) {
+  const s=financeSummary();
+  if(!s) return;
+  function detail(title,summary,lines) {
+    showDetail(title,`<p class="fin-detail">${esc(summary)}</p>${lines?finList(lines):''}${source(s)}`);
+  }
+  function period(k) {
+    return s.proveedores.flatMap(p=>p.meses.filter(([m])=>m===k).map(([,n])=>`${p.nombre} · ${money(n)}`));
+  }
+  if(kind==='fin-kpi') {
+    if(key==='costo') return detail('Costo mensual',expenseRange(s.costo_mensual,money),s.costo_mensual.renglones.map(costLine));
+    if(key==='acumulado') return detail('Gasto acumulado',money(s.acumulado),s.meses.map(([m,n])=>`${monthName(m)} · ${money(n)}`));
+    const m=key==='mes'?s.mes:s.mes_anterior;
+    return detail(key==='mes'?'Este mes':'Mes anterior',`${money(m.importe)} · ${monthNote(s,m)}`,period(m.clave));
+  }
+  if(kind==='fin-proveedor') {
+    const p=s.proveedores[key];
+    return detail(p.nombre,`${money(p.importe)} · ${p.cargos} ${p.cargos===1?'cargo':'cargos'}`,p.meses.map(([m,n])=>`${monthName(m)} · ${money(n)}`));
+  }
+  if(kind==='fin-periodo') return detail(monthName(key),money(s.meses.find(([m])=>m===key)?.[1]),period(key));
+  if(kind==='fin-meta') return detail(s.metas[key].titulo,s.metas[key].detalle);
+  if(kind==='fin-rec') return detail(s.recomendaciones[key].titulo,s.recomendaciones[key].accion.valor);
+  if(kind==='fin-comprobantes') return detail('Gastos sin comprobante',`${s.sin_comprobante.length} gastos`,s.sin_comprobante.map(x=>`${x.proveedor} · ${x.concepto}`));
+}
+
 const drawer=$('#detalle');
 let opener,detailGeneration=0, documentDraft=null;
 const dirtyDocument=()=>documentDraft && $('#respuesta-doc')?.value!==documentDraft.saved;
@@ -856,6 +1053,7 @@ async function openDetail(kind,key) {
     if(s) showDetail(sessionTitle(s),sessionDetail(s));
     return;
   }
+  if(kind.startsWith('fin-')) return financeDetail(kind,key);
   if(kind==='documento') return openDocument(key,generation);
   if(kind==='search') {
     showDetail('Buscar en el panel','<label for="consulta">Buscar</label><input id="consulta" type="search" autocomplete="off"><div id="resultados" aria-live="polite">'+searchResults('')+'</div>');
@@ -966,7 +1164,8 @@ document.addEventListener('input',e=>{
 });
 function draw() {
   const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+sessionSummary()+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
-    equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
+    finanzas:finances,equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
+  hideHelp();
   $('#buscar').hidden=false;
   $('#navegacion').hidden=false;
   $('#navegacion').innerHTML=Object.entries(views).map(([k,label])=>`${k==='hoy'?'<span class="nav-label">Decidir</span>':k==='fabrica'?'<span class="nav-label">Operación</span>':''}<button class="${moreViews.includes(k)?'secondary-nav':''}" data-ir="${k}" ${view===k?'aria-current="page"':''}>${icon(k)}${label}</button>`).join('')+`<button class="more" data-detail="more" aria-haspopup="dialog" ${moreViews.includes(view)?'aria-current="true"':''}>${icon('mas')}Más</button>`;
@@ -977,7 +1176,10 @@ function draw() {
     const start=performance.now();
     function frame(now) {
       const progress=Math.min(1,(now-start)/200);
-      for (const node of nodes) node.textContent=Math.round(Number(node.dataset.count)*progress);
+      for (const node of nodes) {
+        const value=Number(node.dataset.count);
+        node.textContent=node.hasAttribute('data-money')?money(progress===1?value:Math.round(value*progress)):Math.round(value*progress);
+      }
       if (progress<1) requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -987,7 +1189,7 @@ function status() {
   const time=new Date(data.ahora).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
   $('#estado').innerHTML=`${DEMO?'<span>Demo</span> · ':''}<i></i> Al día ${esc(time)}`;
 }
-let demoSessions, demoOrderId=0;
+let demoSessions, demoDecisions, demoFinanceDocument, demoOrderId=0;
 function demoSessionOp(op,args,sessionId) {
   const s=demoSessions.find(row=>row.id===sessionId);
   if(!s) throw Error('Esa sesión ya no está en el panel.');
@@ -1013,6 +1215,16 @@ async function load(refresh=false) {
     const response=await fetch('demo.json',{cache:'no-store'});
     if (!response.ok) throw Error('No se pudo leer la demostración.');
     next=await response.json();
+    demoDecisions ??= next.decisiones;
+    next.decisiones=demoDecisions.map(d=>({...d}));
+    if(demoFinanceDocument) {
+      const {clave,respuesta,respondido}=demoFinanceDocument;
+      const doc=next.documentos.find(d=>d.clave===clave);
+      if(doc && next.documentos_demo[clave]) {
+        doc.respondido=respondido;
+        Object.assign(next.documentos_demo[clave],{respuesta,respondido});
+      }
+    }
     demoSessions ??= next.sesiones ?? [];
     next.sesiones=demoSessions.map(s=>({...s,ordenes:(s.ordenes ?? []).slice(0,10).map(o=>({...o}))}));
   } else {
@@ -1024,7 +1236,7 @@ async function load(refresh=false) {
   // Un refresco conserva el comentario, el foco y los grupos abiertos.
   const liveView=['sesiones','equipo','fabrica'].includes(view);
   const sessionId=drawer.querySelector('[data-session]')?.dataset.session;
-  if (refresh && (busy || (drawer.open && !sessionId) || $('#app a:focus') || $('#app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('#app textarea')].some(t=>t.value))) return;
+  if (refresh && (busy || (drawer.open && !sessionId) || $('#app a:focus') || $('#app select:focus, #app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('#app textarea')].some(t=>t.value))) return;
   const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
@@ -1158,7 +1370,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',async e=>{
   let b=e.target.closest('button,.factory-scene [role=button],[data-team-node]');
   // En el espacio libre de una tarjeta se abre su control de lectura.
-  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog,[data-team-card]') && !window.getSelection()?.toString()) {
+  if(!b && !e.target.closest('a,summary,textarea,label,input,dialog,[data-team-card],.finances,#ayuda') && !window.getSelection()?.toString()) {
     const card=e.target.closest('.item,.module,.hero,.lane,.calendar li,.events li');
     b=card?.querySelector('button[data-detail],button[data-ir]');
   }
@@ -1203,7 +1415,9 @@ document.addEventListener('click',async e=>{
   const {op,id,a,opcion,huella}=b.dataset;
   if (!op) return;
   const sessionId=b.closest('[data-session]')?.dataset.session;
-  if (DEMO && !sessionId) return notice('Demostración. Los cambios no se guardan.');
+  const demoDecision=DEMO && id?.startsWith('fin-') && ['decidir','resolver_decision','reabrir_decision'].includes(op);
+  const demoFinanceReply=DEMO && op==='responder_documento' && documentDraft?.key==='finanzas-preguntas';
+  if (DEMO && !sessionId && !demoDecision && !demoFinanceReply) return notice('Demostración. Los cambios no se guardan.');
   let args;
   switch (op) {
     case 'ordenar': {
@@ -1239,7 +1453,14 @@ document.addEventListener('click',async e=>{
   }
   busy=true; b.disabled=true;
   try {
-    if(DEMO) demoSessionOp(op,args,sessionId);
+    if(demoDecision) {
+      const d=demoDecisions.find(row=>row.id===id);
+      d.estado=op==='decidir'?'respondida':op==='resolver_decision'?'resuelta':'pendiente';
+      if(op==='decidir') d.respuesta={opcion,comentario:args.comentario};
+      if(op==='reabrir_decision') d.respuesta=null;
+      d.resolucion=op==='resolver_decision'?args.resolucion:null;
+    } else if(demoFinanceReply) demoFinanceDocument={...args,respondido:new Date().toISOString()};
+    else if(DEMO) demoSessionOp(op,args,sessionId);
     else {
       const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
       if (error) throw Error(error.message);
@@ -1280,7 +1501,7 @@ document.addEventListener('click',async e=>{
     if(op==='decidir' && document.getElementById('c-'+id)?.value===args.comentario) document.getElementById('c-'+id).value='';
     await load();
     if(keepPerson && drawer.open && b.isConnected) await openDetail('person',id);
-    notice('Cambio guardado.');
+    notice(demoDecision?'Decisión actualizada en la demostración.':'Cambio guardado.');
   } catch (error) { notice(error.message); }
   finally { busy=false; b.disabled=false; }
 });
@@ -1296,6 +1517,10 @@ async function init() {
     const {data:{session}}=await sb.auth.getSession();
     if (!session) return gate('Solo para la cuenta de AXTRONIC.','<button class="primary" id="entrar">Entrar con Google</button>');
   }
+  try {
+    const response=await fetch('ayuda.json');
+    if(response.ok) helpCatalog=(await response.json()) ?? {};
+  } catch { /* El panel funciona sin explicaciones emergentes. */ }
   try {
     const response=await fetch('equipo.json');
     if(response.ok) {

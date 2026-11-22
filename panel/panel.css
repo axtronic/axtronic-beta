@@ -6,6 +6,62 @@
   --hero-start:#0A2A30; --hero-mid:#08171E; --hero-end:#050B10;
   --heading:800 1rem/1.17 Montserrat,system-ui,sans-serif;
 }
+
+.finances,.fin-pending,.fin-steps,.fin-rec-grid,.fin-pair {display:grid;gap:14px;min-width:0}
+body:has(.finances) #aviso {pointer-events:none}
+.finances h2,.finances h3 {display:flex;align-items:center;justify-content:space-between;gap:6px}
+.finances .module>h2 {margin-bottom:0}
+.fin-source {margin:4px 0 12px}
+.fin-kpis .kpi {padding:16px}
+.fin-kpis h2 {min-height:44px;margin:0 38px 0 0;font-size:.88rem}
+.fin-kpis .info {position:absolute;top:12px;right:6px;z-index:1}
+.fin-kpi-value {display:block;background:none;border:0;text-align:left;padding:0}
+.fin-kpi-value::after {content:"";position:absolute;inset:0}
+.fin-kpi-value strong {font-size:clamp(1.5rem,2vw,2.25rem);line-height:1.15;margin:4px 0 10px;letter-spacing:-.04em}
+.fin-kpi-value span {white-space:nowrap}
+.fin-kpis .fin-source {margin:10px 0 0}
+.fin-rec {min-width:0;border:1px solid var(--border);border-top:2px solid var(--deep);padding:14px;border-radius:10px;display:flex;align-items:flex-start;flex-direction:column}
+.fin-rec h3 {margin-top:0}
+.fin-impact {color:var(--text)}
+.fin-rec .plain,.fin-rec .action-link {margin-top:auto;color:var(--accent);min-height:44px;display:inline-flex;align-items:center;text-align:left}
+.fin-bar {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;text-align:left;width:100%;border:1px solid transparent;background:none;padding:7px 5px}
+.fin-bar b {font-variant-numeric:tabular-nums}
+.fin-bar i {display:block;grid-column:1/-1;background:var(--surface);height:6px;border-radius:5px;overflow:hidden}
+.fin-bar i::after {content:"";display:block;background:var(--accent);width:var(--width);height:100%;transform-origin:left}
+.fin-steps {padding-left:1.5rem;gap:6px}
+.fin-steps li::marker {color:var(--muted)}
+.fin-steps button,.fin-pending button {width:100%;text-align:left}
+.fin-selects {display:grid;gap:10px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.fin-selects select {display:block;width:100%;margin-top:5px;font:inherit;min-height:44px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px}
+.fin-field-title,.fin-net {display:flex;align-items:center;justify-content:space-between;gap:4px}
+.fin-selects {align-items:end}
+.fin-result {display:block;font:var(--heading);font-size:clamp(1.3rem,2.3vw,2rem);color:var(--accent)}
+.fin-dial circle {fill:none;stroke:var(--deep);stroke-width:5}
+.fin-dial circle+circle {stroke:var(--accent);stroke-width:8;transform:rotate(-90deg);transform-origin:center}
+.fin-list {padding-left:20px}
+.fin-list li+li {margin-top:5px}
+.fin-receipts {display:flex;align-items:center;gap:8px;margin-top:12px}
+.finances .module:has(.fin-pending) {cursor:auto}
+.info {display:inline-grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;background:transparent;color:var(--muted)}
+.info span {display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;width:19px;height:19px;font-size:.75rem}
+.info:hover,.info:focus-visible {color:var(--accent)}
+#ayuda {position:fixed;z-index:12;width:min(310px,calc(100vw - 16px));overflow:auto;background:var(--surface);color:var(--text);padding:14px;border:1px solid var(--muted);border-radius:10px;font-size:.83rem}
+#ayuda b,#ayuda span {display:block}
+#ayuda b {color:var(--accent)}
+#ayuda div+div {margin-top:6px}
+@media(min-width:760px) {
+  .fin-pair,.fin-rec-grid,.fin-pending {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:1250px) {.fin-rec-grid {grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:no-preference) {
+  .fin-bar i::after {animation:grow .32s ease-out var(--delay) backwards}
+  .fin-steps li {animation:enter .25s ease-out var(--delay) backwards}
+  .fin-dial svg {animation:fin-ring .65s ease-out}
+  .fin-result {animation:enter .22s ease-out}
+  .finances :is(.fin-rec,.kpi,.fin-bar,.fin-steps button,.fin-pending button) {transition:transform .15s ease-out,border-color .15s}
+  .finances :is(.fin-rec,.kpi,.fin-bar,.fin-steps button,.fin-pending button):is(:hover,:focus-within) {transform:translateY(-2px);border-color:var(--deep)}
+}
+@keyframes fin-ring {from {clip-path:polygon(50% 50%,50% 0,50% 0,50% 0,50% 0,50% 0,50% 0)} 50% {clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,50% 100%,50% 100%,50% 100%)} to {clip-path:polygon(50% 50%,50% 0,100% 0,100% 100%,0 100%,0 0,50% 0)}}
 * {box-sizing:border-box}
 [hidden] {display:none!important}
 body {margin:0;background:var(--bg);color:var(--text);font:400 15px/1.5 Inter,system-ui,sans-serif}
