@@ -507,7 +507,7 @@ function sessionStatus(s) {
 }
 const queued=s=>(s.ordenes ?? []).filter(o=>o.estado==='pendiente').length;
 // Las respuestas que la sesión dejó junto a su pregunta: cada botón la manda como instrucción. Llega cuando la sesión vuelve a moverse.
-const sessionAnswers=s=>s.estado==='esperando' && s.opciones?.length?`<div class="actions session-answers" data-session="${esc(s.id)}" role="group" aria-label="Responder a la sesión">${s.opciones.map((o,i)=>`<button class="${i?'':'primary'}" data-op="ordenar" data-text="${esc(o)}">${esc(o)}</button>`).join('')}</div><small>Tu respuesta le llega cuando la sesión vuelve a moverse.</small>`:'';
+const sessionAnswers=s=>s.estado==='esperando' && s.opciones?.length?`<div class="actions session-answers" data-session="${esc(s.id)}" role="group" aria-label="Responder a la sesión">${s.opciones.map((o,i)=>`<button class="${i?'':'primary'}" data-op="ordenar" data-text="${esc(o)}">${esc(o)}</button>`).join('')}</div><small>Con la PC encendida, tu respuesta despierta a la sesión en uno o dos minutos.</small>`:'';
 const sessionQuestion=s=>s.pregunta?`<p class="session-question"><small>La sesión te pregunta</small>${esc(s.pregunta)}</p>${sessionAnswers(s)}`:'';
 function sessionCard(s) {
   const plan=s.plan ?? [], done=plan.filter(p=>p.e==='hecha').length;
