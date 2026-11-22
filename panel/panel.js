@@ -510,7 +510,9 @@ function sessionStatus(s) {
 }
 const queued=s=>(s.ordenes ?? []).filter(o=>o.estado==='pendiente').length;
 // Las respuestas que la sesión dejó junto a su pregunta: cada botón la manda como instrucción. Llega cuando la sesión vuelve a moverse.
-const sessionAnswers=s=>s.estado==='esperando' && s.opciones?.length?`<div class="actions session-answers" data-session="${esc(s.id)}" role="group" aria-label="Responder a la sesión">${s.opciones.map((o,i)=>`<button class="${i?'':'primary'}" data-op="ordenar" data-text="${esc(o)}">${esc(o)}</button>`).join('')}</div><small>Con la PC encendida, tu respuesta despierta a la sesión en uno o dos minutos.</small>`:'';
+// Con una respuesta ya en cola no se ofrecen más botones: sin esto el dueño pulsó tres veces la misma (2026-11-22).
+const sentAnswer=s=>(s.ordenes ?? []).find(o=>o.estado==='pendiente');
+const sessionAnswers=s=>s.estado==='esperando' && sentAnswer(s)?`<small class="accent">Respuesta enviada · «${esc(sentAnswer(s).texto)}». Con la PC encendida, la sesión la recibe en uno o dos minutos.</small>`:s.estado==='esperando' && s.opciones?.length?`<div class="actions session-answers" data-session="${esc(s.id)}" role="group" aria-label="Responder a la sesión">${s.opciones.map((o,i)=>`<button class="${i?'':'primary'}" data-op="ordenar" data-text="${esc(o)}">${esc(o)}</button>`).join('')}</div><small>Con la PC encendida, tu respuesta despierta a la sesión en uno o dos minutos.</small>`:'';
 const sessionQuestion=s=>s.pregunta?`<p class="session-question"><small>La sesión te pregunta</small>${esc(s.pregunta)}</p>${sessionAnswers(s)}`:'';
 function sessionCard(s) {
   const plan=s.plan ?? [], done=plan.filter(p=>p.e==='hecha').length;
