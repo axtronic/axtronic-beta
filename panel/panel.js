@@ -432,11 +432,13 @@ narrowPlant.addEventListener('change',()=>{
   scene.outerHTML=plantScene(Boolean(scene.closest('.mini-plant')));
   if(restoreFocus) [...document.querySelectorAll('.factory-scene [data-detail]')].find(el=>el.dataset.detail===focused.dataset.detail&&el.dataset.key===focused.dataset.key)?.focus({preventScroll:true});
 });
-const taskNext={propuesta:'Aprueba la propuesta o descártala.',needs_human:'Revisa por qué se detuvo y decide si puede continuar.',aprobada:'Espera la pasada de las 03:30 o las 05:30 de la mañana, hora de México.',en_curso:'La fábrica está trabajando. Por ahora no necesitas intervenir.',revision:'Abre el cambio y, después de revisarlo, márcalo como fusionado o recházalo.',integrada:'El cambio ya se integró. No hay acciones pendientes.',rechazada:'El cambio se rechazó. La tarea está cerrada.',descartada:'La propuesta se descartó. La tarea está cerrada.'};
+const taskNext={propuesta:'Aprueba la propuesta o descártala.',needs_human:'Revisa por qué se detuvo y decide si puede continuar.',aprobada:'Espera la pasada de las 03:30 o las 05:30 de la mañana, hora de México, o pide que se ejecute ya: con la PC encendida arranca una sesión en uno o dos minutos.',en_curso:'La fábrica está trabajando. Por ahora no necesitas intervenir.',revision:'Abre el cambio y, después de revisarlo, márcalo como fusionado o recházalo.',integrada:'El cambio ya se integró. No hay acciones pendientes.',rechazada:'El cambio se rechazó. La tarea está cerrada.',descartada:'La propuesta se descartó. La tarea está cerrada.'};
 function taskCard(t,detail=false,expanded=false) {
   const move = (state,label,primary=false)=>`<button class="${primary?'primary':''}" data-op="mover" data-id="${esc(t.id)}" data-a="${state}">${label}</button>`;
   let actions='';
   if (['propuesta','needs_human'].includes(t.estado)) actions=move('aprobada','Aprobar',true)+move('descartada','Descartar');
+  // «Ejecutar ahora» (D43): deja el pedido; la PC lo recoge y arranca una sesión para la tarea.
+  if (t.estado==='aprobada') actions=(t.ejecutar?chip('Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Ejecutar ahora</button>`)+move('descartada','Descartar');
   if (t.estado==='revision') actions=move('integrada','Marcar fusionada',true)+move('rechazada','Rechazar');
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
   return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(segmentName(t.segmento),'accent')} ${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
@@ -461,7 +463,8 @@ function factory() {
   }).join('');
   const others=data.tareas.filter(t=>stageOf(t.estado)<0 && taskMatches(t));
   const filters=['',...segmentKeys].map(k=>`<button data-factory-segment="${esc(k)}" aria-pressed="${factorySegment===k}">${esc(k?segmentName(k):'Todos')}</button>`).join('');
-  return plant()+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
+  const ready=data.tareas.filter(t=>t.estado==='aprobada' && !t.ejecutar).length;
+  return plant()+(ready?`<div class="actions"><button class="primary" data-op="ejecutar">${ready===1?'Ejecutar ahora la tarea aprobada':'Ejecutar ahora las '+ready+' aprobadas'}</button><small>Con la PC encendida, arranca una sesión por tarea, de una en una.</small></div>`:'')+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
     panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="3" maxlength="20000"></textarea><small>Puede ser largo: la primera línea queda como título y el resto se guarda entero.</small><button class="primary" data-op="nueva">Proponer tarea</button>');
 }
 function decision(d,detail=false) {
@@ -1455,6 +1458,7 @@ document.addEventListener('click',async e=>{
     case 'reabrir_decision': args={id}; break;
     case 'grupo': args={id,en:b.dataset.en==='true'}; break;
     case 'mover': args={id,a}; break;
+    case 'ejecutar': args=id?{id}:{}; break;
     case 'proponer': args={huella}; break;
     default: return;
   }
@@ -1508,7 +1512,7 @@ document.addEventListener('click',async e=>{
     if(op==='decidir' && document.getElementById('c-'+id)?.value===args.comentario) document.getElementById('c-'+id).value='';
     await load();
     if(keepPerson && drawer.open && b.isConnected) await openDetail('person',id);
-    notice(demoDecision?'Decisión actualizada en la demostración.':'Cambio guardado.');
+    notice(demoDecision?'Decisión actualizada en la demostración.':op==='ejecutar'?'Pedido enviado. La PC arranca la sesión en uno o dos minutos.':'Cambio guardado.');
   } catch (error) { notice(error.message); }
   finally { busy=false; b.disabled=false; }
 });
