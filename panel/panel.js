@@ -86,6 +86,10 @@ const series = key => key==='beta.build'
   : histories.get(key) ?? [];
 const latest = key => series(key).at(-1)?.[1] ?? null;
 const pending = () => data.decisiones.filter(d => d.estado === 'pendiente');
+// Respondida y sin cerrar: el dueño ya contestó y ninguna sesión lo ha aplicado. Se dice en pantalla para que no se quede así.
+const answeredHours = d => Math.max(0, Math.floor((Date.parse(data.ahora)-Date.parse(d.updated_at))/3600000));
+const unapplied = () => data.decisiones.filter(d => d.estado === 'respondida' && answeredHours(d) >= 24);
+const answeredNote = d => { const h=answeredHours(d); return `<small class="${h>=24?'warn':''}">Respondida hace ${h>=48?Math.floor(h/24)+' días':h+' h'} · falta que una sesión la aplique y la cierre</small>`; };
 const free = () => data.bugs.filter(b => !b.tarea_id);
 const waiting = () => data.tareas.filter(t => !t.closed_at && ['propuesta','needs_human','revision'].includes(t.estado));
 function attention() {
@@ -465,7 +469,7 @@ function decision(d,detail=false) {
   const options = d.opciones ?? [];
   const prefix=detail===true?'detalle-':'';
   const wait = d.estado==='pendiente';
-  return `<article class="module decision" tabindex="-1" id="${prefix}item-${esc(d.id)}">${wait?`<small>${num(age)} ${age===1?'día':'días'} esperando</small><div class="age"><i class="${age>=7?'bad':age>=3?'warn':'accent'}" style="width:${100*(age+1)/(age+7)}%"></i></div>`:chip(d.estado)}
+  return `<article class="module decision" tabindex="-1" id="${prefix}item-${esc(d.id)}">${wait?`<small>${num(age)} ${age===1?'día':'días'} esperando</small><div class="age"><i class="${age>=7?'bad':age>=3?'warn':'accent'}" style="width:${100*(age+1)/(age+7)}%"></i></div>`:d.estado==='respondida'?answeredNote(d):chip(d.estado)}
     <h3>${detail===true?esc(d.titulo):detailButton('decision',d.id,d.titulo)}</h3><p>${esc(d.contexto)}</p>${wait?`<label for="${prefix}c-${esc(d.id)}">Comentario opcional</label><textarea id="${prefix}c-${esc(d.id)}" data-comment rows="2"></textarea>
     <div class="actions">${options.map((o,i)=>`<button class="${i?'':'primary'}" data-op="decidir" data-id="${esc(d.id)}" data-opcion="${esc(o)}">${esc(o)}</button>`).join('')}</div>`:d.respuesta?`<p>Elegiste: ${esc(d.respuesta.opcion)}</p>`:''}
     ${d.resolucion?`<p>Qué se hizo · ${esc(d.resolucion)}</p>`:''}
@@ -1132,6 +1136,7 @@ async function openDetail(kind,key) {
 function todayList() {
   const queues=[
     pending().slice().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(d=>['Decisión',d.titulo,detailButton('decision',d.id,'Elegir respuesta','')]),
+    unapplied().map(d=>['Respondida, sin aplicar',d.titulo,detailButton('decision',d.id,'Ver','')]),
     free().map(b=>['Bug',b.titulo,`<button data-op="proponer" data-huella="${esc(b.huella)}">Mandar a la fábrica</button>`]),
     data.tareas.filter(t=>t.estado==='propuesta').map(t=>['Tarea',t.titulo,`<button data-op="mover" data-id="${esc(t.id)}" data-a="aprobada">Aprobar</button>`]),
     people().filter(isStuck).sort((a,b)=>Date.parse(a[accessSteps[lastStep(a)][0]])-Date.parse(b[accessSteps[lastStep(b)][0]])).map(p=>['Acceso',p.email,detailButton('person',p.id,'Dar seguimiento','')]),
@@ -1518,7 +1523,7 @@ async function init() {
     if (!session) return gate('Solo para la cuenta de AXTRONIC.','<button class="primary" id="entrar">Entrar con Google</button>');
   }
   try {
-    const response=await fetch('ayuda.json');
+    const response=await fetch('ayuda.json',{cache:'no-cache'});
     if(response.ok) helpCatalog=(await response.json()) ?? {};
   } catch { /* El panel funciona sin explicaciones emergentes. */ }
   try {

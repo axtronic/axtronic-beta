@@ -8,7 +8,8 @@
   <title>AXTRONIC · Panel de dirección</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="panel.css">
+  <!-- Versión por minuto: tras publicar, el navegador no se queda con la hoja y el código viejos (Pages los guarda 10 min). -->
+  <script>var v='?v='+Math.floor(Date.now()/60000);document.write('<link rel="stylesheet" href="panel.css'+v+'">')</script>
 </head>
 <body>
   <a class="skip" href="#contenido">Ir al contenido</a>
@@ -25,6 +26,6 @@
     <div id="detalle-cuerpo"></div><p id="detalle-aviso" role="status"></p>
   </dialog>
   <div id="aviso" role="status"></div>
-  <script type="module" src="panel.js"></script>
+  <script type="module">import('./panel.js'+v)</script>
 </body>
 </html>
