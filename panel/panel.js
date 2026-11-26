@@ -4,11 +4,12 @@ const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg';
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[c]);
-const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda', finanzas:'Finanzas' };
+const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda', finanzas:'Finanzas', apis:'APIs' };
 const primaryViews = ['hoy','decisiones','fabrica','sesiones'];
 const moreViews = Object.keys(views).filter(key=>!primaryViews.includes(key));
 const paths = {
   finanzas:'M3 5h18v14H3z M3 9h18 M7 15h4',
+  apis:'M8 4H5v16h3 M16 4h3v16h-3 M10 9l-2 3 2 3 M14 9l2 3-2 3',
   sesiones:'M2 12h5l3-8 4 16 3-8h5',
   equipo:'M9 3h6v5H9z M12 8v5 M5 16v-3h14v3 M2 16h6v5H2z M16 16h6v5h-6z',
   acceso:'M4 21a8 8 0 0 1 16 0 M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
@@ -433,16 +434,51 @@ narrowPlant.addEventListener('change',()=>{
   if(restoreFocus) [...document.querySelectorAll('.factory-scene [data-detail]')].find(el=>el.dataset.detail===focused.dataset.detail&&el.dataset.key===focused.dataset.key)?.focus({preventScroll:true});
 });
 const taskNext={propuesta:'Aprueba la propuesta o descártala.',needs_human:'Revisa por qué se detuvo y decide si puede continuar.',aprobada:'Espera la pasada de las 03:30 o las 05:30 de la mañana, hora de México, o pide que se ejecute ya: con la PC encendida arranca una sesión en uno o dos minutos.',en_curso:'La fábrica está trabajando. Por ahora no necesitas intervenir.',revision:'Abre el cambio y, después de revisarlo, márcalo como fusionado o recházalo.',integrada:'El cambio ya se integró. No hay acciones pendientes.',rechazada:'El cambio se rechazó. La tarea está cerrada.',descartada:'La propuesta se descartó. La tarea está cerrada.'};
+// Trabajos de la app (trabajos.json): una escalera de pasos por tipo; el estado de cada paso es el último evento «paso» con su id.
+let jobs=null;
+const jobOf=tipo=>{ const d=jobs && typeof tipo==='string' && Object.hasOwn(jobs,tipo) ? jobs[tipo] : null; return d && Array.isArray(d.pasos) ? d : null; };
+const stepMarks={pendiente:'○',en_curso:'▶',hecho:'✓',fallo:'×',esperando:'…'};
+const stepNames={pendiente:'Pendiente',en_curso:'En curso',hecho:'Hecho',fallo:'Falló',esperando:'Esperando'};
+const stepTones={pendiente:'muted',en_curso:'accent',hecho:'ok',fallo:'bad',esperando:'warn'};
+function jobLine(t) {
+  const def=jobOf(t.trabajo?.tipo);
+  if(!def) return '';
+  const i=def.pasos.findIndex(p=>p.id===t.paso?.paso);
+  const where=i>=0?`paso ${i+1} de ${def.pasos.length} · ${def.pasos[i].nombre}`:t.paso?.paso==='sesion'?(t.paso.estado==='esperando'?'esperando':t.paso.estado)+(t.paso.nota?' · '+t.paso.nota:''):'sin pasos registrados todavía';
+  return `<small class="job-line">${esc(def.nombre)} · ${esc(where)}${i>=0&&t.paso?.estado==='esperando'?' · esperando':''}</small>`;
+}
+function jobLadder(trabajo,events) {
+  const def=jobOf(trabajo?.tipo);
+  if(!def) return '';
+  const last=new Map();
+  for(const e of events) if(e.tipo==='paso' && e.detalle && typeof e.detalle==='object') last.set(e.detalle.paso,e.detalle);
+  const rows=def.pasos.map(p=>{
+    const d=last.get(p.id), st=Object.hasOwn(stepNames,d?.estado)?d.estado:'pendiente';
+    return `<li class="step ${stepTones[st]}"><b aria-hidden="true">${stepMarks[st]}</b><span>${esc(p.nombre)}</span> ${chip(stepNames[st],stepTones[st])}${d?.nota?`<small>${esc(d.nota)}</small>`:''}</li>`;
+  }).join('');
+  // Un paso fuera del catálogo (p. ej. «sesion», del lanzador) se muestra como nota del trabajo.
+  const extra=[...last].filter(([id])=>!def.pasos.some(p=>p.id===id)).map(([id,d])=>`<p class="note">${esc(id)} · ${esc(d.estado)}${d.nota?' · '+esc(d.nota):''}</p>`).join('');
+  return `<h3>Pasos · ${esc(def.nombre)}${trabajo.ejercicio?' · '+esc(trabajo.ejercicio):''}</h3><ol class="ladder">${rows}</ol>${extra}`;
+}
+const qty=(n,o)=>n==null?'sin dato':Number(n).toLocaleString('es-MX',o);
+const usage=r=>r.cantidad==null?'sin dato':r.unidad==='usd'?'USD '+qty(r.cantidad,{maximumFractionDigits:4}):`${qty(r.cantidad)} ${r.unidad}${r.usd==null?'':' · USD '+qty(r.usd,{maximumFractionDigits:4})}`;
+function taskUsage(rows) {
+  if(!rows?.length) return '<h3>Consumo de esta tarea</h3><p>Sin consumo registrado.</p>';
+  return `<h3>Consumo de esta tarea</h3><ul class="fin-list">${rows.map(r=>`<li>${esc(r.proveedor)}${r.cuenta?' · '+esc(r.cuenta):''} · ${esc(usage(r))} · ${esc(stamp(r.at))}</li>`).join('')}</ul>`;
+}
 function taskCard(t,detail=false,expanded=false) {
   const move = (state,label,primary=false)=>`<button class="${primary?'primary':''}" data-op="mover" data-id="${esc(t.id)}" data-a="${state}">${label}</button>`;
   let actions='';
   if (['propuesta','needs_human'].includes(t.estado)) actions=move('aprobada','Aprobar',true)+move('descartada','Descartar');
   // «Ejecutar ahora» (D43): deja el pedido; la PC lo recoge y arranca una sesión para la tarea.
-  if (t.estado==='aprobada') actions=(t.ejecutar?chip('Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Ejecutar ahora</button>`)+move('descartada','Descartar');
+  const sinGemini=jobOf(t.trabajo?.tipo)?.gemini==='video' && Array.isArray(data.consumo?.gemini_libres) && !data.consumo.gemini_libres.length;
+  if (t.estado==='aprobada') actions=(t.ejecutar?chip(sinGemini?'Pedida · espera una cuenta de Gemini libre':'Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Ejecutar ahora</button>`)+move('descartada','Descartar');
+  // Un trabajo detenido (sin pasos o esperando) se saca con la misma operación.
+  if (t.estado==='en_curso' && t.trabajo && (!t.paso || t.paso.estado==='esperando')) actions=t.ejecutar?chip(sinGemini?'Pedida · espera una cuenta de Gemini libre':'Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Relanzar</button>`;
   if (t.estado==='revision') actions=move('integrada','Marcar fusionada',true)+move('rechazada','Rechazar');
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
   return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(segmentName(t.segmento),'accent')} ${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
-    <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>
+    <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>${jobLine(t)}
     ${expanded && t.spec?`<h4>Pedido completo</h4><p class="lines">${esc(t.spec)}</p>`:''}${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
 }
 const segmentKeys=['app','diseno','reloj','datos','redes','publicacion','finanzas','legal','fabrica'];
@@ -455,6 +491,15 @@ function segmentSelector(t) {
   const options=segmentKeys.map(key=>`<option value="${esc(key)}" ${key===t.segmento?'selected':''}>${esc(segmentName(key))}</option>`).join('');
   return `<p>La atiende: ${esc(segmentInfo(t.segmento)?.agente || 'Sin agente registrado')}</p><label for="segmento-tarea">Cambiar segmento</label><div class="actions"><select id="segmento-tarea">${t.segmento?'':'<option selected disabled>Elige un segmento</option>'}${options}</select><button data-op="segmentar" data-id="${esc(t.id)}">Guardar segmento</button></div>`;
 }
+const autoOn=()=>data.ajustes?.['fabrica.auto']?.activa===true;
+function autoSwitch() {
+  return panel('Trabajos automáticos'+info('fabrica.auto'),`<div class="actions"><button role="switch" class="switch" aria-checked="${autoOn()}" data-op="auto" data-activa="${!autoOn()}"><i aria-hidden="true"></i>${autoOn()?'Encendidos':'Apagados'}</button></div><small>Encendidos: la fábrica hace sola los trabajos aprobados. Apagados, esperan a que pulses «Ejecutar ahora».</small>`);
+}
+function jobPicker() {
+  if(!jobs) return '';
+  const options=Object.entries(jobs).map(([k,j])=>`<option value="${esc(k)}">${esc(j.nombre)}</option>`).join('');
+  return `<label for="tipo-trabajo">Tipo de trabajo</label><select id="tipo-trabajo"><option value="">Ninguno (tarea normal)</option>${options}</select><small>Un trabajo pedido aquí queda aprobado; la fábrica lo hace sola si "Trabajos automáticos" está encendido</small><div id="campo-ejercicio" hidden><label for="ejercicio-trabajo">Ejercicio (minúsculas, números y guiones)</label><input id="ejercicio-trabajo" maxlength="60" autocomplete="off" placeholder="sentadilla-bulgara"></div>`;
+}
 function factory() {
   const lanes=stations.map(([name,states,tone],i)=>{
     if(!states.length) return '';
@@ -465,7 +510,7 @@ function factory() {
   const filters=['',...segmentKeys].map(k=>`<button data-factory-segment="${esc(k)}" aria-pressed="${factorySegment===k}">${esc(k?segmentName(k):'Todos')}</button>`).join('');
   const ready=data.tareas.filter(t=>t.estado==='aprobada' && !t.ejecutar).length;
   return plant()+(ready?`<div class="actions"><button class="primary" data-op="ejecutar">${ready===1?'Ejecutar ahora la tarea aprobada':'Ejecutar ahora las '+ready+' aprobadas'}</button><small>Con la PC encendida, arranca una sesión por tarea, de una en una.</small></div>`:'')+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
-    panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="3" maxlength="20000"></textarea><small>Puede ser largo: la primera línea queda como título y el resto se guarda entero.</small><button class="primary" data-op="nueva">Proponer tarea</button>');
+    autoSwitch()+panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="3" maxlength="20000"></textarea><small>Puede ser largo: la primera línea queda como título y el resto se guarda entero.</small>'+jobPicker()+'<button class="primary" data-op="nueva">Proponer tarea</button>');
 }
 function decision(d,detail=false) {
   const age = Math.max(0, Math.floor((new Date(data.ahora)-new Date(d.created_at))/86400000));
@@ -929,6 +974,59 @@ function finances() {
   const decisions=pending().filter(d=>d.id.startsWith('fin-'));
   return `<div class="finances">${s.demo===true?'<div>'+chip('Datos de demostración','accent')+'</div>':''}${financeKpis(s)}${financeRecs(s)}${financeBars(s)}${financeProgress(s)}${panel('¿Qué hago ahora?'+info('fin.pendientes'),source(s)+`<div class="fin-pending">${decisions.map(d=>detailButton('decision',d.id,d.titulo)).join('') || '<p>Sin decisiones pendientes.</p>'}</div><div class="fin-receipts">${detailButton('fin-comprobantes','lista',`${s.sin_comprobante.length} gastos sin comprobante`)}${info('fin.comprobantes')}</div>`)}</div>`;
 }
+const apiSaldos=()=>data.ajustes?.['apis.saldos'];
+const apiNames={anthropic:'Claude · API de Anthropic',elevenlabs:'ElevenLabs · voz',gemini:'Gemini · cuentas de la fábrica'};
+const apiSources={console:'Console del proveedor',estimado:'estimado sumando las llamadas de llm.mjs; el saldo exacto lo da Console',api:'API del proveedor',recolector:'recolector diario',sin_dato:'sin dato'};
+const amountOf=(v,u)=>v==null?'sin dato':u==='usd'?'USD '+Number(v).toLocaleString('es-MX',{maximumFractionDigits:2}):Number(v).toLocaleString('es-MX')+' '+(u||'');
+const dayOf=v=>v?date(v):'sin dato';
+function apiExpiry(p) {
+  if(p.antes_de_vencer==null || !(p.vence||p.renueva)) return '';
+  if(p.antes_de_vencer ? !p.fecha_agotamiento : p.sobrante_al_vencer==null) return '';
+  const when=p.vence?'el lote vence el '+dayOf(p.vence):'el plan se renueva el '+dayOf(p.renueva);
+  return p.antes_de_vencer?`Se agota el ${dayOf(p.fecha_agotamiento)} antes de vencer (${when}).`:`${when[0].toUpperCase()+when.slice(1)}: con este ritmo sobrarían ${amountOf(p.sobrante_al_vencer,p.unidad)}.`;
+}
+function apiCard(key,p) {
+  if(!p) return panel(esc(apiNames[key]),'<p>Sin dato todavía.</p>');
+  const few=p.dias_con_dato!=null && p.dias_con_dato<10;
+  const sourceText=Object.hasOwn(apiSources,p.fuente)?apiSources[p.fuente]:'sin dato';
+  return panel(esc(apiNames[key]),`${p.alerta?'<p class="api-alert" role="alert">Alerta: se pasó del 90 % del límite o el saldo se agota antes de renovarse.</p>':''}
+    <strong class="big">${esc(amountOf(p.saldo,p.unidad))}</strong><small>saldo${info('apis.saldo')}</small>
+    <dl class="api-facts"><dt>Usado / límite</dt><dd>${esc(amountOf(p.usado,p.unidad))} / ${esc(amountOf(p.limite,p.unidad))}</dd>
+    <dt>Ritmo diario${info('apis.ritmo')}</dt><dd>${esc(p.ritmo==null?'sin dato':amountOf(p.ritmo,p.unidad)+' por día')}${few?` · con ${esc(p.dias_con_dato)} días de dato`:''}</dd>
+    <dt>Se agota${info('apis.agotamiento')}</dt><dd>${esc(p.fecha_agotamiento?dayOf(p.fecha_agotamiento):'sin estimación')}</dd></dl>
+    ${apiExpiry(p)?`<p>${esc(apiExpiry(p))}</p>`:''}
+    <small class="fin-source">Fuente${info('apis.fuente')}: ${esc(sourceText)} · ${p.fecha?'dato del '+esc(stamp(p.fecha)):'sin fecha del dato'}</small>${p.nota?`<small>${esc(p.nota)}</small>`:''}`);
+}
+function geminiCard(saldo,consumo) {
+  const live=Array.isArray(consumo?.gemini)&&Array.isArray(consumo?.gemini_libres);
+  const g=live?{cuentas:consumo.gemini.map(c=>({alias:c.cuenta,usados_ventana:c.usados_ventana,agotado_hasta:c.agotado_hasta,libre:consumo.gemini_libres.includes(c.cuenta)})),ventana:consumo.ventana_gemini&&Number.isFinite(Date.parse(consumo.ventana_gemini))?new Date(consumo.ventana_gemini).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',timeZone:zone}):saldo?.ventana}:saldo;
+  if(!g) return panel(esc(apiNames.gemini),'<p>Sin dato todavía.</p>');
+  const hour=v=>new Date(v).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',timeZone:zone});
+  const rows=(g.cuentas??[]).map(c=>`<li><b>${esc(c.alias)}</b> · ${esc(c.usados_ventana??'sin dato')} usados en la ventana · ${c.libre?chip('libre','ok'):chip('agotada hasta '+(c.agotado_hasta&&Number.isFinite(Date.parse(c.agotado_hasta))?hour(c.agotado_hasta):'sin dato'),'warn')}</li>`).join('');
+  return panel(esc(apiNames.gemini)+info('apis.ventana_gemini'),`<ul class="fin-list">${rows||'<li>Sin cuentas registradas.</li>'}</ul><p>Próxima ventana: ${esc(g.ventana||'sin dato')} (hora de México)</p><small class="fin-source">${live?'Fuente: conteo de la fábrica, al momento':'Fuente: foto de saldos de la fábrica (hasta una hora) · dato del '+esc(stamp(apiSaldos()?._al ?? apiSaldos()?.actualizado))}</small>`);
+}
+function apiDaily(c) {
+  const rows=c?.por_dia??[];
+  if(!rows.length) return panel('Costo por día · 30 días','<p>Sin consumo registrado.</p>');
+  const by=rows.reduce((m,r)=>{ const k=r.proveedor+' · '+r.unidad; m.set(k,[...(m.get(k)??[]),r]); return m; },new Map());
+  const body=[...by].map(([name,list])=>{
+    list=list.slice().sort((a,b)=>a.dia.localeCompare(b.dia));
+    const max=Math.max(1,...list.filter(r=>r.cantidad!=null).map(r=>Number(r.cantidad)));
+    // Con menos de 10 días de dato, cifras; barras solo desde 10.
+    const lines=list.length<10?'<ul class="fin-list">'+list.map(r=>`<li>${esc(dayOf(r.dia))} · ${esc(usage(r))}</li>`).join('')+'</ul>':list.map(r=>`<div class="api-bar"><span>${esc(dayOf(r.dia))}</span><b>${esc(usage(r))}</b><i style="--width:${r.cantidad==null?0:100*Number(r.cantidad)/max}%"></i></div>`).join('');
+    return `<h3>${esc(name)} · ${list.length} ${list.length===1?'día':'días'} con dato</h3>${lines}`;
+  }).join('');
+  return panel('Costo por día · 30 días',body+`<small class="fin-source">Fuente: consumo registrado por la fábrica · corte ${esc(stamp(data.ahora))}</small>`);
+}
+function apiByJob(c) {
+  const rows=c?.por_tarea??[];
+  const body=rows.length?'<table><caption>Consumo acumulado por trabajo</caption><thead><tr><th>Trabajo</th><th>Consumo</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${esc(data.tareas.find(t=>t.id===r.task_id)?.titulo ?? r.task_id)}</td><td>${esc(r.proveedor)} · ${esc(usage(r))}</td></tr>`).join('')+'</tbody></table>':'<p>Sin consumo por trabajo.</p>';
+  return panel('Costo por trabajo',body+`<small class="fin-source">Fuente: consumo registrado por la fábrica · corte ${esc(stamp(data.ahora))}</small>`);
+}
+function apisView() {
+  const s=apiSaldos();
+  return `<div class="apis">${DEMO?'<div>'+chip('Datos de demostración','accent')+'</div>':''}<p class="note">Las sesiones de Claude Code de la fábrica usan el plan Max: no gastan créditos de API</p><div class="grid">${apiCard('anthropic',s?.anthropic)}${apiCard('elevenlabs',s?.elevenlabs)}${geminiCard(s?.gemini,data.consumo)}</div>${apiDaily(data.consumo)}${apiByJob(data.consumo)}</div>`;
+}
 function financeDetail(kind,key) {
   const s=financeSummary();
   if(!s) return;
@@ -1088,7 +1186,7 @@ async function openDetail(kind,key) {
     showDetail('Detalle de tarea','<p role="status">Cargando historial…</p>');
     try {
       let task;
-      if(DEMO) task={...data.tareas.find(t=>t.id===key),eventos:data.eventos_demo?.[key]};
+      if(DEMO) task={...data.tareas.find(t=>t.id===key),eventos:data.eventos_demo?.[key],...data.detalle_demo?.[key]};
       else {
         const result=await sb.rpc('panel',{p_op:'tarea',p_args:{id:key}});
         if(result.error) throw Error(result.error.message);
@@ -1098,7 +1196,7 @@ async function openDetail(kind,key) {
       if(!task?.id) throw Error('No se encontró la tarea.');
       task={...data.tareas.find(t=>t.id===key),...task};
       const events=[...(task.eventos??[])].sort((a,b)=>Date.parse(a.at)-Date.parse(b.at));
-      showDetail(task.titulo,taskCard(task,true,true)+`<h3>Historial</h3><ol class="events">${events.map(e=>`<li><small>${esc(stamp(e.at))}</small><b>${esc(e.actor)} · ${esc(e.tipo)}</b><p class="lines">${esc(typeof e.detalle==='object' && e.detalle!==null?JSON.stringify(e.detalle):e.detalle)}</p></li>`).join('')}</ol>${events.length?'':'<p>Sin eventos registrados.</p>'}`);
+      showDetail(task.titulo,taskCard(task,true,true)+jobLadder(task.evidencia?.trabajo ?? task.trabajo,events)+(task.evidencia?.trabajo||task.trabajo||task.consumo?taskUsage(task.consumo):'')+`<h3>Historial</h3><ol class="events">${events.map(e=>`<li><small>${esc(stamp(e.at))}</small><b>${esc(e.actor)} · ${esc(e.tipo)}</b><p class="lines">${esc(typeof e.detalle==='object' && e.detalle!==null?JSON.stringify(e.detalle):e.detalle)}</p></li>`).join('')}</ol>${events.length?'':'<p>Sin eventos registrados.</p>'}`);
     } catch(err) { if(generation===detailGeneration) showDetail('Detalle de tarea','<p>'+esc(err.message)+'</p>'+detailButton('task',key,'Reintentar')); }
     return;
   }
@@ -1169,6 +1267,9 @@ function searchResults(query) {
   ];
   return entries.filter(([,key,type,label,extra])=>terms.every(term=>norm([type,key,label,...extra].join(' ')).includes(term))).map(([kind,key,type,label])=>detailButton(kind,key,type+' · '+label,'search-hit')).join('') || '<p>Sin coincidencias.</p>';
 }
+document.addEventListener('change',e=>{
+  if(e.target.id==='tipo-trabajo') $('#campo-ejercicio').hidden=!jobOf(e.target.value)?.params?.includes('ejercicio');
+});
 document.addEventListener('input',e=>{
   if(e.target.id==='instruction') $('#instruction-count').textContent=e.target.value.length+'/2000';
   if(e.target.id==='respuesta-doc') responseCount();
@@ -1176,7 +1277,7 @@ document.addEventListener('input',e=>{
 });
 function draw() {
   const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+sessionSummary()+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
-    finanzas:finances,equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
+    finanzas:finances,apis:apisView,equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
   hideHelp();
   $('#buscar').hidden=false;
   $('#navegacion').hidden=false;
@@ -1249,7 +1350,7 @@ async function load(refresh=false) {
   const liveView=['sesiones','equipo','fabrica'].includes(view);
   const sessionId=drawer.querySelector('[data-session]')?.dataset.session;
   if (refresh && (busy || (drawer.open && !sessionId) || $('#app a:focus') || $('#app select:focus, #app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('#app textarea')].some(t=>t.value))) return;
-  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
+  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','consumo','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
   status();
@@ -1259,7 +1360,7 @@ async function load(refresh=false) {
   if(sessionId && (!refresh || changed)) refreshSessionDetail(sessionId);
 }
 function refreshView() {
-  const fields = [...document.querySelectorAll('#app textarea')].map(el => [el.id,el.value]);
+  const fields = [...document.querySelectorAll('#app textarea,#tipo-trabajo,#ejercicio-trabajo')].map(el => [el.id,el.value]);
   const open = new Set([...document.querySelectorAll('details[open]')].map(el => el.dataset.group));
   const active = document.activeElement;
   const group = active.closest('details')?.dataset.group;
@@ -1269,6 +1370,7 @@ function refreshView() {
     const field = document.getElementById(id);
     if (field) field.value = value;
   }
+  if ($('#tipo-trabajo') && $('#campo-ejercicio')) $('#campo-ejercicio').hidden=!jobOf($('#tipo-trabajo').value)?.params?.includes('ejercicio');
   for (const el of document.querySelectorAll('details')) el.open = open.has(el.dataset.group);
   if (boardScroll != null && $('.board')) $('.board').scrollLeft = boardScroll;
   if (active.isConnected) return;
@@ -1453,8 +1555,19 @@ document.addEventListener('click',async e=>{
     case 'nueva': {
       const titulo=$('#nueva').value.trim();
       if (titulo.length<3) return notice('Escribe qué quieres cambiar.');
-      args={titulo}; break;
+      args={titulo};
+      const tipo=$('#tipo-trabajo')?.value;
+      if(tipo) {
+        args.trabajo={tipo};
+        if(jobOf(tipo)?.params?.includes('ejercicio')) {
+          const ejercicio=$('#ejercicio-trabajo').value.trim();
+          if(!/^[a-z0-9-]{2,60}$/.test(ejercicio)) { $('#ejercicio-trabajo').focus(); return notice('El ejercicio va en minúsculas, números y guiones (2 a 60).'); }
+          args.trabajo.ejercicio=ejercicio;
+        }
+      }
+      break;
     }
+    case 'auto': args={activa:b.dataset.activa==='true'}; break;
     case 'decidir': args={id,opcion,comentario:b.closest('article').querySelector('[data-comment]').value}; break;
     case 'resolver_decision': args={id,resolucion:b.closest('article').querySelector('[data-resolution]').value.trim()}; break;
     case 'reabrir_decision': args={id}; break;
@@ -1475,7 +1588,7 @@ document.addEventListener('click',async e=>{
     } else if(demoFinanceReply) demoFinanceDocument={...args,respondido:new Date().toISOString()};
     else if(DEMO) demoSessionOp(op,args,sessionId);
     else {
-      const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op,p_args:args});
+      const {error}=await sb.rpc('panel',{p_op:op==='nueva'?'proponer':op==='auto'?'ajuste_fabrica_auto':op,p_args:args});
       if (error) throw Error(error.message);
     }
     if(sessionId) {
@@ -1510,11 +1623,11 @@ document.addEventListener('click',async e=>{
     const keepPerson=op==='grupo' && drawer.open && b.isConnected;
     if(!keepPerson) closeDetail();
     if(op==='mover') await travel(id,a);
-    if(op==='nueva' && $('#nueva')?.value.trim()===args.titulo) $('#nueva').value='';
+    if(op==='nueva' && $('#nueva')?.value.trim()===args.titulo) { $('#nueva').value=''; if($('#tipo-trabajo')) { $('#tipo-trabajo').value=''; $('#campo-ejercicio').hidden=true; } }
     if(op==='decidir' && document.getElementById('c-'+id)?.value===args.comentario) document.getElementById('c-'+id).value='';
     await load();
     if(keepPerson && drawer.open && b.isConnected) await openDetail('person',id);
-    notice(demoDecision?'Decisión actualizada en la demostración.':op==='ejecutar'?'Pedido enviado. La PC arranca la sesión en uno o dos minutos.':'Cambio guardado.');
+    notice(demoDecision?'Decisión actualizada en la demostración.':op==='auto'?(args.activa?'Trabajos automáticos encendidos.':'Trabajos automáticos apagados.'):op==='ejecutar'?'Pedido enviado. La PC arranca la sesión en uno o dos minutos.':'Cambio guardado.');
   } catch (error) { notice(error.message); }
   finally { busy=false; b.disabled=false; }
 });
@@ -1541,6 +1654,10 @@ async function init() {
       if(Array.isArray(catalog?.segmentos) && catalog.director && catalog.compartido) team=catalog;
     }
   } catch { /* Equipo muestra su estado vacío. */ }
+  try {
+    const response=await fetch('trabajos.json');
+    if(response.ok) { const catalog=await response.json(); if(catalog && typeof catalog==='object') jobs=catalog; }
+  } catch { /* Sin catálogo no hay escaleras de pasos. */ }
   await load();
   setInterval(()=>{
     if (!document.hidden && !busy) load(true).catch(()=>$('#estado').textContent='Actualización pendiente');

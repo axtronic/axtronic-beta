@@ -99,6 +99,75 @@
       "updated_at": "2026-11-19T12:00:00Z",
       "closed_at": "2026-11-19T12:00:00Z",
       "segmento": "fabrica"
+    },
+    {
+      "id": "9a1c0001-0000-4000-8000-000000000001",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "en_curso",
+      "titulo": "Vídeo de tarjeta: sentadilla-bulgara (demostración)",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T18:00:00Z",
+      "closed_at": null,
+      "segmento": "app",
+      "ejecutar": false,
+      "trabajo": {
+        "tipo": "video-tarjeta",
+        "ejercicio": "sentadilla-bulgara"
+      },
+      "paso": {
+        "paso": "tecnica",
+        "estado": "en_curso",
+        "nota": "Comparando la técnica con la ficha <b>x</b>.",
+        "relanzar": false
+      }
+    },
+    {
+      "id": "9a1c0002-0000-4000-8000-000000000002",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "en_curso",
+      "titulo": "Vídeo de tarjeta: remo-con-mancuerna (demostración)",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T15:00:00Z",
+      "closed_at": null,
+      "segmento": "app",
+      "ejecutar": false,
+      "trabajo": {
+        "tipo": "video-tarjeta",
+        "ejercicio": "remo-con-mancuerna"
+      },
+      "paso": {
+        "paso": "esperar",
+        "estado": "esperando",
+        "nota": "Cupo de Gemini agotado: espera la ventana de las 14:00.",
+        "relanzar": true
+      }
+    },
+    {
+      "id": "9a1c0003-0000-4000-8000-000000000003",
+      "linea": "L2",
+      "origen": "peticion",
+      "estado": "en_curso",
+      "titulo": "Vídeo de tarjeta: press-militar (demostración)",
+      "severidad": null,
+      "pr": null,
+      "updated_at": "2026-11-20T14:00:00Z",
+      "closed_at": null,
+      "segmento": "app",
+      "ejecutar": false,
+      "trabajo": {
+        "tipo": "video-tarjeta",
+        "ejercicio": "press-militar"
+      },
+      "paso": {
+        "paso": "sesion",
+        "estado": "esperando",
+        "nota": "límite de uso de Claude",
+        "relanzar": true
+      }
     }
   ],
   "bugs": [
@@ -1582,6 +1651,109 @@
         "tipo": "Estado",
         "detalle": "La tarea pasó a descartada."
       }
+    ],
+    "9a1c0001-0000-4000-8000-000000000001": [
+      {
+        "at": "2026-11-20T16:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "base",
+          "estado": "hecho",
+          "nota": "Imagen base lista.",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T16:10:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "lanzar",
+          "estado": "hecho",
+          "nota": "Lanzado en la cuenta u2.",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T16:40:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "esperar",
+          "estado": "hecho",
+          "nota": "Vídeo listo.",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T17:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "descargar",
+          "estado": "hecho",
+          "nota": "",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T18:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "tecnica",
+          "estado": "en_curso",
+          "nota": "Comparando la técnica con la ficha <b>x</b>.",
+          "relanzar": false
+        }
+      }
+    ],
+    "9a1c0002-0000-4000-8000-000000000002": [
+      {
+        "at": "2026-11-20T13:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "base",
+          "estado": "hecho",
+          "nota": "",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T13:20:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "lanzar",
+          "estado": "hecho",
+          "nota": "Lanzado en la cuenta u3.",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T15:00:00Z",
+        "actor": "Fábrica",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "esperar",
+          "estado": "esperando",
+          "nota": "Cupo de Gemini agotado: espera la ventana de las 14:00.",
+          "relanzar": false
+        }
+      },
+      {
+        "at": "2026-11-20T15:01:00Z",
+        "actor": "Lanzador",
+        "tipo": "paso",
+        "detalle": {
+          "paso": "sesion",
+          "estado": "esperando",
+          "nota": "Límite de uso de la sesión.",
+          "relanzar": true
+        }
+      }
     ]
   },
   "ajustes": {
@@ -2017,6 +2189,69 @@
         }
       ],
       "_al": "2026-11-20T20:30:00Z"
+    },
+    "apis.saldos": {
+      "anthropic": {
+        "fuente": "estimado",
+        "fecha": "2026-11-20T08:00:00Z",
+        "saldo": 62.4,
+        "limite": 100,
+        "usado": 37.6,
+        "unidad": "usd",
+        "ritmo": 3.1,
+        "dias_con_dato": 4,
+        "fecha_agotamiento": "2026-12-10",
+        "dias": 20,
+        "antes_de_vencer": false,
+        "sobrante_al_vencer": 41.2,
+        "vence": "2026-12-05",
+        "nota": "Datos de demostración."
+      },
+      "elevenlabs": {
+        "fuente": "sin_dato",
+        "fecha": null,
+        "saldo": null,
+        "limite": null,
+        "usado": null,
+        "unidad": "caracteres",
+        "ritmo": null,
+        "dias_con_dato": null,
+        "fecha_agotamiento": null,
+        "dias": null,
+        "antes_de_vencer": null,
+        "sobrante_al_vencer": null,
+        "renueva": null,
+        "alerta": false,
+        "nota": "Datos de demostración."
+      },
+      "gemini": {
+        "cuentas": [
+          {
+            "alias": "u2",
+            "usados_ventana": 2,
+            "agotado_hasta": "2026-11-20T20:00:00Z",
+            "libre": false
+          },
+          {
+            "alias": "u3",
+            "usados_ventana": 1,
+            "agotado_hasta": null,
+            "libre": true
+          },
+          {
+            "alias": "u4",
+            "usados_ventana": 0,
+            "agotado_hasta": null,
+            "libre": true
+          }
+        ],
+        "ventana": "14:00"
+      },
+      "actualizado": "2026-11-20T08:43:00Z",
+      "_al": "2026-11-20T08:43:00Z"
+    },
+    "fabrica.auto": {
+      "activa": false
     }
   },
   "versiones": [
@@ -2276,5 +2511,132 @@
       "cuerpo": "## Opciones de portada\n- Sentadilla en casa\n- Rutina con silla\n\n¿Cuál quieres revisar primero en el teléfono?",
       "respuesta": "Empecemos con la sentadilla en casa. Falta revisar el recorte en el teléfono."
     }
+  },
+  "detalle_demo": {
+    "9a1c0001-0000-4000-8000-000000000001": {
+      "evidencia": {
+        "trabajo": {
+          "tipo": "video-tarjeta",
+          "ejercicio": "sentadilla-bulgara"
+        }
+      },
+      "consumo": [
+        {
+          "at": "2026-11-20T16:10:00Z",
+          "proveedor": "gemini",
+          "cuenta": "u2",
+          "unidad": "videos",
+          "cantidad": 1,
+          "usd": null
+        },
+        {
+          "at": "2026-11-20T17:30:00Z",
+          "proveedor": "anthropic",
+          "cuenta": null,
+          "unidad": "usd",
+          "cantidad": 0.42,
+          "usd": 0.42
+        }
+      ]
+    },
+    "9a1c0002-0000-4000-8000-000000000002": {
+      "evidencia": {
+        "trabajo": {
+          "tipo": "video-tarjeta",
+          "ejercicio": "remo-con-mancuerna"
+        }
+      },
+      "consumo": [
+        {
+          "at": "2026-11-20T13:20:00Z",
+          "proveedor": "gemini",
+          "cuenta": "u3",
+          "unidad": "videos",
+          "cantidad": 1,
+          "usd": null
+        }
+      ]
+    }
+  },
+  "consumo": {
+    "por_dia": [
+      {
+        "dia": "2026-11-18",
+        "proveedor": "anthropic",
+        "unidad": "usd",
+        "cantidad": 2.9,
+        "usd": 2.9
+      },
+      {
+        "dia": "2026-11-19",
+        "proveedor": "anthropic",
+        "unidad": "usd",
+        "cantidad": 3.4,
+        "usd": 3.4
+      },
+      {
+        "dia": "2026-11-20",
+        "proveedor": "anthropic",
+        "unidad": "usd",
+        "cantidad": 3.1,
+        "usd": 3.1
+      },
+      {
+        "dia": "2026-11-19",
+        "proveedor": "gemini",
+        "unidad": "videos",
+        "cantidad": 2,
+        "usd": null
+      },
+      {
+        "dia": "2026-11-20",
+        "proveedor": "gemini",
+        "unidad": "videos",
+        "cantidad": 3,
+        "usd": null
+      },
+      {
+        "dia": "2026-11-17",
+        "proveedor": "gemini",
+        "unidad": "videos",
+        "cantidad": null,
+        "usd": null
+      }
+    ],
+    "por_tarea": [
+      {
+        "task_id": "9a1c0001-0000-4000-8000-000000000001",
+        "proveedor": "anthropic",
+        "unidad": "usd",
+        "cantidad": 0.42,
+        "usd": 0.42
+      },
+      {
+        "task_id": "9a1c0001-0000-4000-8000-000000000001",
+        "proveedor": "gemini",
+        "unidad": "videos",
+        "cantidad": 1,
+        "usd": null
+      },
+      {
+        "task_id": "9a1c0002-0000-4000-8000-000000000002",
+        "proveedor": "gemini",
+        "unidad": "videos",
+        "cantidad": 1,
+        "usd": null
+      }
+    ],
+    "gemini": [
+      {
+        "cuenta": "u2",
+        "usados_ventana": 2,
+        "agotado_hasta": "2026-11-20T20:00:00Z"
+      }
+    ],
+    "gemini_libres": [
+      "u3",
+      "u4"
+    ],
+    "ventana_gemini": "2026-11-21T20:00:00Z"
   }
 }

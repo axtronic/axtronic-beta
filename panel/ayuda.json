@@ -88,5 +88,41 @@
     "calculo": "Se cuenta cada caso incluido en la lista del corte.",
     "fuente": "Lista de gastos sin comprobante del resumen.",
     "hacer": "Abre la lista y pide la factura o el ticket de cada compra."
+  },
+  "apis.saldo": {
+    "que": "Lo que queda por gastar en ese proveedor.",
+    "calculo": "Límite menos lo usado, según la fuente que se indica en la tarjeta.",
+    "fuente": "Console, la API del proveedor, el recolector diario o la suma de llamadas de llm.mjs.",
+    "hacer": "Si dice «sin dato», no hay lectura todavía: no es cero."
+  },
+  "apis.ritmo": {
+    "que": "Cuánto se gasta por día, en promedio.",
+    "calculo": "Consumo de los últimos días con dato dividido entre esos días. Con menos de 10 días es solo una pista.",
+    "fuente": "Consumo registrado por la fábrica.",
+    "hacer": "No te fíes de la fecha de agotamiento mientras diga pocos días de dato."
+  },
+  "apis.agotamiento": {
+    "que": "Fecha en que se acabaría el saldo si el ritmo no cambia.",
+    "calculo": "Saldo dividido entre el ritmo diario, contado desde hoy.",
+    "fuente": "Saldo y ritmo de la tarjeta.",
+    "hacer": "Si cae antes del vencimiento o la renovación, recarga o frena el consumo."
+  },
+  "apis.fuente": {
+    "que": "De dónde sale el saldo y de qué día es el dato.",
+    "calculo": "«Estimado» suma las llamadas de llm.mjs; el saldo exacto lo da Console.",
+    "fuente": "Tipo de fuente y fecha guardados con la lectura.",
+    "hacer": "Contrasta con Console antes de decidir una recarga."
+  },
+  "apis.ventana_gemini": {
+    "que": "Cuántos vídeos lleva cada cuenta de Gemini en la ventana actual.",
+    "calculo": "Cada cuenta tiene un cupo por ventana; al agotarlo queda bloqueada hasta la hora indicada.",
+    "fuente": "Conteo de la fábrica por cuenta.",
+    "hacer": "Usa las cuentas marcadas como libres y espera la próxima ventana para las demás."
+  },
+  "fabrica.auto": {
+    "que": "Si la fábrica hace sola los trabajos aprobados.",
+    "calculo": "Encendido, el lanzador arranca una sesión por cada trabajo aprobado sin que pulses nada.",
+    "fuente": "Ajuste «fabrica.auto» del registro.",
+    "hacer": "Apágalo para frenar todo; las tareas aprobadas esperan «Ejecutar ahora»."
   }
 }

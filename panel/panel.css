@@ -460,3 +460,28 @@ a.points {grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
   .org-chart.cols-1 {display:none}
   .org-chart.cols-3 {display:block;max-width:900px}
 }
+.apis {display:grid;gap:14px;min-width:0}
+.apis .fin-list,.ladder+.note {margin-top:8px}
+.api-facts {display:grid;align-items:center;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;margin:12px 0}
+.api-facts dt {color:var(--muted);font-size:.81rem}
+.api-facts dd {margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.api-alert {border:1px solid var(--bad);border-left-width:4px;border-radius:8px;padding:8px 10px;color:var(--text);margin:0 0 12px}
+.api-bar {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:4px 0}
+.api-bar b {font-variant-numeric:tabular-nums}
+.api-bar i {grid-column:1/-1;display:block;height:6px;border-radius:5px;background:var(--surface);overflow:hidden}
+.api-bar i::after {content:"";display:block;height:100%;width:var(--width);background:var(--accent)}
+.ladder {list-style:none;padding:0;margin:8px 0 12px;display:grid;gap:6px}
+.step {display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:4px 8px;border:1px solid var(--border);border-left:3px solid var(--muted);border-radius:8px;padding:8px 10px}
+.step.accent {border-left-color:var(--accent)}
+.step.ok {border-left-color:var(--ok)}
+.step.warn {border-left-color:var(--warn)}
+.step.bad {border-left-color:var(--bad)}
+.step b {text-align:center}
+.step small {grid-column:2/-1}
+.job-line {display:block}
+.switch {display:inline-flex;align-items:center;gap:10px;min-height:44px}
+.switch i {width:38px;height:22px;border-radius:11px;background:var(--surface);border:1px solid var(--border);position:relative;flex:none}
+.switch i::after {content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted)}
+.switch[aria-checked=true] i {background:var(--deep)}
+.switch[aria-checked=true] i::after {left:18px;background:var(--text)}
+#tipo-trabajo,#ejercicio-trabajo {min-height:44px;max-width:100%;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font:inherit;display:block;margin:4px 0}

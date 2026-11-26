@@ -1,0 +1,62 @@
+{
+  "video-tarjeta": {
+    "nombre": "Vídeo de tarjeta de ejercicio",
+    "skill": "trabajo-video-tarjeta",
+    "chrome": true,
+    "gemini": "video",
+    "params": ["ejercicio"],
+    "pasos": [
+      { "id": "base", "nombre": "Imagen base 9:16" },
+      { "id": "lanzar", "nombre": "Lanzar en Gemini" },
+      { "id": "esperar", "nombre": "Esperar el vídeo" },
+      { "id": "descargar", "nombre": "Descargar" },
+      { "id": "tecnica", "nombre": "Revisión de técnica" },
+      { "id": "webp", "nombre": "WebP con clip.py" },
+      { "id": "integrar", "nombre": "Integrar en CLIPS" },
+      { "id": "verify", "nombre": "Verify" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
+  },
+  "tarjeta": {
+    "nombre": "Tarjeta de ejercicio",
+    "skill": "artifact-template-kynet-ejercicios",
+    "chrome": true,
+    "gemini": "imagen",
+    "params": ["ejercicio"],
+    "pasos": [
+      { "id": "investigar", "nombre": "Investigar la técnica" },
+      { "id": "generar", "nombre": "Generar la tarjeta" },
+      { "id": "revisar", "nombre": "Revisar el resultado" },
+      { "id": "integrar", "nombre": "Integrar en la app" },
+      { "id": "verify", "nombre": "Verify" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
+  },
+  "ejercicio": {
+    "nombre": "Ejercicio nuevo",
+    "skill": "agregar-ejercicio",
+    "chrome": false,
+    "gemini": null,
+    "params": ["ejercicio"],
+    "pasos": [
+      { "id": "investigar", "nombre": "Investigar el ejercicio" },
+      { "id": "catalogo", "nombre": "Añadir al catálogo" },
+      { "id": "pruebas", "nombre": "Pruebas" },
+      { "id": "verify", "nombre": "Verify" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
+  },
+  "correccion": {
+    "nombre": "Corrección de un fallo",
+    "skill": "diagnosticar-bug",
+    "chrome": false,
+    "gemini": null,
+    "params": [],
+    "pasos": [
+      { "id": "reproducir", "nombre": "Reproducir el fallo" },
+      { "id": "arreglar", "nombre": "Arreglar" },
+      { "id": "verify", "nombre": "Verify" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
+  }
+}
