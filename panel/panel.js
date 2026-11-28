@@ -494,7 +494,7 @@ function taskCard(t,detail=false,expanded=false) {
     <h3>${expanded?esc(t.titulo):detailButton('task',t.id,cleanTitle(t.titulo))}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>${jobLine(t)}
     ${expanded && t.spec?`<h4>Pedido completo</h4><p class="lines">${esc(t.spec)}</p>`:''}${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${primary}${secondary}</div></article>`;
 }
-const segmentKeys=['app','diseno','reloj','datos','redes','publicacion','finanzas','legal','fabrica'];
+const segmentKeys=['app','diseno','reloj','datos','seguridad','redes','publicacion','finanzas','legal','fabrica'];
 let team=null, factorySegment='', openTasksOnly=false, sessionSegment='', sessionFilter='';
 const segmentInfo=key=>team?.segmentos.find(s=>s.clave===key);
 const segmentName=key=>segmentInfo(key)?.nombre || key || 'Sin segmento';

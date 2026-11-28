@@ -48,6 +48,14 @@
       "te_toca": "Autorizar cambios que borren o renombren algo."
     },
     {
+      "clave": "seguridad", "nombre": "Seguridad", "agente": "revisor-seguridad",
+      "hace": "Hallazgos de seguridad: secretos, permisos, RLS, atestación y vigilancia de clones. Lo que corrige no se delega.",
+      "cerebro": ".claude/rules/general.md",
+      "skills": ["fp-check", "sharp-edges", "insecure-defaults", "security-review"],
+      "pasos": ["Hallazgo o aviso", "Triaje y riesgo", "Corregir", "Prueba negativa", "¿Cambia datos personales?", "Tu revisión", "Cerrada con evidencia"],
+      "te_toca": "Revisar el cambio y decidir si hace falta abogado."
+    },
+    {
       "clave": "redes", "nombre": "Redes y contenido", "agente": "dirección de redes",
       "hace": "Reels, publicaciones, respuestas a comentarios y lectura de resultados.",
       "cerebro": ".claude/rules/redes.md",
