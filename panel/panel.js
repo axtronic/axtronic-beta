@@ -458,7 +458,7 @@ function jobLadder(trabajo,events) {
   }).join('');
   // Un paso fuera del catálogo (p. ej. «sesion», del lanzador) se muestra como nota del trabajo.
   const extra=[...last].filter(([id])=>!def.pasos.some(p=>p.id===id)).map(([id,d])=>`<p class="note">${esc(id)} · ${esc(d.estado)}${d.nota?' · '+esc(d.nota):''}</p>`).join('');
-  return `<h3>Pasos · ${esc(def.nombre)}${trabajo.ejercicio?' · '+esc(trabajo.ejercicio):''}</h3><ol class="ladder">${rows}</ol>${extra}`;
+  return `<h3>Pasos · ${esc(def.nombre)}${trabajo.ejercicio?' · '+esc(trabajo.ejercicio):''}${trabajo.rutina?' · '+esc(trabajo.rutina):''}</h3><ol class="ladder">${rows}</ol>${extra}`;
 }
 const qty=(n,o)=>n==null?'sin dato':Number(n).toLocaleString('es-MX',o);
 const usage=r=>r.cantidad==null?'sin dato':r.unidad==='usd'?'USD '+qty(r.cantidad,{maximumFractionDigits:4}):`${qty(r.cantidad)} ${r.unidad}${r.usd==null?'':' · USD '+qty(r.usd,{maximumFractionDigits:4})}`;
@@ -498,7 +498,7 @@ function autoSwitch() {
 function jobPicker() {
   if(!jobs) return '';
   const options=Object.entries(jobs).map(([k,j])=>`<option value="${esc(k)}">${esc(j.nombre)}</option>`).join('');
-  return `<label for="tipo-trabajo">Tipo de trabajo</label><select id="tipo-trabajo"><option value="">Ninguno (tarea normal)</option>${options}</select><small>Un trabajo pedido aquí queda aprobado; la fábrica lo hace sola si "Trabajos automáticos" está encendido</small><div id="campo-ejercicio" hidden><label for="ejercicio-trabajo">Ejercicio (minúsculas, números y guiones)</label><input id="ejercicio-trabajo" maxlength="60" autocomplete="off" placeholder="sentadilla-bulgara"></div>`;
+  return `<label for="tipo-trabajo">Tipo de trabajo</label><select id="tipo-trabajo"><option value="">Ninguno (tarea normal)</option>${options}</select><small>Un trabajo pedido aquí queda aprobado; la fábrica lo hace sola si "Trabajos automáticos" está encendido</small><div id="campo-ejercicio" hidden><label for="ejercicio-trabajo">Ejercicio o rutina (minúsculas, números y guiones)</label><input id="ejercicio-trabajo" maxlength="60" autocomplete="off" placeholder="sentadilla-bulgara"></div>`;
 }
 function factory() {
   const lanes=stations.map(([name,states,tone],i)=>{
@@ -1268,7 +1268,7 @@ function searchResults(query) {
   return entries.filter(([,key,type,label,extra])=>terms.every(term=>norm([type,key,label,...extra].join(' ')).includes(term))).map(([kind,key,type,label])=>detailButton(kind,key,type+' · '+label,'search-hit')).join('') || '<p>Sin coincidencias.</p>';
 }
 document.addEventListener('change',e=>{
-  if(e.target.id==='tipo-trabajo') $('#campo-ejercicio').hidden=!jobOf(e.target.value)?.params?.includes('ejercicio');
+  if(e.target.id==='tipo-trabajo') $('#campo-ejercicio').hidden=!jobOf(e.target.value)?.params?.length;
 });
 document.addEventListener('input',e=>{
   if(e.target.id==='instruction') $('#instruction-count').textContent=e.target.value.length+'/2000';
@@ -1370,7 +1370,7 @@ function refreshView() {
     const field = document.getElementById(id);
     if (field) field.value = value;
   }
-  if ($('#tipo-trabajo') && $('#campo-ejercicio')) $('#campo-ejercicio').hidden=!jobOf($('#tipo-trabajo').value)?.params?.includes('ejercicio');
+  if ($('#tipo-trabajo') && $('#campo-ejercicio')) $('#campo-ejercicio').hidden=!jobOf($('#tipo-trabajo').value)?.params?.length;
   for (const el of document.querySelectorAll('details')) el.open = open.has(el.dataset.group);
   if (boardScroll != null && $('.board')) $('.board').scrollLeft = boardScroll;
   if (active.isConnected) return;
@@ -1559,10 +1559,12 @@ document.addEventListener('click',async e=>{
       const tipo=$('#tipo-trabajo')?.value;
       if(tipo) {
         args.trabajo={tipo};
-        if(jobOf(tipo)?.params?.includes('ejercicio')) {
+        // Cada tipo pide un solo parámetro (`ejercicio` o `rutina`): el mismo campo lo recoge.
+        const param=jobOf(tipo)?.params?.[0];
+        if(param==='ejercicio' || param==='rutina') {
           const ejercicio=$('#ejercicio-trabajo').value.trim();
-          if(!/^[a-z0-9-]{2,60}$/.test(ejercicio)) { $('#ejercicio-trabajo').focus(); return notice('El ejercicio va en minúsculas, números y guiones (2 a 60).'); }
-          args.trabajo.ejercicio=ejercicio;
+          if(!/^[a-z0-9-]{2,60}$/.test(ejercicio)) { $('#ejercicio-trabajo').focus(); return notice('Va en minúsculas, números y guiones (2 a 60).'); }
+          args.trabajo[param]=ejercicio;
         }
       }
       break;

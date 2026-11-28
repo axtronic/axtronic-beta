@@ -4,6 +4,8 @@
     "skill": "trabajo-video-tarjeta",
     "chrome": true,
     "gemini": "video",
+    "motor": "api",
+    "modelo": "sonnet",
     "params": ["ejercicio"],
     "pasos": [
       { "id": "base", "nombre": "Imagen base 9:16" },
@@ -17,11 +19,34 @@
       { "id": "pr", "nombre": "PR en borrador" }
     ]
   },
+  "rutina-video": {
+    "nombre": "Rutina desde un vídeo de referencia",
+    "skill": "replicar-rutina-desde-video",
+    "chrome": true,
+    "gemini": "video",
+    "motor": "api",
+    "modelo": "sonnet",
+    "params": ["rutina"],
+    "pasos": [
+      { "id": "legal", "nombre": "Origen y alcance" },
+      { "id": "desglose", "nombre": "Desglose del vídeo" },
+      { "id": "fichas", "nombre": "Ficha de técnica por ejercicio" },
+      { "id": "circuito", "nombre": "Circuito en datos" },
+      { "id": "deteccion", "nombre": "Detección con la pose del vídeo" },
+      { "id": "animaciones", "nombre": "Animaciones de esqueleto" },
+      { "id": "bases", "nombre": "Imágenes base con el avatar" },
+      { "id": "videos", "nombre": "Vídeos de tarjeta" },
+      { "id": "verify", "nombre": "Verify" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
+  },
   "tarjeta": {
     "nombre": "Tarjeta de ejercicio",
     "skill": "artifact-template-kynet-ejercicios",
     "chrome": true,
     "gemini": "imagen",
+    "motor": "api",
+    "modelo": "sonnet",
     "params": ["ejercicio"],
     "pasos": [
       { "id": "investigar", "nombre": "Investigar la técnica" },
@@ -37,6 +62,8 @@
     "skill": "agregar-ejercicio",
     "chrome": false,
     "gemini": null,
+    "motor": "api",
+    "modelo": "opus",
     "params": ["ejercicio"],
     "pasos": [
       { "id": "investigar", "nombre": "Investigar el ejercicio" },
@@ -51,6 +78,8 @@
     "skill": "diagnosticar-bug",
     "chrome": false,
     "gemini": null,
+    "motor": "api",
+    "modelo": "opus",
     "params": [],
     "pasos": [
       { "id": "reproducir", "nombre": "Reproducir el fallo" },
