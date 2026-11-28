@@ -87,5 +87,22 @@
       { "id": "verify", "nombre": "Verify" },
       { "id": "pr", "nombre": "PR en borrador" }
     ]
+  },
+  "reel-estilo": {
+    "nombre": "Reel con el estilo de una referencia",
+    "skill": "trabajo-reel-estilo",
+    "chrome": false,
+    "gemini": null,
+    "motor": "api",
+    "modelo": "sonnet",
+    "params": ["pieza", "estilo"],
+    "pasos": [
+      { "id": "referencia", "nombre": "Leer el análisis de estilo" },
+      { "id": "pieza", "nombre": "Copiar la pieza (voz y montaje)" },
+      { "id": "plantilla", "nombre": "Composición del estilo" },
+      { "id": "render", "nombre": "Render y mezcla" },
+      { "id": "qa", "nombre": "QA frente a la referencia" },
+      { "id": "pr", "nombre": "PR en borrador" }
+    ]
   }
 }

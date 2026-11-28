@@ -4,8 +4,8 @@ const CLAVE = 'sb_publishable_ctpCybT7Bxan6aEJhiKjPw_hyapptwg';
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[c]);
-const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda', finanzas:'Finanzas', apis:'APIs' };
-const primaryViews = ['hoy','decisiones','fabrica','sesiones'];
+const views = { hoy:'Hoy', decisiones:'Decidir', fabrica:'Fábrica', flujos:'Flujos', sesiones:'Sesiones', equipo:'Equipo', acceso:'Acceso', redes:'Redes', bugs:'Bugs', versiones:'Versiones', tienda:'Tienda', finanzas:'Finanzas', apis:'APIs' };
+const primaryViews = ['hoy','decisiones','fabrica','flujos','sesiones'];
 const moreViews = Object.keys(views).filter(key=>!primaryViews.includes(key));
 const paths = {
   finanzas:'M3 5h18v14H3z M3 9h18 M7 15h4',
@@ -16,6 +16,11 @@ const paths = {
   hoy:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
   decisiones:'M8 5H4v16h16V5h-4 M8 3h8v4H8z M8 14l3 3 5-6',
   fabrica:'M3 4h5v12H3z M10 4h5v16h-5z M17 4h4v8h-4z',
+  flujos:'M2 3h6v6H2z M16 9h6v6h-6z M2 15h6v6H2z M8 6h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h2 M8 18h2a2 2 0 0 0 2-2v-2a2 2 0 0 1 2-2',
+  agente:'M5 7h14v13H5z M12 7V3 M3 11v5 M21 11v5 M9 12v1 M15 12v1 M9 17h6',
+  puerta:'M12 2l8 4v6c0 5-8 10-8 10S4 17 4 12V6z M8 12l3 3 5-6',
+  dispositivo:'M8 6h8v12H8z M9 6l1-4h4l1 4 M9 18l1 4h4l1-4 M12 10v3l2 1',
+  salida:'M3 5h18v14H3z M7 12l3 3 7-7',
   bugs:'M7 9h10v7a5 5 0 0 1-10 0z M9 9V7a3 3 0 0 1 6 0v2 M3 10l4 2 M21 10l-4 2 M3 16h4 M17 16h4 M5 21l3-3 M19 21l-3-3',
   tienda:'M5 9h14l1 12H4z M8 10V7a4 4 0 0 1 8 0v3',
   instalacion:'M12 2v13 M7 10l5 5 5-5 M4 16v5h16v-5',
@@ -64,6 +69,8 @@ const num = value => value == null ? 'Sin dato' : esc(value);
 const count = value => value == null ? 'Sin dato' : `<span data-count="${esc(value)}">${esc(value)}</span>`;
 const go = (view,label) => `<button class="link" data-ir="${view}">${label} ${icon('flecha')}</button>`;
 const chip = (label,tone='muted') => `<span class="chip ${tone}">${esc(label)}</span>`;
+// Título legible: los encargos del panel llegan con su prompt entero («Tarea del panel: X Eres la sesión…»).
+const cleanTitle=text=>{ const t=String(text??'').replace(/^Tarea del panel:\s*/i,'').split(/\s+Eres la sesi[oó]n\b/)[0].trim(); return t.length>90?t.slice(0,88).replace(/\s+\S*$/,'')+'…':t; };
 const panel = (title,body,cls='') => `<section class="module ${cls}"><h2>${title}</h2>${body}</section>`;
 let dataPainted=false;
 let sb, data, histories, busy = false, request = 0, toastTimer;
@@ -466,26 +473,271 @@ function taskUsage(rows) {
   if(!rows?.length) return '<h3>Consumo de esta tarea</h3><p>Sin consumo registrado.</p>';
   return `<h3>Consumo de esta tarea</h3><ul class="fin-list">${rows.map(r=>`<li>${esc(r.proveedor)}${r.cuenta?' · '+esc(r.cuenta):''} · ${esc(usage(r))} · ${esc(stamp(r.at))}</li>`).join('')}</ul>`;
 }
-function taskCard(t,detail=false,expanded=false) {
+function taskActions(t) {
   const move = (state,label,primary=false)=>`<button class="${primary?'primary':''}" data-op="mover" data-id="${esc(t.id)}" data-a="${state}">${label}</button>`;
-  let actions='';
-  if (['propuesta','needs_human'].includes(t.estado)) actions=move('aprobada','Aprobar',true)+move('descartada','Descartar');
+  if (['propuesta','needs_human'].includes(t.estado)) return ['Aprobar',move('aprobada','Aprobar',true),move('descartada','Descartar')];
   // «Ejecutar ahora» (D43): deja el pedido; la PC lo recoge y arranca una sesión para la tarea.
-  const sinGemini=jobOf(t.trabajo?.tipo)?.gemini==='video' && Array.isArray(data.consumo?.gemini_libres) && !data.consumo.gemini_libres.length;
-  if (t.estado==='aprobada') actions=(t.ejecutar?chip(sinGemini?'Pedida · espera una cuenta de Gemini libre':'Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Ejecutar ahora</button>`)+move('descartada','Descartar');
-  // Un trabajo detenido (sin pasos o esperando) se saca con la misma operación.
-  if (t.estado==='en_curso' && t.trabajo && (!t.paso || t.paso.estado==='esperando')) actions=t.ejecutar?chip(sinGemini?'Pedida · espera una cuenta de Gemini libre':'Pedida · la PC la arranca en uno o dos minutos','accent'):`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">Relanzar</button>`;
-  if (t.estado==='revision') actions=move('integrada','Marcar fusionada',true)+move('rechazada','Rechazar');
+  if (t.estado==='aprobada' || (t.estado==='en_curso' && t.trabajo && (!t.paso || t.paso.estado==='esperando'))) {
+    const label=t.estado==='aprobada'?'Ejecutar ahora':'Relanzar';
+    const sinGemini=jobOf(t.trabajo?.tipo)?.gemini==='video' && Array.isArray(data.consumo?.gemini_libres) && !data.consumo.gemini_libres.length;
+    const secondary=t.estado==='aprobada'?move('descartada','Descartar'):'';
+    if(t.ejecutar) return ['', '', chip(sinGemini?'Pedida · espera una cuenta de Gemini libre':'Pedida · la PC la arranca en uno o dos minutos','accent')+secondary];
+    return [label,`<button class="primary" data-op="ejecutar" data-id="${esc(t.id)}">${label}</button>`,secondary];
+  }
+  if (t.estado==='revision') return ['Marcar fusionada',move('integrada','Marcar fusionada',true),move('rechazada','Rechazar')];
+  return ['','',''];
+}
+function taskCard(t,detail=false,expanded=false) {
+  const [,primary,secondary]=taskActions(t);
   const state = {needs_human:'Te necesita',descartada:'Descartada',rechazada:'Rechazada'};
   return `<article class="item" tabindex="-1" ${detail===true?'':`id="item-${esc(t.id)}"`}>${chip(segmentName(t.segmento),'accent')} ${chip(t.linea)} ${t.severidad?chip(t.severidad,'warn'):''} ${Object.hasOwn(state,t.estado)?chip(state[t.estado],'warn'):''}
-    <h3>${expanded?esc(t.titulo):detailButton('task',t.id,t.titulo)}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>${jobLine(t)}
-    ${expanded && t.spec?`<h4>Pedido completo</h4><p class="lines">${esc(t.spec)}</p>`:''}${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${actions}</div></article>`;
+    <h3>${expanded?esc(t.titulo):detailButton('task',t.id,cleanTitle(t.titulo))}</h3><small>${esc(date(t.updated_at))} · ${esc(t.estado)} ${esc(stale(t))}</small>${jobLine(t)}
+    ${expanded && t.spec?`<h4>Pedido completo</h4><p class="lines">${esc(t.spec)}</p>`:''}${expanded?segmentSelector(t):''}<h4>Qué puedes hacer</h4><p>${esc(Object.hasOwn(taskNext,t.estado)?taskNext[t.estado]:'Consulta el historial de la tarea.')}</p><div class="actions">${/^factory\/[a-z0-9-]{1,60}$/.test(t.rama)?external('https://github.com/axtronic/axtronic/tree/'+t.rama,'Ver la rama'):''}${external(t.pr,'Ver el cambio')}${primary}${secondary}</div></article>`;
 }
 const segmentKeys=['app','diseno','reloj','datos','redes','publicacion','finanzas','legal','fabrica'];
 let team=null, factorySegment='', openTasksOnly=false, sessionSegment='', sessionFilter='';
 const segmentInfo=key=>team?.segmentos.find(s=>s.clave===key);
 const segmentName=key=>segmentInfo(key)?.nombre || key || 'Sin segmento';
 const openTask=t=>!t.closed_at && !['integrada','rechazada','descartada'].includes(t.estado);
+const flowTypes={
+  entrada:['Entrada','muted','solicitudes'], agente:['Agente','accent','agente'],
+  humano:['Te toca','warn','cuentas'], puerta:['Verificación automática','deep','puerta'],
+  dispositivo:['Prueba en dispositivo','deep','dispositivo'], salida:['Salida','ok','salida']
+};
+const flowActions={
+  aprobar:'Aprueba la propuesta o descártala.', ejecutar:'La tarea aprobada está lista para ejecutarse. Puedes pedir que arranque ahora.',
+  revisar:'Revisa el cambio y registra tu decisión.', decidir:'Revisa lo pendiente y decide si el trabajo puede continuar.',
+  ninguna:'Consulta las tareas de esta etapa.'
+};
+const flowTypeActions={
+  entrada:'Registra la solicitud con su contexto.', agente:'El responsable realiza el trabajo de esta etapa.',
+  humano:'Revisa las tareas que esperan tu intervención.', puerta:'Comprueba que las verificaciones pasen antes de continuar.',
+  dispositivo:'Prueba el cambio en el dispositivo indicado y registra el resultado.', salida:'Las tareas integradas en los últimos siete días aparecen aquí.'
+};
+const flowType=n=>Object.hasOwn(flowTypes,n.tipo)?flowTypes[n.tipo]:flowTypes.entrada;
+let flows=[], flowSegment='', flowSort='stage', flowDescending=false;
+const flowColor=f=>/^#[0-9a-f]{6}$/i.test(f.color)?esc(f.color):'var(--muted)';
+const flowLink=(f,body,cls)=>`<button class="${cls}" data-ir="flujos" data-segment="${esc(f.segmento)}" style="--segment-color:${flowColor(f)}">${body}</button>`;
+const flowName=f=>`<i class="segment-dot" aria-hidden="true"></i><span>${esc(f.nombre || segmentName(f.segmento))}</span>`;
+const closedTime=t=>Date.parse(t.closed_at || t.updated_at);
+function flowNode(f,t) {
+  if(openTask(t)) return f.nodos.find(n=>n.pasos?.includes(t.paso?.paso)) ?? f.nodos.find(n=>n.estados?.includes(t.estado));
+  const age=Date.parse(data.ahora)-closedTime(t);
+  if(t.estado==='integrada' && age>=0 && age<=7*dayMs) return f.nodos.find(n=>n.tipo==='salida');
+}
+function flowSnapshot(f) {
+  const rows=data.tareas.filter(t=>t.segmento===f.segmento).map(t=>({t,node:flowNode(f,t)}));
+  const opened=rows.filter(({t})=>openTask(t));
+  const at=new Map(f.nodos.map(n=>[n,[]]));
+  for(const {t,node} of rows) if(node) at.get(node).push(t);
+  return {opened,at,attention:opened.filter(({node})=>node?.tipo==='humano').length};
+}
+function flowOrphans() {
+  const segments=new Set(flows.map(f=>f.segmento));
+  const n=data.tareas.filter(t=>openTask(t) && !segments.has(t.segmento)).length;
+  return n?`<div class="flow-orphans"><span>${n} ${n===1?'tarea sin flujo':'tareas sin flujo'}</span><a href="#fabrica">Ver en Fábrica</a></div>`:'';
+}
+function todayFlows() {
+  const rows=flows.map(f=>{
+    const {opened,at,attention}=flowSnapshot(f);
+    if(!opened.length) return '';
+    const stages=f.nodos.map(n=>{
+      const total=at.get(n).length;
+      return `<i class="${total?'filled':''}" title="${esc(n.nombre)} · ${total}"></i>`;
+    }).join('');
+    const occupied=f.nodos.filter(n=>at.get(n).length).map(n=>n.nombre);
+    return flowLink(f,`<span class="flow-link-name">${flowName(f)}</span><span class="flow-mini" role="img" aria-label="${esc(occupied.length?'Etapas con tareas: '+occupied.join(', '):'Sin tareas asignadas a etapas')}">${stages}</span><b class="${attention?'warn':'muted'}">Te toca ${attention}</b>`,'today-flow-row');
+  }).join('');
+  return panel('Flujos',rows || `<p>${flows.length?'Sin tareas abiertas en los flujos.':'Catálogo de flujos no disponible.'}</p>`,'today-flows');
+}
+function flowLayout(f,mobile) {
+  const edges=f.aristas.filter(([a,b])=>f.nodos.some(n=>n.id===a) && f.nodos.some(n=>n.id===b));
+  const main=[...new Set(edges.filter(edge=>!edge[2]).flatMap(([a,b])=>[a,b]))];
+  if(!main.length && f.nodos.length) main.push(f.nodos[0].id);
+  const branches=f.nodos.filter(n=>!main.includes(n.id));
+  const returns=edges.filter(edge=>edge[2]);
+  const along=mobile?76:180, across=mobile?180:76, stride=along+(mobile?42:48);
+  const pad=16, laneStart=pad+across+24, laneGap=25;
+  const anchors=new Map(main.map((id,i)=>[id,[pad+i*stride,pad]]));
+  const occupied=new Set();
+  for(const n of branches) {
+    const link=returns.find(([a,b])=>(a===n.id && main.includes(b)) || (b===n.id && main.includes(a)));
+    let i=link?main.indexOf(link[0]===n.id?link[1]:link[0]):0;
+    while(occupied.has(i)) i++;
+    occupied.add(i);
+    anchors.set(n.id,[pad+i*stride,laneStart+returns.length*laneGap+12]);
+  }
+  const span=Math.max(main.length,...Array.from(occupied,i=>i+1),1);
+  const length=2*pad+(span-1)*stride+along;
+  const depth=branches.length?laneStart+returns.length*laneGap+12+across+pad:
+    returns.length?laneStart+returns.length*laneGap+8:2*pad+across;
+  const point=(u,v)=>mobile?[v,u]:[u,v];
+  const pair=(u,v)=>point(u,v).join(' ');
+  const positions=new Map([...anchors].map(([id,[u,v]])=>[id,point(u,v)]));
+  let returnIndex=0;
+  const wires=edges.map(([a,b,label])=>{
+    const [u1,v1]=anchors.get(a),[u2,v2]=anchors.get(b);
+    if(!label) {
+      const start=u1+along, mid=(start+u2)/2;
+      return {a,b,d:`M${pair(start,v1+across/2)} C${pair(mid,v1+across*.72)} ${pair(mid,v2+across*.28)} ${pair(u2,v2+across/2)}`};
+    }
+    const lane=laneStart+returnIndex*laneGap;
+    const offset=(returnIndex++-(returns.length-1)/2)*10;
+    const aligned=u1===u2;
+    const start=u1+along/2+offset-(aligned?12:0), end=u2+along/2+offset+(aligned?12:0);
+    const from=v1===pad?v1+across:v1, to=v2===pad?v2+across:v2;
+    const direction=Math.sign(end-start);
+    const bend=Math.min(20,Math.abs(end-start)/3);
+    const d=`M${pair(start,from)} Q${pair(start,lane)} ${pair(start+direction*bend,lane)} L${pair(end-direction*bend,lane)} Q${pair(end,lane)} ${pair(end,to)}`;
+    return {a,b,label,d,at:point((start+end)/2+(aligned?26:0),lane-5)};
+  });
+  const [width,height]=point(length,depth);
+  return {positions,wires,width,height,mobile};
+}
+function flowCanvas(f,at) {
+  const wide=flowLayout(f,false), narrow=flowLayout(f,true);
+  const active=new Set(f.nodos.filter(n=>n.tipo==='agente' && at.get(n).some(t=>t.estado==='en_curso')).map(n=>n.id));
+  function lines(layout) {
+    const id=layout.mobile?'flow-arrow-narrow':'flow-arrow-wide';
+    const paths=layout.wires.map(w=>`<path d="${w.d}" class="flow-wire ${w.label?'return':''}" marker-end="url(#${id})"/>${active.has(w.b)?`<path d="${w.d}" class="flow-wire running"/>`:''}`).join('');
+    const labels=layout.wires.filter(w=>w.label).map(({at:[x,y],label})=>
+      `<text transform="translate(${x} ${y})${layout.mobile?' rotate(90)':''}">${esc(label)}</text>`).join('');
+    return `<svg class="flow-lines ${layout.mobile?'narrow':'wide'}" aria-hidden="true" width="${layout.width}" height="${layout.height}"><defs><marker id="${id}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z"/></marker></defs>${paths}${labels}</svg>`;
+  }
+  const ordered=[...wide.positions.keys()].map(id=>f.nodos.find(n=>n.id===id));
+  const nodes=ordered.map(n=>{
+    const [label,tone,symbol]=flowType(n);
+    const [x,y]=wide.positions.get(n.id), [mx,my]=narrow.positions.get(n.id);
+    const total=at.get(n).length;
+    const attention=n.tipo==='humano' && total>0;
+    return `<button class="flow-node ${tone} ${active.has(n.id)?'working':''} ${attention?'needed':''}" style="--x:${x}px;--y:${y}px;--mx:${mx}px;--my:${my}px" data-detail="flow-node" data-key="${esc(n.id)}" aria-label="${esc([n.nombre,label,n.quien,total+' tareas'].filter(Boolean).join(' · '))}"><span class="flow-node-icon">${icon(symbol)}</span><span class="flow-node-copy"><b title="${esc(n.nombre)}">${esc(n.nombre)}</b><small title="${esc(n.quien)}">${esc(n.quien)}</small></span><span class="flow-node-count">${attention?'Te toca · ':''}${total}</span></button>`;
+  }).join('');
+  return `<div id="flow-canvas" class="flow-canvas" data-flow-canvas="${esc(f.segmento)}" role="region" tabindex="0" aria-label="Diagrama de ${esc(f.nombre)}"><div class="flow-sheet" style="--w:${wide.width}px;--h:${wide.height}px;--mw:${narrow.width}px;--mh:${narrow.height}px">${lines(wide)}${lines(narrow)}${nodes}</div></div>`;
+}
+function flowTable(rows) {
+  const columns=[['stage','Etapa'],['title','Tarea'],['state','Estado'],['age','Antigüedad'],['action','Acción']];
+  const list=rows.map(({t,node})=>{
+    const [label,button]=taskActions(t);
+    return {t,stage:node?.nombre ?? 'Sin etapa',title:cleanTitle(t.titulo),state:Object.hasOwn(stateNames,t.estado)?stateNames[t.estado]:t.estado,age:Date.parse(t.updated_at)||0,action:label || 'Abrir',button};
+  });
+  const collator=new Intl.Collator('es-MX',{numeric:true});
+  const dir=flowDescending?-1:1;
+  list.sort((a,b)=>dir*(flowSort==='age'?b.age-a.age:collator.compare(a[flowSort],b[flowSort])) || collator.compare(a.title,b.title));
+  const cells=list.map(r=>{
+    const tone=Object.hasOwn(stateColors,r.t.estado)?stateColors[r.t.estado]:'muted';
+    const values=[esc(r.stage),detailButton('task',r.t.id,r.title),chip(r.state,tone),esc(sessionAge(r.t.updated_at)),r.button || detailButton('task',r.t.id,r.action,'')];
+    return `<tr role="row">${values.map((value,i)=>`<td role="cell"><span class="flow-cell-label" aria-hidden="true">${columns[i][1]}</span><span>${value}</span></td>`).join('')}</tr>`;
+  }).join('');
+  return panel('Tareas abiertas de este flujo',list.length?`<table class="flow-table" role="table" aria-label="Tareas abiertas de este flujo"><thead role="rowgroup"><tr role="row">${columns.map(([key,label])=>{
+    const selected=flowSort===key;
+    const ascending=!flowDescending;
+    return `<th role="columnheader" scope="col" ${selected?`aria-sort="${ascending?'ascending':'descending'}"`:''}><button data-flow-sort="${key}">${label} <span aria-hidden="true">${selected?(ascending?'↑':'↓'):'↕'}</span></button></th>`;
+  }).join('')}</tr></thead><tbody role="rowgroup">${cells}</tbody></table>`:'<p>Sin tareas abiertas en este flujo.</p>','flow-task-list');
+}
+function flowsView() {
+  const f=flows.find(row=>row.segmento===flowSegment) ?? flows[0];
+  const orphans=flowOrphans();
+  if(!f) return panel('Flujos','<p>Catálogo de flujos no disponible.</p>'+orphans);
+  flowSegment=f.segmento;
+  const {opened,at}=flowSnapshot(f);
+  const tabs=flows.map(row=>{
+    const snap=flowSnapshot(row);
+    return `<button data-flow-tab="${esc(row.segmento)}" aria-pressed="${row===f}" style="--segment-color:${flowColor(row)}"><span class="flow-link-name">${flowName(row)}</span><small>${snap.opened.length} abiertas <span class="${snap.attention?'warn':''}">· Te toca ${snap.attention}</span></small></button>`;
+  }).join('');
+  const legend=Object.values(flowTypes).map(([label,tone,symbol])=>`<span>${icon(symbol).replace('class="icon"',`class="icon ${tone}"`)}${label}</span>`).join('');
+  return `<div class="flow-tabs" role="group" aria-label="Segmentos de Flujos">${tabs}</div>${orphans}`+
+    panel(esc(f.nombre),flowCanvas(f,at)+`<div class="flow-legend" aria-label="Tipos de etapa">${legend}</div>`,'flow-diagram')+flowTable(opened);
+}
+function flowDetail(key) {
+  const f=flows.find(row=>row.segmento===flowSegment);
+  const n=f?.nodos.find(node=>node.id===key);
+  if(!n) return;
+  const [label,tone]=flowType(n);
+  const rows=flowSnapshot(f).at.get(n);
+  const action=Object.hasOwn(flowActions,n.accion)?flowActions[n.accion]:Object.hasOwn(flowTypeActions,n.tipo)?flowTypeActions[n.tipo]:flowActions.ninguna;
+  showDetail(n.nombre,chip(label,tone)+`<p><b>Quién</b> · ${esc(n.quien || 'Sin responsable registrado')}</p><h3>Qué se espera aquí</h3><p>${esc(action)}</p><h3>Tareas · ${rows.length}</h3>${rows.map(t=>taskCard(t,true)).join('') || '<p>Sin tareas en esta etapa.</p>'}`);
+}
+const chartStates=[['propuesta','var(--warn)'],['aprobada','var(--accent)'],['en_curso','var(--deep)'],['revision','#A78BFA'],['needs_human','var(--bad)']];
+const chartSvg=(width,height,title,description,marks)=>`<svg class="factory-chart" role="img" aria-label="${esc(title)}" viewBox="0 0 ${width} ${height}"><title>${esc(title)}</title><desc>${esc(description)}</desc>${marks}</svg>`;
+function factoryDonut(groups) {
+  const rows=groups.filter(g=>g.tasks.length), total=rows.reduce((n,g)=>n+g.tasks.length,0);
+  let offset=0;
+  const slices=rows.map(g=>{
+    const size=100*g.tasks.length/total;
+    const mark=`<circle cx="86" cy="84" r="62" transform="rotate(-90 86 84)" pathLength="100" stroke="${flowColor(g)}" stroke-dasharray="${size} 100" stroke-dashoffset="${-offset}"><title>${esc(g.nombre)} · ${g.tasks.length} abiertas</title></circle>`;
+    offset+=size;
+    return mark;
+  }).join('');
+  const legend=rows.map(g=>{
+    const text=`<span class="flow-link-name">${flowName(g)}</span><b>${g.tasks.length}</b>`;
+    return g.hasFlow?flowLink(g,text,'chart-legend-link'):`<span class="chart-legend-link" style="--segment-color:${flowColor(g)}">${text}</span>`;
+  }).join('');
+  const mark=`<g class="chart-donut"><circle cx="86" cy="84" r="62" stroke="var(--border)"/>${slices}</g><text class="chart-total" x="86" y="86" text-anchor="middle">${total}</text><text x="86" y="105" text-anchor="middle">abiertas</text>`;
+  return panel('Abiertas por segmento',`<div class="chart-donut-layout">${chartSvg(172,168,'Tareas abiertas por segmento',rows.map(g=>g.nombre+': '+g.tasks.length).join('; ') || 'Cero tareas abiertas.',mark)}<div class="chart-legend">${legend || '<small>Sin tareas abiertas.</small>'}</div></div>`,'chart-module');
+}
+const chartTicks=max=>{
+  const step=Math.ceil(Math.max(1,max)/4);
+  return Array.from({length:Math.ceil(max/step)+1},(_,i)=>i*step);
+};
+function factoryDaily() {
+  const today=Date.parse(dayKey(data.ahora));
+  const days=new Map(Array.from({length:14},(_,i)=>[new Date(today-(13-i)*dayMs).toISOString().slice(0,10),0]));
+  for(const t of data.tareas) {
+    if(t.estado!=='integrada' || !Number.isFinite(closedTime(t))) continue;
+    const day=dayKey(t.closed_at || t.updated_at);
+    if(days.has(day)) days.set(day,days.get(day)+1);
+  }
+  const values=[...days];
+  const total=values.reduce((n,[,v])=>n+v,0);
+  const ticks=chartTicks(Math.max(1,...days.values())), max=ticks.at(-1);
+  const base=119, height=91, x0=30, stride=21;
+  const axis=ticks.map(v=>{
+    const y=base-height*v/max;
+    return `<path class="chart-grid" d="M${x0} ${y}H326"/><text x="24" y="${y+4}" text-anchor="end">${v}</text>`;
+  }).join('');
+  const bars=values.map(([day,v],i)=>{
+    const x=x0+i*stride+stride/2,h=height*v/max;
+    return `<rect x="${x-6}" y="${base-(h||2)}" width="12" height="${h||2}" rx="2" fill="${v?'var(--ok)':'var(--border)'}"><title>${esc(date(day))} · ${v} integradas</title></rect>${total<10 && v?`<text x="${x}" y="${base-h-5}" text-anchor="middle">${v}</text>`:''}<text x="${x}" y="138" text-anchor="middle">${esc(day.slice(-2))}</text>`;
+  }).join('');
+  const period=esc(date(values[0][0])+' – '+date(values.at(-1)[0]));
+  return panel('Integradas en los últimos 14 días',chartSvg(338,147,'Tareas integradas por día',values.map(([day,v])=>date(day)+': '+v).join('; '),axis+bars)+`<small>${period} · ${total} ${total===1?'integrada':'integradas'}</small>`,'chart-module');
+}
+function factoryStack(groups) {
+  const rows=groups.map(g=>({...g,counts:chartStates.map(([state])=>g.tasks.filter(t=>t.estado===state).length)}));
+  const summed=row=>row.counts.reduce((a,b)=>a+b,0);
+  const total=rows.reduce((n,row)=>n+summed(row),0);
+  const ticks=chartTicks(Math.max(1,...rows.map(summed))),max=ticks.at(-1);
+  const x0=124, width=187, height=rows.length*22+14;
+  const axis=ticks.map(v=>{
+    const x=x0+width*v/max;
+    return `<path class="chart-grid" d="M${x} 5V${height-9}"/><text x="${x}" y="${height+5}" text-anchor="middle">${v}</text>`;
+  }).join('');
+  const bars=rows.map((r,i)=>{
+    const y=i*22+8;
+    let x=x0;
+    const marks=r.counts.map((n,j)=>{
+      if(!n) return '';
+      const [state,color]=chartStates[j],w=width*n/max;
+      const bar=`<rect x="${x}" y="${y}" width="${w}" height="13" fill="${color}"><title>${esc(r.nombre)} · ${esc(stateNames[state])} · ${n}</title></rect>`;
+      x+=w;
+      return bar;
+    }).join('');
+    const name=r.nombre.length>20?r.nombre.slice(0,19)+'…':r.nombre;
+    return `<text x="0" y="${y+11}"><title>${esc(r.nombre)}</title>${esc(name)}</text>${marks}${total<10?`<text x="${x+5}" y="${y+11}">${summed(r)}</text>`:''}`;
+  }).join('');
+  const description=rows.map(r=>r.nombre+': '+r.counts.map((n,i)=>stateNames[chartStates[i][0]]+' '+n).join(', ')).join('; ');
+  const legend=`<div class="flow-legend">${chartStates.map(([state,color])=>`<span><i class="segment-dot" style="--segment-color:${color}" aria-hidden="true"></i>${esc(stateNames[state])}</span>`).join('')}</div>`;
+  return panel('Estados abiertos por segmento',rows.length?chartSvg(338,height+12,'Estados abiertos por segmento',description,axis+bars)+legend:'<p>Sin tareas abiertas.</p>','chart-module');
+}
+function factoryCharts() {
+  const groups=new Map(flows.map(f=>[f.segmento,{...f,nombre:f.nombre || segmentName(f.segmento),hasFlow:true,tasks:[]}]));
+  for(const t of data.tareas.filter(openTask)) {
+    if(!groups.has(t.segmento)) groups.set(t.segmento,{nombre:segmentName(t.segmento),tasks:[]});
+    groups.get(t.segmento).tasks.push(t);
+  }
+  const rows=[...groups.values()];
+  return '<section class="factory-charts" aria-label="Actividad de la fábrica">'+factoryDonut(rows)+factoryDaily()+factoryStack(rows)+'</section>';
+}
 const taskMatches=t=>(!factorySegment || t.segmento===factorySegment) && (!openTasksOnly || openTask(t));
 function segmentSelector(t) {
   const options=segmentKeys.map(key=>`<option value="${esc(key)}" ${key===t.segmento?'selected':''}>${esc(segmentName(key))}</option>`).join('');
@@ -509,7 +761,7 @@ function factory() {
   const others=data.tareas.filter(t=>stageOf(t.estado)<0 && taskMatches(t));
   const filters=['',...segmentKeys].map(k=>`<button data-factory-segment="${esc(k)}" aria-pressed="${factorySegment===k}">${esc(k?segmentName(k):'Todos')}</button>`).join('');
   const ready=data.tareas.filter(t=>t.estado==='aprobada' && !t.ejecutar).length;
-  return plant()+(ready?`<div class="actions"><button class="primary" data-op="ejecutar">${ready===1?'Ejecutar ahora la tarea aprobada':'Ejecutar ahora las '+ready+' aprobadas'}</button><small>Con la PC encendida, arranca una sesión por tarea, de una en una.</small></div>`:'')+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
+  return plant()+factoryCharts()+(ready?`<div class="actions"><button class="primary" data-op="ejecutar">${ready===1?'Ejecutar ahora la tarea aprobada':'Ejecutar ahora las '+ready+' aprobadas'}</button><small>Con la PC encendida, arranca una sesión por tarea, de una en una.</small></div>`:'')+`<h2>Vista de lista</h2><div class="actions" role="group" aria-label="Filtrar tareas por segmento">${filters}</div><button class="scope" data-open-tasks aria-pressed="${openTasksOnly}">Solo tareas abiertas</button>`+'<section class="board" aria-label="Tablero de tareas">'+lanes+(others.length?panel('Otros estados',others.map(t=>taskCard(t)).join('')):'')+'</section>'+
     autoSwitch()+panel('Pedir algo nuevo','<label for="nueva">¿Qué quieres cambiar y dónde?</label><textarea id="nueva" rows="3" maxlength="20000"></textarea><small>Puede ser largo: la primera línea queda como título y el resto se guarda entero.</small>'+jobPicker()+'<button class="primary" data-op="nueva">Proponer tarea</button>');
 }
 function decision(d,detail=false) {
@@ -526,7 +778,7 @@ function decision(d,detail=false) {
     <div class="actions">${d.estado!=='resuelta'?`<button data-op="resolver_decision" data-id="${esc(d.id)}">${wait?'Ya está resuelta':'Marcar resuelta'}</button>`:''}${wait?'':`<button data-op="reabrir_decision" data-id="${esc(d.id)}">Reabrir</button>`}</div></article>`;
 }
 const sessions=()=>data.sesiones ?? [];
-const sessionTitle=s=>s.tema || 'Sin instrucción todavía';
+const sessionTitle=s=>cleanTitle(s.tema) || 'Sin instrucción todavía';
 const elapsed=s=>Math.max(0,Date.parse(data.ahora)-Date.parse(s.ultima));
 const lostSignal=s=>s.estado==='trabajando' && (!Number.isFinite(elapsed(s)) || elapsed(s)>30*60000);
 const working=s=>s.estado==='trabajando' && !lostSignal(s);
@@ -631,7 +883,11 @@ function sessionsView() {
   const controls=filters.map(([key,label,test])=>`<button data-session-filter="${key}" aria-pressed="${sessionFilter===key}"><strong>${rows.filter(test).length}</strong>${label}</button>`).join('');
   const test=sessionFilter==='activas'?activeSession:filters.find(([key])=>key===sessionFilter)?.[2];
   const list=rows.filter(s=>!test || test(s)).sort((a,b)=>Date.parse(b.ultima)-Date.parse(a.ultima));
-  return `<div class="session-counts">${controls}</div><div>${sessionSegment?chip(segmentName(sessionSegment)):''} ${sessionFilter==='activas'?chip('Sesiones activas'):''} ${sessionFilter || sessionSegment?go('sesiones','Ver todas las sesiones'):''}</div><div class="grid">${list.map(sessionCard).join('') || '<p>No hay sesiones para esta selección.</p>'}</div>`;
+  const head=`<div class="session-counts">${controls}</div><div>${sessionSegment?chip(segmentName(sessionSegment)):''} ${sessionFilter==='activas'?chip('Sesiones activas'):''} ${sessionFilter || sessionSegment?go('sesiones','Ver todas las sesiones'):''}</div>`;
+  // Sin filtro, las terminadas van plegadas: eran 42 tarjetas que tapaban las que esperan.
+  if(!sessionFilter) { const done=list.filter(s=>s.estado==='terminada'), live=list.filter(s=>s.estado!=='terminada');
+    return head+`<div class="grid">${live.map(sessionCard).join('') || '<p>No hay sesiones activas.</p>'}</div>${done.length?`<details class="module done-sessions"><summary>Terminadas en 3 días · ${done.length}</summary><div class="grid">${done.map(sessionCard).join('')}</div></details>`:''}`; }
+  return head+`<div class="grid">${list.map(sessionCard).join('') || '<p>No hay sesiones para esta selección.</p>'}</div>`;
 }
 function teamDiagram(columns) {
   const segments=team.segmentos, width=columns*240, center=width/2;
@@ -1162,6 +1418,7 @@ async function openDetail(kind,key) {
     if(s) showDetail(sessionTitle(s),sessionDetail(s));
     return;
   }
+  if(kind==='flow-node') return flowDetail(key);
   if(kind.startsWith('fin-')) return financeDetail(kind,key);
   if(kind==='documento') return openDocument(key,generation);
   if(kind==='search') {
@@ -1238,6 +1495,35 @@ async function openDetail(kind,key) {
     return showDetail('Beta '+v.version,`<small>Registro de versiones · ${esc(stamp(v.publicada))}</small><strong class="big">Build ${num(v.build)}</strong><p class="lines">${esc(v.notas)}</p>${go('versiones','Ver versiones')}`);
   }
 }
+// Pulso: cuánto tiempo hace que llegó el último dato de cada fuente; en rojo si incumple su plazo.
+function pulse() {
+  const ago=t=>t?sessionAge(t):'sin dato';
+  const age=t=>t?(Date.parse(data.ahora)-Date.parse(t))/60000:Infinity;
+  const lastSession=sessions().map(s=>s.ultima).filter(Boolean).sort().at(-1);
+  const lastTask=data.tareas.map(t=>t.updated_at).filter(Boolean).sort().at(-1);
+  const lastMetric=(data.metricas ?? []).map(([day])=>day).filter(Boolean).sort().at(-1);
+  const lastSocial=series('redes.publicadas').at(-1)?.[0];
+  const running=data.tareas.filter(t=>t.estado==='en_curso').length;
+  const rows=[
+    ['Sesiones de Claude',ago(lastSession),age(lastSession),15,sessions().filter(working).length+' trabajando'],
+    ['Fábrica',ago(lastTask),age(lastTask),24*60,running+' en curso'],
+    ['Métricas',lastMetric?'día '+date(lastMetric):'sin dato',lastMetric?age(lastMetric+'T23:59:59Z'):Infinity,26*60,'cálculo diario'],
+    ['Redes y Play',lastSocial?'día '+date(lastSocial):'sin dato',lastSocial?age(lastSocial+'T23:59:59Z'):Infinity,26*60,'recolector diario']
+  ];
+  return `<section class="module pulse"><h2>Pulso</h2><ul>${rows.map(([name,when,mins,limit,note])=>{
+    const tone=mins<=limit?'ok':mins<=limit*3?'warn':'bad';
+    return `<li class="${tone}"><i></i><div><b>${esc(name)}</b><small>${esc(when)} · ${esc(note)}</small></div></li>`;
+  }).join('')}</ul></section>`;
+}
+// Actividad: lo último que se movió en tareas, sesiones y decisiones.
+function activity() {
+  const items=[
+    ...data.tareas.map(t=>[t.updated_at,'task',t.id,'Tarea · '+(stateNames[t.estado]||t.estado),t.titulo,stateColors[t.estado]||'muted']),
+    ...sessions().map(s=>[s.ultima,'session',s.id,'Sesión · '+(working(s)?'trabajando':s.estado),sessionTitle(s),working(s)?'ok':s.estado==='esperando'?'warn':'muted']),
+    ...data.decisiones.map(d=>[d.updated_at,'decision',d.id,'Decisión · '+d.estado,d.titulo,d.estado==='pendiente'?'warn':'muted'])
+  ].filter(([t])=>t).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,8);
+  return panel('Actividad reciente',items.length?`<ol class="feed">${items.map(([t,kind,key,type,title,tone])=>`<li class="${tone}"><i></i><div><small>${esc(type)} · ${esc(sessionAge(t))}</small>${detailButton(kind,key,cleanTitle(title))}</div></li>`).join('')}</ol>`:'<p>Sin movimiento todavía.</p>','feed-module');
+}
 function todayList() {
   const queues=[
     pending().slice().sort((a,b)=>a.created_at.localeCompare(b.created_at)).map(d=>['Decisión',d.titulo,detailButton('decision',d.id,'Elegir respuesta','')]),
@@ -1252,7 +1538,7 @@ function todayList() {
     for(const q of queues) if(q.length && rows.length<7) rows.push(q.shift());
   }
   rows.unshift(...sessions().filter(s=>s.estado==='esperando').map(s=>['Sesión',sessionTitle(s),sessionLink(s.segmento,'Ver sesión','esperando',s.id)]));
-  return panel('Tu lista de hoy',rows.length?`<ol class="today-list">${rows.map(([type,title,action])=>`<li><div><small>${type}</small><b>${esc(title)}</b></div>${action}</li>`).join('')}</ol>`:'<p>Todo atendido por ahora.</p>');
+  return panel('Tu lista de hoy',rows.length?`<ol class="today-list">${rows.map(([type,title,action])=>`<li><div><small>${type}</small><b>${esc(cleanTitle(title))}</b></div>${action}</li>`).join('')}</ol>`:'<p>Todo atendido por ahora.</p>');
 }
 function searchResults(query) {
   const norm=text=>String(text??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -1276,8 +1562,8 @@ document.addEventListener('input',e=>{
   if(e.target.id==='consulta') $('#resultados').innerHTML=searchResults(e.target.value);
 });
 function draw() {
-  const render = {hoy:()=>attention()+todayList()+kpis()+'<div class="grid">'+sessionSummary()+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
-    finanzas:finances,apis:apisView,equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
+  const render = {hoy:()=>'<div class="hoy-top">'+attention()+pulse()+'</div>'+todayList()+kpis()+'<div class="grid">'+activity()+sessionSummary()+todayFlows()+funnel()+stuckCard()+storePath()+recommendations()+plant(true)+'</div>',
+    finanzas:finances,apis:apisView,equipo:teamView,sesiones:sessionsView,decisiones:decisions,acceso:accessView,fabrica:factory,flujos:flowsView,redes:social,versiones:versions,bugs,tienda:()=>'<section class="kpis">'+metricCard('acceso.grupo_miembros','En el grupo de Google','cuentas','Miembros hoy')+metricCard('play.verificadores_inscritos','Verificadores','tienda','Aceptaron en Play')+metricCard('play.instalaciones_28d','Instalaciones','instalacion','Play, últimos 28 días')+metricCard('play.dispositivos_activos','Dispositivos activos','ejercicio','Play, último mes')+'</section><div class="grid">'+storePath()+funnel()+'</div>'};
   hideHelp();
   $('#buscar').hidden=false;
   $('#navegacion').hidden=false;
@@ -1300,7 +1586,7 @@ function draw() {
 }
 function status() {
   const time=new Date(data.ahora).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
-  $('#estado').innerHTML=`${DEMO?'<span>Demo</span> · ':''}<i></i> Al día ${esc(time)}`;
+  $('#estado').innerHTML=`${DEMO?'<span>Demo</span> · ':''}<i></i> En vivo · ${esc(time)}`;
 }
 let demoSessions, demoDecisions, demoFinanceDocument, demoOrderId=0;
 function demoSessionOp(op,args,sessionId) {
@@ -1347,10 +1633,10 @@ async function load(refresh=false) {
   }
   if (generation!==request) return;
   // Un refresco conserva el comentario, el foco y los grupos abiertos.
-  const liveView=['sesiones','equipo','fabrica'].includes(view);
+  const liveView=['sesiones','equipo','fabrica','flujos'].includes(view);
   const sessionId=drawer.querySelector('[data-session]')?.dataset.session;
   if (refresh && (busy || (drawer.open && !sessionId) || $('#app a:focus') || $('#app select:focus, #app textarea:focus, #app details[open]') || (!liveView && $('#app button:focus')) || [...document.querySelectorAll('#app textarea')].some(t=>t.value))) return;
-  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','consumo','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
+  const changed=!data || ['metricas','bugs','tareas','decisiones','recomendaciones','ajustes','consumo','versiones','accesos','sesiones','documentos'].some(k=>JSON.stringify(data[k])!==JSON.stringify(next[k])) || (['hoy','acceso','fabrica','flujos','redes','versiones','tienda','sesiones','equipo'].includes(view) && data.ahora!==next.ahora) || data.ahora.slice(0,10)!==next.ahora.slice(0,10);
   data=next;
   histories=indexMetrics(data.metricas);
   status();
@@ -1365,6 +1651,8 @@ function refreshView() {
   const active = document.activeElement;
   const group = active.closest('details')?.dataset.group;
   const boardScroll = $('.board')?.scrollLeft;
+  const previousCanvas=$('#flow-canvas');
+  const canvasScroll=previousCanvas?.scrollLeft;
   draw();
   for (const [id,value] of fields) {
     const field = document.getElementById(id);
@@ -1373,10 +1661,12 @@ function refreshView() {
   if ($('#tipo-trabajo') && $('#campo-ejercicio')) $('#campo-ejercicio').hidden=!jobOf($('#tipo-trabajo').value)?.params?.length;
   for (const el of document.querySelectorAll('details')) el.open = open.has(el.dataset.group);
   if (boardScroll != null && $('.board')) $('.board').scrollLeft = boardScroll;
+  const canvas=$('#flow-canvas');
+  if(canvas && previousCanvas?.dataset.flowCanvas===canvas.dataset.flowCanvas) canvas.scrollLeft=canvasScroll;
   if (active.isConnected) return;
   const replacement = active.id ? document.getElementById(active.id) :
     [...document.querySelectorAll('button,summary,[role=button]')].find(el =>
-      el.tagName === active.tagName && (el.textContent === active.textContent || active.hasAttribute('data-session-filter') || active.hasAttribute('data-team-node') || active.hasAttribute('data-segment')) && el.getClientRects().length &&
+      el.tagName === active.tagName && (el.textContent === active.textContent || active.matches('[data-session-filter],[data-team-node],[data-segment],[data-flow-tab],[data-flow-sort],[data-detail="flow-node"]')) && el.getClientRects().length &&
       JSON.stringify(el.dataset) === JSON.stringify(active.dataset) && group === el.closest('details')?.dataset.group);
   replacement?.focus({preventScroll:true});
   if (active.tagName === 'TEXTAREA') replacement?.setSelectionRange(active.selectionStart,active.selectionEnd);
@@ -1435,6 +1725,7 @@ window.addEventListener('hashchange',()=>{
 });
 function navigate(button) {
   view=button.dataset.ir;
+  if(view==='flujos' && button.dataset.segment) flowSegment=button.dataset.segment;
   if(view==='fabrica') {
     factorySegment=button.dataset.segment || '';
     openTasksOnly=button.hasAttribute('data-only-open');
@@ -1505,6 +1796,15 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(b.hasAttribute('data-team-node')) return focusTeamCard(b);
+  if(b.hasAttribute('data-flow-tab') || b.hasAttribute('data-flow-sort')) {
+    if(b.hasAttribute('data-flow-tab')) flowSegment=b.dataset.flowTab;
+    else {
+      flowDescending=flowSort===b.dataset.flowSort?!flowDescending:false;
+      flowSort=b.dataset.flowSort;
+    }
+    refreshView();
+    return;
+  }
   if(b.hasAttribute('data-factory-segment') || b.hasAttribute('data-open-tasks') || b.hasAttribute('data-session-filter')) {
     if(b.hasAttribute('data-factory-segment')) factorySegment=b.dataset.factorySegment;
     if(b.hasAttribute('data-open-tasks')) openTasksOnly=!openTasksOnly;
@@ -1660,9 +1960,16 @@ async function init() {
     const response=await fetch('trabajos.json');
     if(response.ok) { const catalog=await response.json(); if(catalog && typeof catalog==='object') jobs=catalog; }
   } catch { /* Sin catálogo no hay escaleras de pasos. */ }
+  try {
+    const response=await fetch('flujos.json');
+    if(response.ok) {
+      const catalog=await response.json();
+      if(Array.isArray(catalog?.flujos)) flows=catalog.flujos.filter(f=>f?.segmento && Array.isArray(f.nodos) && Array.isArray(f.aristas));
+    }
+  } catch { /* El panel funciona sin el catálogo de flujos. */ }
   await load();
   setInterval(()=>{
     if (!document.hidden && !busy) load(true).catch(()=>$('#estado').textContent='Actualización pendiente');
-  },60000);
+  },20000);
 }
 init().catch(error=>gate(/permiso/.test(error.message)?'Esta cuenta no tiene acceso.':error.message,sb?'<button id="salir">Cambiar de cuenta</button>':''));

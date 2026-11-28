@@ -1,0 +1,159 @@
+{
+  "_nota": "Diagrama de flujo de cada proceso de la fábrica (D40 + v7, 2026-11-28). Fuente de los pasos: docs/factory/organizacion.md y panel/equipo.json; si cambia uno, cambian los tres. Cada nodo dice qué estados de factory.tasks (estados) o qué pasos de un trabajo (pasos, de panel/trabajos.json) lo ocupan. tipo: entrada | agente | humano | puerta | dispositivo | salida. accion: la operación del panel que se ofrece en ese nodo (aprobar, ejecutar, revisar, decidir, ninguna).",
+  "tipos": {
+    "entrada": { "nombre": "Entrada", "color": "muted" },
+    "agente": { "nombre": "IA trabajando", "color": "accent" },
+    "humano": { "nombre": "Te toca", "color": "warn" },
+    "puerta": { "nombre": "Verificación automática", "color": "deep" },
+    "dispositivo": { "nombre": "Prueba en dispositivo", "color": "deep" },
+    "salida": { "nombre": "Terminado", "color": "ok" }
+  },
+  "flujos": [
+    {
+      "segmento": "app", "nombre": "App", "color": "#2DD4BF",
+      "nodos": [
+        { "id": "peticion", "nombre": "Petición o bug", "tipo": "entrada", "quien": "Panel, verificadores o fallos de la beta", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "spec", "nombre": "Spec con prueba", "tipo": "agente", "quien": "spec-writer", "estados": ["aprobada"], "pasos": ["investigar", "reproducir", "legal", "desglose", "fichas"], "accion": "ejecutar" },
+        { "id": "implementar", "nombre": "Implementar", "tipo": "agente", "quien": "builder", "estados": ["en_curso"], "pasos": ["catalogo", "arreglar", "circuito", "deteccion", "animaciones", "bases", "videos", "base", "lanzar", "esperar", "descargar", "tecnica", "webp", "generar", "revisar", "integrar", "pruebas"] },
+        { "id": "revisores", "nombre": "Revisores", "tipo": "agente", "quien": "juez-intencion, revisor-ux, revisor-seguridad" },
+        { "id": "puerta", "nombre": "Puerta (verify + tier)", "tipo": "puerta", "quien": "factory-gate", "pasos": ["verify", "pr"] },
+        { "id": "atascada", "nombre": "Te necesita", "tipo": "humano", "quien": "Tú", "estados": ["needs_human"], "accion": "ejecutar" },
+        { "id": "revision", "nombre": "Tu revisión", "tipo": "humano", "quien": "Tú", "estados": ["revision"], "accion": "revisar" },
+        { "id": "integrada", "nombre": "Integrada", "tipo": "salida", "quien": "feat/ax-integracion", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["peticion", "spec"], ["spec", "implementar"], ["implementar", "revisores"], ["revisores", "puerta"], ["puerta", "revision"], ["revision", "integrada"],
+        ["revisores", "implementar", "cambios pedidos"], ["puerta", "atascada", "falla"], ["implementar", "atascada", "se detuvo"], ["atascada", "implementar", "relanzar"]
+      ]
+    },
+    {
+      "segmento": "diseno", "nombre": "Diseño", "color": "#A78BFA",
+      "nodos": [
+        { "id": "peticion", "nombre": "Petición", "tipo": "entrada", "quien": "Panel o sesión", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "propuesta", "nombre": "Propuesta (demo HTML)", "tipo": "agente", "quien": "Codex o sesión con revisor-ui", "estados": ["aprobada"], "accion": "ejecutar" },
+        { "id": "visto", "nombre": "Tu visto bueno", "tipo": "humano", "quien": "Tú", "estados": ["needs_human"], "accion": "decidir" },
+        { "id": "implementar", "nombre": "Implementar", "tipo": "agente", "quien": "builder + revisor-ux", "estados": ["en_curso"] },
+        { "id": "telefono", "nombre": "Verla en el teléfono", "tipo": "dispositivo", "quien": "S26 y Pixel por adb" },
+        { "id": "revision", "nombre": "Tu revisión", "tipo": "humano", "quien": "Tú", "estados": ["revision"], "accion": "revisar" },
+        { "id": "integrada", "nombre": "Integrada", "tipo": "salida", "quien": "feat/ax-integracion", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["peticion", "propuesta"], ["propuesta", "visto"], ["visto", "implementar"], ["implementar", "telefono"], ["telefono", "revision"], ["revision", "integrada"],
+        ["visto", "propuesta", "otra opción"], ["telefono", "implementar", "no se ve bien"]
+      ]
+    },
+    {
+      "segmento": "reloj", "nombre": "Reloj", "color": "#60A5FA",
+      "nodos": [
+        { "id": "plan", "nombre": "Plan de pantallas", "tipo": "entrada", "quien": "Sesión", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "diseno", "nombre": "Diseño", "tipo": "agente", "quien": "builder", "estados": ["aprobada"], "accion": "ejecutar" },
+        { "id": "aprobacion", "nombre": "Tu aprobación", "tipo": "humano", "quien": "Tú", "estados": ["needs_human"], "accion": "decidir" },
+        { "id": "implementar", "nombre": "Implementar", "tipo": "agente", "quien": "builder", "estados": ["en_curso"] },
+        { "id": "medir", "nombre": "Medir en el reloj", "tipo": "dispositivo", "quien": "SM-R920 por adb" },
+        { "id": "revision", "nombre": "Tu revisión", "tipo": "humano", "quien": "Tú", "estados": ["revision"], "accion": "revisar" },
+        { "id": "integrada", "nombre": "Integrada", "tipo": "salida", "quien": "feat/ax-integracion", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["plan", "diseno"], ["diseno", "aprobacion"], ["aprobacion", "implementar"], ["implementar", "medir"], ["medir", "revision"], ["revision", "integrada"],
+        ["aprobacion", "diseno", "corregir"], ["medir", "implementar", "latencia o batería"]
+      ]
+    },
+    {
+      "segmento": "datos", "nombre": "Datos", "color": "#F59E0B",
+      "nodos": [
+        { "id": "peticion", "nombre": "Necesidad", "tipo": "entrada", "quien": "Sesión o panel", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "esquema", "nombre": "Leer el esquema vivo", "tipo": "agente", "quien": "Sesión principal (no se delega)", "estados": ["aprobada"] },
+        { "id": "migracion", "nombre": "Migración", "tipo": "agente", "quien": "Sesión principal", "estados": ["en_curso"] },
+        { "id": "prueba", "nombre": "Prueba SQL", "tipo": "puerta", "quien": "npm run test:sql" },
+        { "id": "autorizar", "nombre": "Autorizar si borra o renombra", "tipo": "humano", "quien": "Tú", "estados": ["needs_human"], "accion": "decidir" },
+        { "id": "aplicar", "nombre": "Aplicar y verificar", "tipo": "agente", "quien": "Sesión principal", "estados": ["revision"], "accion": "revisar" },
+        { "id": "hecho", "nombre": "Aplicada", "tipo": "salida", "quien": "axtronic-dev", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["peticion", "esquema"], ["esquema", "migracion"], ["migracion", "prueba"], ["prueba", "autorizar"], ["autorizar", "aplicar"], ["aplicar", "hecho"],
+        ["prueba", "migracion", "rojo"]
+      ]
+    },
+    {
+      "segmento": "seguridad", "nombre": "Seguridad", "color": "#F43F5E",
+      "_nota": "Proceso definido el 2026-11-28. El clasificador factory.segmento_de aún no asigna «seguridad»: hasta cambiarlo (tarea T34, migración) estas tareas llegan como legal o datos.",
+      "nodos": [
+        { "id": "hallazgo", "nombre": "Hallazgo o aviso", "tipo": "entrada", "quien": "Asesores de Supabase, auditoría, vigilancia de clones", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "triaje", "nombre": "Triaje y riesgo", "tipo": "agente", "quien": "revisor-seguridad (fp-check)", "estados": ["aprobada"] },
+        { "id": "corregir", "nombre": "Corregir", "tipo": "agente", "quien": "Sesión principal (no se delega)", "estados": ["en_curso"] },
+        { "id": "prueba", "nombre": "Prueba negativa", "tipo": "puerta", "quien": "test:sql / verify" },
+        { "id": "legal", "nombre": "¿Cambia datos personales?", "tipo": "humano", "quien": "Tú (y abogado si lo amerita)", "estados": ["needs_human"], "accion": "decidir" },
+        { "id": "revision", "nombre": "Tu revisión", "tipo": "humano", "quien": "Tú", "estados": ["revision"], "accion": "revisar" },
+        { "id": "cerrada", "nombre": "Cerrada con evidencia", "tipo": "salida", "quien": "docs/seguridad", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["hallazgo", "triaje"], ["triaje", "corregir"], ["corregir", "prueba"], ["prueba", "legal"], ["legal", "revision"], ["revision", "cerrada"],
+        ["triaje", "cerrada", "falso positivo"], ["prueba", "corregir", "sigue abierto"]
+      ]
+    },
+    {
+      "segmento": "redes", "nombre": "Redes y contenido", "color": "#EC4899",
+      "nodos": [
+        { "id": "idea", "nombre": "Idea", "tipo": "entrada", "quien": "Estrategia v5 o panel", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "producir", "nombre": "Producir", "tipo": "agente", "quien": "Sesión de redes (reel v4/v5)", "estados": ["aprobada", "en_curso"], "pasos": ["referencia", "pieza", "plantilla", "render"], "accion": "ejecutar" },
+        { "id": "qa", "nombre": "QA automática", "tipo": "puerta", "quien": "validador de redes", "pasos": ["qa"] },
+        { "id": "editorial", "nombre": "Revisión editorial", "tipo": "humano", "quien": "Tú", "estados": ["revision", "needs_human"], "accion": "revisar" },
+        { "id": "programar", "nombre": "Programar y publicar", "tipo": "agente", "quien": "Tareas programadas (respeta la pausa)" },
+        { "id": "leer", "nombre": "Leer resultados", "tipo": "salida", "quien": "Recolector diario", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["idea", "producir"], ["producir", "qa"], ["qa", "editorial"], ["editorial", "programar"], ["programar", "leer"],
+        ["qa", "producir", "no pasa"], ["editorial", "producir", "rehacer"], ["leer", "idea", "aprendizaje"]
+      ]
+    },
+    {
+      "segmento": "publicacion", "nombre": "Publicación en Play", "color": "#22C55E",
+      "nodos": [
+        { "id": "integrar", "nombre": "Integrar", "tipo": "entrada", "quien": "Sesión principal", "estados": ["propuesta", "aprobada"], "accion": "aprobar" },
+        { "id": "compilar", "nombre": "Compilar AAB", "tipo": "agente", "quien": "Sesión principal", "estados": ["en_curso"] },
+        { "id": "telefono", "nombre": "Probar en teléfono", "tipo": "dispositivo", "quien": "S26 y Pixel" },
+        { "id": "subir", "nombre": "Subir a Play Console", "tipo": "humano", "quien": "Tú (con la sesión en Chrome)", "estados": ["needs_human", "revision"], "accion": "revisar" },
+        { "id": "google", "nombre": "Revisión de Google", "tipo": "puerta", "quien": "Google Play" },
+        { "id": "publicada", "nombre": "Publicada", "tipo": "salida", "quien": "Prueba cerrada", "estados": ["integrada"] }
+      ],
+      "aristas": [
+        ["integrar", "compilar"], ["compilar", "telefono"], ["telefono", "subir"], ["subir", "google"], ["google", "publicada"],
+        ["telefono", "compilar", "falla"], ["google", "subir", "rechazo"]
+      ]
+    },
+    {
+      "segmento": "finanzas", "nombre": "Finanzas", "color": "#EAB308",
+      "nodos": [
+        { "id": "respuestas", "nombre": "Tus respuestas", "tipo": "entrada", "quien": "Cuestionario en Decidir", "estados": ["propuesta"], "accion": "decidir" },
+        { "id": "libro", "nombre": "Libro de gastos", "tipo": "agente", "quien": "agente finanzas", "estados": ["aprobada", "en_curso"] },
+        { "id": "escenarios", "nombre": "Escenarios", "tipo": "agente", "quien": "agente finanzas" },
+        { "id": "contador", "nombre": "Preguntas al contador", "tipo": "humano", "quien": "Tú con tu contador", "estados": ["needs_human", "revision"], "accion": "decidir" },
+        { "id": "decision", "nombre": "Decisión", "tipo": "salida", "quien": "docs/decisions.md", "estados": ["integrada"] }
+      ],
+      "aristas": [["respuestas", "libro"], ["libro", "escenarios"], ["escenarios", "contador"], ["contador", "decision"]]
+    },
+    {
+      "segmento": "legal", "nombre": "Legal", "color": "#94A3B8",
+      "nodos": [
+        { "id": "cambio", "nombre": "Cambio de datos o permisos", "tipo": "entrada", "quien": "Cualquier PR", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "documento", "nombre": "Actualizar documento", "tipo": "agente", "quien": "Sesión principal + revisor-seguridad", "estados": ["aprobada", "en_curso"] },
+        { "id": "version", "nombre": "Versión y pruebas legales", "tipo": "puerta", "quien": "tests/legal en verify" },
+        { "id": "abogado", "nombre": "Abogado si lo amerita", "tipo": "humano", "quien": "Tú", "estados": ["needs_human", "revision"], "accion": "decidir" },
+        { "id": "web", "nombre": "Web legal y Drive", "tipo": "salida", "quien": "axtronic-beta", "estados": ["integrada"] }
+      ],
+      "aristas": [["cambio", "documento"], ["documento", "version"], ["version", "abogado"], ["abogado", "web"], ["version", "documento", "falla"]]
+    },
+    {
+      "segmento": "fabrica", "nombre": "Fábrica y panel", "color": "#14B8A6",
+      "nodos": [
+        { "id": "necesidad", "nombre": "Necesidad", "tipo": "entrada", "quien": "Tú, en el panel", "estados": ["propuesta"], "accion": "aprobar" },
+        { "id": "datos", "nombre": "Datos en el servidor", "tipo": "agente", "quien": "Sesión principal", "estados": ["aprobada"] },
+        { "id": "vista", "nombre": "Vista", "tipo": "agente", "quien": "Codex, revisado por la sesión", "estados": ["en_curso"] },
+        { "id": "seguridad", "nombre": "Revisión de seguridad", "tipo": "puerta", "quien": "revisor-seguridad" },
+        { "id": "revision", "nombre": "Tu revisión", "tipo": "humano", "quien": "Tú", "estados": ["revision", "needs_human"], "accion": "revisar" },
+        { "id": "publicado", "nombre": "Publicado en Pages", "tipo": "salida", "quien": "axtronic-beta", "estados": ["integrada"] }
+      ],
+      "aristas": [["necesidad", "datos"], ["datos", "vista"], ["vista", "seguridad"], ["seguridad", "revision"], ["revision", "publicado"], ["seguridad", "vista", "corregir"]]
+    }
+  ]
+}
